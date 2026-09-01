@@ -9,33 +9,56 @@ import { socketClient } from '../api/socketClient';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  // Read stored user from localStorage session
-  const [currentUser, setCurrentUser] = useState(() => {
-    try {
-      const stored = localStorage.getItem(USER_STORAGE_KEY);
-      const token = apiClient.getAccessToken();
-      if (stored && token) {
-        const parsed = JSON.parse(stored);
-        if (parsed && parsed.email) {
-          return parsed;
-        }
-      }
-    } catch {
-      // ignore
-    }
-    return null;
-  });
-
+  const [currentUser, setCurrentUser] = useState(null);
   const [zoneDescendants, setZoneDescendants] = useState([]);
   const [zoneAncestors, setZoneAncestors] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Connect realtime socket on startup if authenticated
+  // While true, we're verifying a stored token against the API. Routes must not
+  // render yet, or an unverified session would flash the dashboard before the
+  // redirect. If there's no token at all, there's nothing to verify.
+  const [bootstrapping, setBootstrapping] = useState(() => !!apiClient.getAccessToken());
+
+  // On startup, validate any stored token by calling /auth/me. A token merely
+  // sitting in localStorage is NOT proof of a live session — it can be expired
+  // or revoked. apiClient.request() auto-rotates via the refresh token on
+  // TOKEN_INVALID and only clears auth when the server rejects the refresh too.
   useEffect(() => {
-    if (currentUser && apiClient.getAccessToken()) {
-      socketClient.connect();
+    let cancelled = false;
+
+    async function verifyStoredSession() {
+      if (!apiClient.getAccessToken()) {
+        setBootstrapping(false);
+        return;
+      }
+      try {
+        // Validation signal only — /auth/me returns just id/role/clientId, so we
+        // restore the full user (name, zoneId) from localStorage, not from here.
+        await apiClient.getMe();
+        if (cancelled) return;
+
+        const stored = localStorage.getItem(USER_STORAGE_KEY);
+        const parsed = stored ? JSON.parse(stored) : null;
+        if (parsed && parsed.id) {
+          setCurrentUser(parsed);
+          socketClient.connect();
+        } else {
+          // Token is valid but we lost the user record — force a fresh login.
+          apiClient.clearAuth();
+        }
+      } catch {
+        // Expired/revoked token (refresh also failed) → no valid session.
+        if (!cancelled) apiClient.clearAuth();
+      } finally {
+        if (!cancelled) setBootstrapping(false);
+      }
     }
-  }, [currentUser]);
+
+    verifyStoredSession();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const isAuthenticated = !!currentUser && !!apiClient.getAccessToken();
   const isSuperAdmin = currentUser?.role === 'super_admin';
@@ -96,7 +119,8 @@ export function AuthProvider({ children }) {
         zoneAncestors,
         login,
         logout,
-        loading
+        loading,
+        bootstrapping
       }}
     >
       {children}
