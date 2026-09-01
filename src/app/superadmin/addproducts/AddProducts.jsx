@@ -1,0 +1,139 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  ArrowLeft,
+  FileSpreadsheet,
+  CheckCircle2,
+  X
+} from 'lucide-react';
+import ProductForm from './components/ProductForm';
+import ProductPreviewCard from './components/ProductPreviewCard';
+import { getStoredProducts, saveStoredProducts } from './productsData';
+
+const initialFormData = {
+  name: '',
+  serialNumber: 'SN-CAM-90481234',
+  category: 'Security & CCTV Cameras',
+  purchaseDate: '2026-08-01',
+  installationDate: '2026-08-15',
+  price: '38500'
+};
+
+export default function AddProducts() {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState(initialFormData);
+  const [productImage, setProductImage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.name.trim()) return;
+
+    setIsSubmitting(true);
+    setTimeout(() => {
+      const newProduct = {
+        id: Date.now(),
+        ...formData,
+        price: parseFloat(formData.price || 0),
+        image: productImage
+      };
+
+      const existing = getStoredProducts();
+      const updated = [newProduct, ...existing];
+      saveStoredProducts(updated);
+
+      setIsSubmitting(false);
+      navigate('/superadmin/products');
+    }, 500);
+  };
+
+  const handleResetForm = () => {
+    setFormData({
+      ...initialFormData,
+      serialNumber: `SN-CAM-${Math.floor(10000000 + Math.random() * 90000000)}`
+    });
+    setProductImage(null);
+    showToast('Form cleared.');
+  };
+
+  return (
+    <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 relative">
+      {/* Toast Notification Alert */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 animate-in slide-in-from-bottom-4 duration-200">
+          <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <CheckCircle2 size={16} />
+          </div>
+          <span className="text-xs font-semibold">{toastMessage}</span>
+          <button
+            onClick={() => setToastMessage(null)}
+            className="text-slate-400 hover:text-white p-1 ml-2 transition-colors cursor-pointer"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* Top Header Navigation */}
+      <div className="flex items-center justify-between gap-4 flex-wrap py-1">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate('/superadmin/products')}
+            className="w-9 h-9 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 hover:bg-slate-50 flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+            title="Back to Products"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <div className="flex flex-col">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Add New Product
+            </h1>
+            <p className="text-xs md:text-sm text-slate-500">
+              Register product name, serial number, category, purchase/installation dates, price in INR (₹), and image
+            </p>
+          </div>
+        </div>
+
+        {/* Back and Import Actions */}
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => showToast('CSV Template with required INR product fields downloaded.')}
+            className="flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
+          >
+            <FileSpreadsheet size={15} className="text-emerald-600" />
+            <span>Bulk CSV Import</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 2-Column Form & Live Preview Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        {/* Left 2 Cols: Form */}
+        <div className="lg:col-span-2">
+          <ProductForm
+            formData={formData}
+            setFormData={setFormData}
+            image={productImage}
+            setImage={setProductImage}
+            onSubmit={handleFormSubmit}
+            onReset={handleResetForm}
+            isSubmitting={isSubmitting}
+          />
+        </div>
+
+        {/* Right 1 Col: Live Product Preview Card */}
+        <div className="lg:col-span-1">
+          <ProductPreviewCard formData={formData} image={productImage} />
+        </div>
+      </div>
+    </div>
+  );
+}
