@@ -15,85 +15,21 @@ export const USER_ROLES = [
 
 export const ACCOUNT_STATUSES = ['invited', 'active', 'suspended', 'removed'];
 
-// Initial facility users fallback for offline testing
-const INITIAL_FACILITY_USERS = [
-  {
-    id: 'usr_f01',
-    name: 'David Miller',
-    email: 'client@apexestates.com',
-    role: 'client_admin',
-    accountStatus: 'active',
-    companyName: 'Apex Estates Corp',
-    facilityName: 'Apex Tech Tower - Campus A',
-    location: 'Bangalore Sector 4, Tech Corridor',
-    clientId: 'client_apex_001',
-    zoneName: 'Entire Facility',
-    createdAt: '2026-07-15T09:00:00.000Z'
-  },
-  {
-    id: 'usr_f02',
-    name: 'Priya Sharma',
-    email: 'priya.sharma@apexestates.com',
-    role: 'zone_incharge',
-    accountStatus: 'active',
-    clientId: 'client_apex_001',
-    facilityName: 'Apex Tech Tower',
-    zoneId: 'zone_01',
-    zoneName: 'North Wing - Floor 1-4',
-    createdAt: '2026-08-01T10:30:00.000Z'
-  },
-  {
-    id: 'usr_f03',
-    name: 'Ravi Kumar',
-    email: 'ravi.kumar@apexestates.com',
-    role: 'zone_staff',
-    accountStatus: 'active',
-    clientId: 'client_apex_001',
-    facilityName: 'Apex Tech Tower',
-    zoneId: 'zone_02',
-    zoneName: 'South Wing & Basement Bay',
-    createdAt: '2026-08-10T14:15:00.000Z'
-  },
-  {
-    id: 'usr_f04',
-    name: 'Sam Wilson',
-    email: 'sam.tech@fixlyservice.com',
-    role: 'technician',
-    accountStatus: 'active',
-    clientId: 'client_apex_001',
-    facilityName: 'Apex Tech Tower',
-    specialization: 'Electrical & Power Systems',
-    zoneName: 'All Zones (Field Dispatch)',
-    createdAt: '2026-08-12T11:00:00.000Z'
-  },
-  {
-    id: 'usr_f05',
-    name: 'Karan Patel',
-    email: 'karan.hvac@fixlyservice.com',
-    role: 'technician',
-    accountStatus: 'active',
-    clientId: 'client_apex_001',
-    facilityName: 'Apex Tech Tower',
-    specialization: 'HVAC & Chiller Plant',
-    zoneName: 'Roof Plant & Chiller Bay',
-    createdAt: '2026-08-18T16:20:00.000Z'
-  },
-  {
-    id: 'usr_f06',
-    name: 'Ananya Verma',
-    email: 'ananya.v@apexestates.com',
-    role: 'zone_staff',
-    accountStatus: 'invited',
-    clientId: 'client_apex_001',
-    facilityName: 'Apex Tech Tower',
-    zoneId: 'zone_01',
-    zoneName: 'North Wing',
-    createdAt: '2026-08-28T09:45:00.000Z'
-  }
-];
+const LOCAL_USERS_KEY = 'fixly_facility_users_v4';
 
-const LOCAL_USERS_KEY = 'fixly_facility_users_v3';
+// One-time cleanup: purge stale caches from earlier versions that were seeded
+// with mock/demo users (e.g. "David Miller"). Those users were never in the DB.
+try {
+  ['fixly_facility_users', 'fixly_facility_users_v2', 'fixly_facility_users_v3'].forEach((k) =>
+    localStorage.removeItem(k)
+  );
+} catch {
+  // ignore
+}
 
+// The local cache holds ONLY users provisioned from this client while the
+// backend was unreachable — it is seeded EMPTY so no mock/demo users ever
+// appear. The backend /users API is the source of truth.
 export function getLocalUsers() {
   try {
     const saved = localStorage.getItem(LOCAL_USERS_KEY);
@@ -104,8 +40,7 @@ export function getLocalUsers() {
   } catch (e) {
     console.error(e);
   }
-  saveLocalUsers(INITIAL_FACILITY_USERS);
-  return INITIAL_FACILITY_USERS;
+  return [];
 }
 
 export function saveLocalUsers(users) {
@@ -141,6 +76,9 @@ export async function getUsers({ role, companyId, clientId, search, page = 1, li
       if (role && role !== 'all') {
         allMerged = allMerged.filter((u) => u.role === role);
       }
+      // A super admin is a platform operator, not a managed "user" — never
+      // list or count them in the user views.
+      allMerged = allMerged.filter((u) => u.role !== 'super_admin');
 
       return {
         items: allMerged,
@@ -156,6 +94,8 @@ export async function getUsers({ role, companyId, clientId, search, page = 1, li
 
   // 2. Filter local store fallback
   let users = getLocalUsers().filter((u) => u.accountStatus !== 'removed');
+  // Super admin is a platform operator, not a managed "user".
+  users = users.filter((u) => u.role !== 'super_admin');
 
   if (role && role !== 'all') {
     users = users.filter((u) => u.role === role);
@@ -196,88 +136,51 @@ export async function getUserById(id) {
 export async function createUser(payload) {
   const cleanEmail = payload.email.toLowerCase().trim();
   const cleanName = payload.name.trim();
-  const isClientAdmin = payload.role === 'client_admin';
 
-  let realClientId = null;
-
-  // 1. If client_admin and companyName provided, try creating client first to get real DB clientId
-  if (isClientAdmin && payload.companyName) {
-    try {
-      const clientRes = await apiClient.request('/clients', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: payload.companyName.trim(),
-          facilityName: payload.facilityName?.trim() || `${payload.companyName.trim()} Campus`,
-          location: payload.location?.trim() || 'Headquarters Site'
-        })
-      });
-      if (clientRes?.data?.id) {
-        realClientId = clientRes.data.id;
-      }
-    } catch (clientErr) {
-      console.warn('[usersApi] Optional POST /clients response:', clientErr.message);
-    }
-  }
-
-  const localUserObj = {
-    id: `usr_${Math.floor(1000 + Math.random() * 9000)}`,
+  const apiBody = {
     name: cleanName,
     email: cleanEmail,
     role: payload.role || 'zone_staff',
-    accountStatus: payload.password && payload.password.trim() ? 'active' : 'invited',
-    companyName: payload.companyName || (isClientAdmin ? 'Apex Estates Corp' : undefined),
-    facilityName: payload.facilityName || (isClientAdmin ? `${cleanName} Facility Campus` : 'Apex Tech Tower'),
-    location: payload.location || (isClientAdmin ? 'Primary Campus Hub' : undefined),
-    clientId: realClientId || payload.clientId || (isClientAdmin ? 'client_apex_001' : 'client_apex_001'),
-    zoneId: payload.zoneId || null,
-    zoneName: payload.zoneName || (isClientAdmin ? 'Entire Facility' : 'North Wing - Floor 1-4'),
-    specialization: payload.specialization || null,
-    createdAt: new Date().toISOString()
+    accountStatus: payload.password && payload.password.trim() ? 'active' : 'invited'
   };
-
-  // 2. Attempt real backend POST /users
-  try {
-    const apiBody = {
-      name: cleanName,
-      email: cleanEmail,
-      role: payload.role || 'client_admin',
-      accountStatus: localUserObj.accountStatus
-    };
-
-    if (payload.password && payload.password.trim().length >= 6) {
-      apiBody.password = payload.password.trim();
-    }
-
-    // Only attach real backend ID if exists
-    if (realClientId) {
-      apiBody.clientId = realClientId;
-    }
-
-    const res = await apiClient.request('/users', {
-      method: 'POST',
-      body: JSON.stringify(apiBody)
-    });
-
-    if (res?.data || res?.user) {
-      const dbUser = res.data || res.user;
-      localUserObj.id = dbUser.id || dbUser._id || localUserObj.id;
-      localUserObj.dbSynced = true;
-    }
-  } catch (apiErr) {
-    console.warn('[usersApi] Backend POST /users sync info:', apiErr.message);
+  if (payload.password && payload.password.trim().length >= 8) {
+    apiBody.password = payload.password.trim();
+  }
+  // Link to the tenant. Callers that provision a client provide the clientId of
+  // the client they just created (see clientsApi.createClient).
+  if (payload.clientId) {
+    apiBody.clientId = payload.clientId;
   }
 
-  // 3. Save to local storage cache & broadcast change
+  // The backend is the source of truth — let failures propagate to the caller
+  // so the UI can surface them, instead of faking success on a rejected request.
+  const res = await apiClient.request('/users', {
+    method: 'POST',
+    body: JSON.stringify(apiBody)
+  });
+  const dbUser = res?.data || res?.user;
+  if (!dbUser) {
+    throw new Error('User creation failed: unexpected server response.');
+  }
+
+  // Cache locally so lists that merge local additions reflect it immediately,
+  // keeping any display-only fields the caller passed for optimistic rendering.
+  const record = {
+    ...dbUser,
+    zoneName: payload.zoneName ?? dbUser.zoneName ?? null,
+    specialization: payload.specialization ?? dbUser.specialization ?? null,
+    createdAt: dbUser.createdAt || new Date().toISOString()
+  };
   const currentUsers = getLocalUsers();
   const existingIdx = currentUsers.findIndex((u) => u.email === cleanEmail);
   if (existingIdx !== -1) {
-    currentUsers[existingIdx] = { ...currentUsers[existingIdx], ...localUserObj, accountStatus: 'active' };
+    currentUsers[existingIdx] = { ...currentUsers[existingIdx], ...record };
   } else {
-    currentUsers.unshift(localUserObj);
+    currentUsers.unshift(record);
   }
   saveLocalUsers(currentUsers);
 
-  return localUserObj;
+  return record;
 }
 
 export async function updateUser(id, payload) {

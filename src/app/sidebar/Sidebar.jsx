@@ -45,9 +45,14 @@ export default function Sidebar({
           icon: LayoutDashboard
         },
         {
+          name: 'Companies',
+          path: '/superadmin/companies',
+          icon: Building2
+        },
+        {
           name: 'Client Users',
           path: '/superadmin/clients',
-          icon: Building2
+          icon: Users
         },
         {
           name: 'Products & Inventory',
@@ -95,9 +100,9 @@ export default function Sidebar({
     return name.slice(0, 2).toUpperCase();
   };
 
-  const displayName = currentUser?.name || (isSuperAdmin ? 'Alex Morrison' : 'David Miller');
+  const displayName = currentUser?.name || 'User';
   const roleLabel = isSuperAdmin ? 'Super Admin' : (currentUser?.role === 'client_admin' ? 'Client Admin' : 'Zone In-Charge');
-  const orgLabel = isSuperAdmin ? 'Fixly HQ' : (currentUser?.facilityName || 'Apex Tech Tower');
+  const orgLabel = isSuperAdmin ? 'Fixly HQ' : (currentUser?.facilityName || 'Facility');
 
   const sidebarContent = (
     <aside

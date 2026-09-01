@@ -1,60 +1,47 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   PieChart as PieIcon,
   CheckCircle2,
   Clock,
   AlertCircle,
   PauseCircle,
-  ShieldAlert,
+  PlayCircle,
+  RotateCcw,
   ArrowUpRight
 } from 'lucide-react';
 
-export default function WorkOrderStatus() {
-  const [activeTab, setActiveTab] = useState('all');
+/**
+ * Work-order (issue) real-time pulse — backed by GET /dashboard/overview `issues`:
+ *   { open, byStatus:{7 states}, byPriority:{...}, createdToday, resolvedToday, closedToday }
+ * Every value is a live count; there are no fabricated SLA / preventive metrics.
+ */
+const STATUS_META = [
+  { key: 'open', label: 'Open', color: '#6366f1', icon: Clock },
+  { key: 'assigned', label: 'Assigned', color: '#0ea5e9', icon: PieIcon },
+  { key: 'in_progress', label: 'In Progress', color: '#8b5cf6', icon: PlayCircle },
+  { key: 'on_hold', label: 'On Hold', color: '#f59e0b', icon: PauseCircle },
+  { key: 'resolved', label: 'Resolved', color: '#10b981', icon: CheckCircle2 },
+  { key: 'reopened', label: 'Reopened', color: '#f43f5e', icon: RotateCcw },
+  { key: 'closed', label: 'Closed', color: '#64748b', icon: CheckCircle2 }
+];
 
-  const tabData = {
-    all: {
-      total: 78,
-      pctPreventive: 64,
-      pctCorrective: 36,
-      slaOnTime: '98.6%',
-      segments: [
-        { label: 'Open / Unassigned', count: 14, color: '#6366f1', pct: '18%', icon: Clock },
-        { label: 'In Progress', count: 32, color: '#0ea5e9', pct: '41%', icon: PieIcon },
-        { label: 'Waiting Spare Parts', count: 9, color: '#f59e0b', pct: '12%', icon: PauseCircle },
-        { label: 'Overdue / Escalated', count: 5, color: '#f43f5e', pct: '6%', icon: AlertCircle },
-        { label: 'Completed Today', count: 18, color: '#10b981', pct: '23%', icon: CheckCircle2 }
-      ]
-    },
-    emergency: {
-      total: 18,
-      pctPreventive: 10,
-      pctCorrective: 90,
-      slaOnTime: '94.2%',
-      segments: [
-        { label: 'Open Critical', count: 4, color: '#6366f1', pct: '22%', icon: Clock },
-        { label: 'Dispatched Team', count: 9, color: '#0ea5e9', pct: '50%', icon: PieIcon },
-        { label: 'Awaiting OEM Parts', count: 2, color: '#f59e0b', pct: '11%', icon: PauseCircle },
-        { label: 'SLA Breach Risk', count: 1, color: '#f43f5e', pct: '6%', icon: AlertCircle },
-        { label: 'Resolved Today', count: 2, color: '#10b981', pct: '11%', icon: CheckCircle2 }
-      ]
-    },
-    pm: {
-      total: 50,
-      pctPreventive: 100,
-      pctCorrective: 0,
-      slaOnTime: '99.8%',
-      segments: [
-        { label: 'Scheduled Ahead', count: 10, color: '#6366f1', pct: '20%', icon: Clock },
-        { label: 'Under Routine Service', count: 23, color: '#0ea5e9', pct: '46%', icon: PieIcon },
-        { label: 'Consumables Prep', count: 7, color: '#f59e0b', pct: '14%', icon: PauseCircle },
-        { label: 'Action Follow-up', count: 4, color: '#f43f5e', pct: '8%', icon: AlertCircle },
-        { label: 'Signed-off PMs', count: 6, color: '#10b981', pct: '12%', icon: CheckCircle2 }
-      ]
-    }
-  };
+const PRIORITY_META = [
+  { key: 'critical', label: 'Critical', cls: 'bg-rose-50 text-rose-700 border-rose-200' },
+  { key: 'high', label: 'High', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { key: 'medium', label: 'Medium', cls: 'bg-sky-50 text-sky-700 border-sky-200' },
+  { key: 'low', label: 'Low', cls: 'bg-slate-50 text-slate-600 border-slate-200' }
+];
 
-  const current = tabData[activeTab];
+export default function WorkOrderStatus({ issues, loading }) {
+  const byStatus = issues?.byStatus || {};
+  const byPriority = issues?.byPriority || {};
+  const total = issues?.total ?? 0;
+
+  const segments = STATUS_META.map((m) => {
+    const count = byStatus[m.key] ?? 0;
+    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+    return { ...m, count, pct };
+  });
 
   return (
     <div className="bg-white border border-slate-200/90 rounded-2xl p-6 flex flex-col gap-4 shadow-xs">
@@ -63,77 +50,51 @@ export default function WorkOrderStatus() {
           <div className="flex items-center gap-2.5">
             <h3 className="text-base font-bold text-slate-900">Work Order Real-Time Pulse</h3>
             <span className="text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full">
-              {current.total} Total Active
+              {loading ? '—' : `${issues?.open ?? 0} Open`}
             </span>
           </div>
           <p className="text-xs text-slate-500">
-            Lifecycle tracking across Preventive ({current.pctPreventive}%) & Corrective ({current.pctCorrective}%) tickets
+            Live ticket lifecycle across all facilities ({total} total)
           </p>
         </div>
 
-        <div className="flex bg-slate-100 p-1 rounded-xl gap-1 border border-slate-200">
-          <button
-            className={`text-xs font-semibold px-3 py-1 rounded-lg transition-all cursor-pointer ${
-              activeTab === 'all'
-                ? 'bg-white text-indigo-700 font-bold shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-            onClick={() => setActiveTab('all')}
-          >
-            All Tickets
-          </button>
-          <button
-            className={`text-xs font-semibold px-3 py-1 rounded-lg transition-all cursor-pointer ${
-              activeTab === 'emergency'
-                ? 'bg-white text-indigo-700 font-bold shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-            onClick={() => setActiveTab('emergency')}
-          >
-            Urgent SLA
-          </button>
-          <button
-            className={`text-xs font-semibold px-3 py-1 rounded-lg transition-all cursor-pointer ${
-              activeTab === 'pm'
-                ? 'bg-white text-indigo-700 font-bold shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-            onClick={() => setActiveTab('pm')}
-          >
-            Preventive
-          </button>
-        </div>
+        <a href="#/superadmin/work-orders" className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:underline">
+          <span>All Work Orders</span>
+          <ArrowUpRight size={14} />
+        </a>
       </div>
 
-      {/* Progress Bar Distribution */}
+      {/* Distribution bar */}
       <div className="py-1">
         <div className="h-2.5 rounded-full bg-slate-100 overflow-hidden flex gap-0.5">
-          {current.segments.map((seg, idx) => (
-            <div
-              key={idx}
-              className="h-full transition-all duration-300"
-              style={{ width: seg.pct, backgroundColor: seg.color }}
-              title={`${seg.label}: ${seg.count}`}
-            ></div>
-          ))}
+          {segments.map((seg) =>
+            seg.count > 0 ? (
+              <div
+                key={seg.key}
+                className="h-full transition-all duration-300"
+                style={{ width: `${seg.pct}%`, backgroundColor: seg.color }}
+                title={`${seg.label}: ${seg.count}`}
+              ></div>
+            ) : null
+          )}
         </div>
       </div>
 
-      {/* Grid of status cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
-        {current.segments.map((status, i) => {
+      {/* Status cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+        {segments.map((status) => {
           const Icon = status.icon;
           return (
-            <div key={i} className="bg-slate-50 hover:bg-slate-100/70 border border-slate-200/80 rounded-xl p-3 flex flex-col gap-2 transition-colors">
+            <div key={status.key} className="bg-slate-50 hover:bg-slate-100/70 border border-slate-200/80 rounded-xl p-3 flex flex-col gap-2 transition-colors">
               <div className="flex items-center justify-between text-xs text-slate-500 gap-1">
                 <div className="flex items-center gap-1.5 overflow-hidden">
                   <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: status.color }}></span>
                   <span className="text-[11px] font-medium truncate">{status.label}</span>
                 </div>
-                <span className="text-[10px] font-bold text-slate-400">{status.pct}</span>
+                <span className="text-[10px] font-bold text-slate-400">{status.pct}%</span>
               </div>
               <div className="flex items-baseline justify-between">
-                <span className="text-xl font-extrabold text-slate-900">{status.count}</span>
+                <span className="text-xl font-extrabold text-slate-900">{loading ? '—' : status.count}</span>
                 <Icon size={16} className="text-slate-400" />
               </div>
             </div>
@@ -141,18 +102,34 @@ export default function WorkOrderStatus() {
         })}
       </div>
 
-      {/* Footer SLA Quick Benchmark */}
-      <div className="flex items-center justify-between bg-sky-50 border border-sky-200 rounded-xl px-3.5 py-2.5 text-xs text-sky-950 flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <ShieldAlert size={16} className="text-sky-600" />
-          <span>
-            <strong>{current.slaOnTime} On-Time Resolution</strong> across 24 Managed Facilities
+      {/* Priority breakdown of OPEN work orders */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Open by priority</span>
+        {PRIORITY_META.map((p) => (
+          <span
+            key={p.key}
+            className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full border ${p.cls}`}
+          >
+            {p.label}
+            <span className="font-extrabold">{loading ? '—' : (byPriority[p.key] ?? 0)}</span>
           </span>
+        ))}
+      </div>
+
+      {/* Today counters */}
+      <div className="grid grid-cols-3 gap-2.5">
+        <div className="p-3 rounded-xl flex flex-col items-center bg-indigo-50 border border-indigo-200 text-indigo-700">
+          <span className="text-xl font-extrabold text-indigo-900">{loading ? '—' : (issues?.createdToday ?? 0)}</span>
+          <span className="text-[11px] font-semibold">Raised Today</span>
         </div>
-        <a href="#/superadmin/work-orders" className="inline-flex items-center gap-1 text-indigo-600 font-bold hover:underline">
-          <span>Explore All Work Orders</span>
-          <ArrowUpRight size={14} />
-        </a>
+        <div className="p-3 rounded-xl flex flex-col items-center bg-emerald-50 border border-emerald-200 text-emerald-700">
+          <span className="text-xl font-extrabold text-emerald-900">{loading ? '—' : (issues?.resolvedToday ?? 0)}</span>
+          <span className="text-[11px] font-semibold">Resolved Today</span>
+        </div>
+        <div className="p-3 rounded-xl flex flex-col items-center bg-slate-50 border border-slate-200 text-slate-600">
+          <span className="text-xl font-extrabold text-slate-800">{loading ? '—' : (issues?.closedToday ?? 0)}</span>
+          <span className="text-[11px] font-semibold">Closed Today</span>
+        </div>
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import LoginPage from './app/login/LoginPage';
 // Superadmin Layout & Views
 import SuperadminLayout from './app/superadmin/SuperadminLayout';
 import Overview from './app/superadmin/overview/Overview';
+import CompaniesPage from './app/superadmin/companies/CompaniesPage';
 import SuperadminClientsPage from './app/superadmin/clientusers/SuperadminClientsPage';
 import ProductsList from './app/superadmin/addproducts/ProductsList';
 import AddProducts from './app/superadmin/addproducts/AddProducts';
@@ -60,6 +61,7 @@ function AppRoutes() {
           <Route path="/superadmin" element={<SuperadminLayout />}>
             <Route index element={<Navigate to="/superadmin/overview" replace />} />
             <Route path="overview" element={<Overview />} />
+            <Route path="companies" element={<CompaniesPage />} />
             <Route path="clients" element={<SuperadminClientsPage />} />
             <Route path="products" element={<ProductsList />} />
             <Route path="add-products" element={<AddProducts />} />

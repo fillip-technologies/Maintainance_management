@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Building2, UserPlus, Search, X, CheckCircle2, RefreshCw } from 'lucide-react';
 import { getUsers, deleteUser } from '../../api/usersApi';
+import { getClients } from '../../api/clientsApi';
+import { getCompanies } from '../../api/companiesApi';
 import ClientStatCards from './components/ClientStatCards';
 import ClientTable from './components/ClientTable';
 import CreateClientModal from './components/CreateClientModal';
@@ -24,23 +26,37 @@ export default function SuperadminClientsPage() {
   const fetchClientUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getUsers({ role: 'client_admin', limit: 100 });
-      const items = data?.items || [];
-      const clientAdmins = items.filter(
+      // Join client_admins to their client (tenant) and the client's company so
+      // the table shows real DB data instead of fabricated placeholders.
+      const [usersData, clientsData, companiesData] = await Promise.all([
+        getUsers({ role: 'client_admin', limit: 100 }),
+        getClients({ limit: 100 }),
+        getCompanies({ limit: 100 })
+      ]);
+
+      const clientsById = new Map((clientsData?.items || []).map((c) => [c.id, c]));
+      const companiesById = new Map((companiesData?.items || []).map((c) => [c.id, c]));
+
+      const clientAdmins = (usersData?.items || []).filter(
         (u) => u.role === 'client_admin' && u.accountStatus !== 'removed'
       );
 
-      const mapped = clientAdmins.map((u) => ({
-        id: u.id,
-        companyName: u.companyName || `${u.name} Corp`,
-        facilityName: u.facilityName || 'Apex Tech Tower - Campus A',
-        adminName: u.name,
-        email: u.email,
-        location: u.location || 'HQ Facility',
-        status: u.accountStatus || 'active',
-        role: 'client_admin',
-        createdAt: u.createdAt || new Date().toISOString()
-      }));
+      const mapped = clientAdmins.map((u) => {
+        const client = clientsById.get(u.clientId);
+        const company = client ? companiesById.get(client.companyId) : null;
+        return {
+          id: u.id,
+          clientId: u.clientId || null,
+          companyName: company?.name || '—',
+          facilityName: client?.facilityName || client?.name || '—',
+          adminName: u.name,
+          email: u.email,
+          location: client?.location || '—',
+          status: u.accountStatus || 'active',
+          role: 'client_admin',
+          createdAt: u.createdAt || new Date().toISOString()
+        };
+      });
 
       setClients(mapped);
     } catch (err) {
