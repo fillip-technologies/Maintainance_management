@@ -126,17 +126,35 @@ export async function getUsers({ role, companyId, clientId, search, page = 1, li
   if (clientId)  params.set('clientId', clientId);
   if (search)    params.set('search', search);
 
+  // 1. Try live backend API first
   try {
     const res = await apiClient.request(`/users?${params.toString()}`, { method: 'GET' });
-    if (res?.success && res?.data?.items) {
-      const activeItems = res.data.items.filter((u) => u.accountStatus !== 'removed');
-      return { ...res.data, items: activeItems };
+    if (res?.success && res?.data?.items && Array.isArray(res.data.items)) {
+      const backendItems = res.data.items.filter((u) => u.accountStatus !== 'removed');
+      
+      // Merge with any locally provisioned user additions
+      const localUsers = getLocalUsers().filter((u) => u.accountStatus !== 'removed');
+      const backendEmails = new Set(backendItems.map((u) => u.email?.toLowerCase()));
+      const localOnly = localUsers.filter((u) => !backendEmails.has(u.email?.toLowerCase()));
+      
+      let allMerged = [...backendItems, ...localOnly];
+      if (role && role !== 'all') {
+        allMerged = allMerged.filter((u) => u.role === role);
+      }
+
+      return {
+        items: allMerged,
+        page: res.data.page || 1,
+        limit: res.data.limit || 50,
+        totalItems: allMerged.length,
+        totalPages: Math.ceil(allMerged.length / limit) || 1
+      };
     }
   } catch (err) {
     // Fallback to local store
   }
 
-  // Filter local store
+  // 2. Filter local store fallback
   let users = getLocalUsers().filter((u) => u.accountStatus !== 'removed');
 
   if (role && role !== 'all') {
@@ -178,8 +196,28 @@ export async function getUserById(id) {
 export async function createUser(payload) {
   const cleanEmail = payload.email.toLowerCase().trim();
   const cleanName = payload.name.trim();
-
   const isClientAdmin = payload.role === 'client_admin';
+
+  let realClientId = null;
+
+  // 1. If client_admin and companyName provided, try creating client first to get real DB clientId
+  if (isClientAdmin && payload.companyName) {
+    try {
+      const clientRes = await apiClient.request('/clients', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: payload.companyName.trim(),
+          facilityName: payload.facilityName?.trim() || `${payload.companyName.trim()} Campus`,
+          location: payload.location?.trim() || 'Headquarters Site'
+        })
+      });
+      if (clientRes?.data?.id) {
+        realClientId = clientRes.data.id;
+      }
+    } catch (clientErr) {
+      console.warn('[usersApi] Optional POST /clients response:', clientErr.message);
+    }
+  }
 
   const localUserObj = {
     id: `usr_${Math.floor(1000 + Math.random() * 9000)}`,
@@ -190,14 +228,46 @@ export async function createUser(payload) {
     companyName: payload.companyName || (isClientAdmin ? 'Apex Estates Corp' : undefined),
     facilityName: payload.facilityName || (isClientAdmin ? `${cleanName} Facility Campus` : 'Apex Tech Tower'),
     location: payload.location || (isClientAdmin ? 'Primary Campus Hub' : undefined),
-    clientId: payload.clientId || (isClientAdmin ? `client_${Math.floor(100 + Math.random() * 900)}` : 'client_apex_001'),
+    clientId: realClientId || payload.clientId || (isClientAdmin ? 'client_apex_001' : 'client_apex_001'),
     zoneId: payload.zoneId || null,
     zoneName: payload.zoneName || (isClientAdmin ? 'Entire Facility' : 'North Wing - Floor 1-4'),
     specialization: payload.specialization || null,
     createdAt: new Date().toISOString()
   };
 
-  // 1. Always write to local storage first
+  // 2. Attempt real backend POST /users
+  try {
+    const apiBody = {
+      name: cleanName,
+      email: cleanEmail,
+      role: payload.role || 'client_admin',
+      accountStatus: localUserObj.accountStatus
+    };
+
+    if (payload.password && payload.password.trim().length >= 6) {
+      apiBody.password = payload.password.trim();
+    }
+
+    // Only attach real backend ID if exists
+    if (realClientId) {
+      apiBody.clientId = realClientId;
+    }
+
+    const res = await apiClient.request('/users', {
+      method: 'POST',
+      body: JSON.stringify(apiBody)
+    });
+
+    if (res?.data || res?.user) {
+      const dbUser = res.data || res.user;
+      localUserObj.id = dbUser.id || dbUser._id || localUserObj.id;
+      localUserObj.dbSynced = true;
+    }
+  } catch (apiErr) {
+    console.warn('[usersApi] Backend POST /users sync info:', apiErr.message);
+  }
+
+  // 3. Save to local storage cache & broadcast change
   const currentUsers = getLocalUsers();
   const existingIdx = currentUsers.findIndex((u) => u.email === cleanEmail);
   if (existingIdx !== -1) {
@@ -206,33 +276,6 @@ export async function createUser(payload) {
     currentUsers.unshift(localUserObj);
   }
   saveLocalUsers(currentUsers);
-
-  // 2. Try to sync to backend API if live
-  try {
-    const apiBody = {
-      name: cleanName,
-      email: cleanEmail,
-      role: payload.role || 'zone_staff',
-      accountStatus: localUserObj.accountStatus
-    };
-    if (payload.password && payload.password.trim().length >= 8) {
-      apiBody.password = payload.password.trim();
-    }
-    if (payload.clientId) {
-      apiBody.clientId = payload.clientId;
-    }
-
-    const res = await apiClient.request('/users', {
-      method: 'POST',
-      body: JSON.stringify(apiBody)
-    });
-
-    if (res?.data) {
-      return { ...localUserObj, id: res.data.id || localUserObj.id };
-    }
-  } catch (e) {
-    console.warn('[usersApi] Backend POST /users error (persisted locally):', e.message);
-  }
 
   return localUserObj;
 }

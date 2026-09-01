@@ -9,21 +9,16 @@ import {
   EyeOff,
   ArrowRight,
   ShieldCheck,
-  Building2,
-  AlertCircle,
-  Sparkles,
   Activity,
-  CheckCircle2
+  AlertCircle
 } from 'lucide-react';
 
 export default function LoginPage() {
   const { login, isAuthenticated, isSuperAdmin } = useAuth();
   const navigate = useNavigate();
 
-  // Selected quick role tab: 'client_admin' | 'super_admin' | 'custom'
-  const [selectedRoleTab, setSelectedRoleTab] = useState('client_admin');
-  const [email, setEmail] = useState('client@apexestates.com');
-  const [password, setPassword] = useState('Password123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorInfo, setErrorInfo] = useState(null);
@@ -36,32 +31,22 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, isSuperAdmin, navigate]);
 
-  const handleRoleTabSelect = (roleKey) => {
-    setSelectedRoleTab(roleKey);
-    setErrorInfo(null);
-    if (roleKey === 'client_admin') {
-      setEmail('client@apexestates.com');
-      setPassword('Password123!');
-    } else if (roleKey === 'super_admin') {
-      setEmail('admin@fixly.io');
-      setPassword('Password123!');
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email.trim() || !password.trim()) return;
+
     setErrorInfo(null);
     setLoading(true);
 
     try {
-      const res = await login(email, password);
+      const res = await login(email.trim(), password.trim());
       if (res && res.user) {
         const dest = res.user.role === 'super_admin' ? '/superadmin/overview' : '/clientadmin/overview';
         navigate(dest, { replace: true });
       }
     } catch (err) {
       console.error('Login error:', err);
-      let message = err.message || 'Authentication failed. Please verify credentials.';
+      let message = err.message || 'Authentication failed. Please check your credentials.';
       if (err.code === 'INVALID_CREDENTIALS') {
         message = 'Invalid email or password. Please verify credentials.';
       } else if (err.code === 'FORBIDDEN') {
@@ -150,7 +135,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Right Side: Clean White Login Card */}
+        {/* Right Side: Clean Login Card */}
         <div className="lg:col-span-6 w-full max-w-md mx-auto lg:max-w-none">
           <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/60 border border-slate-200/90 flex flex-col gap-6 relative">
             
@@ -160,37 +145,8 @@ export default function LoginPage() {
                 Sign In to Workspace
               </h2>
               <p className="text-xs text-slate-500">
-                Select a quick demo account or enter your credentials.
+                Enter your registered administrator or facility credentials to continue.
               </p>
-            </div>
-
-            {/* Quick 1-Click Role Switch Tabs */}
-            <div className="grid grid-cols-2 p-1 bg-slate-100/90 border border-slate-200/80 rounded-2xl gap-1">
-              <button
-                type="button"
-                onClick={() => handleRoleTabSelect('client_admin')}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                  selectedRoleTab === 'client_admin'
-                    ? 'bg-white text-emerald-700 shadow-xs border border-slate-200/60'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
-                }`}
-              >
-                <Building2 size={15} className={selectedRoleTab === 'client_admin' ? 'text-emerald-600' : 'text-slate-400'} />
-                <span>Client Admin</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleRoleTabSelect('super_admin')}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                  selectedRoleTab === 'super_admin'
-                    ? 'bg-white text-indigo-700 shadow-xs border border-slate-200/60'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
-                }`}
-              >
-                <ShieldCheck size={15} className={selectedRoleTab === 'super_admin' ? 'text-indigo-600' : 'text-slate-400'} />
-                <span>Super Admin</span>
-              </button>
             </div>
 
             {/* Error Message Alert */}
@@ -217,11 +173,8 @@ export default function LoginPage() {
                     type="email"
                     required
                     value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setSelectedRoleTab('custom');
-                    }}
-                    placeholder="name@company.com"
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email address"
                     className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all font-medium"
                   />
                 </div>
@@ -243,11 +196,8 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     required
                     value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      setSelectedRoleTab('custom');
-                    }}
-                    placeholder="Enter password"
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
                     className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-10 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all font-medium"
                   />
                   <button
@@ -276,15 +226,6 @@ export default function LoginPage() {
                 )}
               </button>
             </form>
-
-            {/* Quick Helper Badge */}
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-              <span className="flex items-center gap-1.5">
-                <Sparkles size={13} className="text-indigo-600" />
-                <span>Demo Pass: <strong className="text-slate-700 font-mono">Password123!</strong></span>
-              </span>
-              <span className="text-[10px] font-mono text-slate-400">v1.0 API</span>
-            </div>
 
           </div>
         </div>
