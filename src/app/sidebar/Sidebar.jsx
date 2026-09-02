@@ -11,6 +11,7 @@ import {
   Users,
   MapPin,
   CalendarCheck,
+  Grid3x3,
   X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -91,6 +92,11 @@ export default function Sidebar({
           name: 'Daily Logs',
           path: '/clientadmin/daily-logs',
           icon: CalendarCheck
+        },
+        {
+          name: 'Zones',
+          path: '/clientadmin/zones',
+          icon: Grid3x3
         }
       ]
     }
