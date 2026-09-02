@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -8,12 +8,14 @@ import {
 } from 'lucide-react';
 import ProductForm from './components/ProductForm';
 import ProductPreviewCard from './components/ProductPreviewCard';
-import { getStoredProducts, saveStoredProducts } from './productsData';
+import { createProduct } from '../../api/productsApi';
+import { getCompanies } from '../../api/companiesApi';
 
 const initialFormData = {
+  companyId: '',
   name: '',
-  serialNumber: '',
   category: 'Security & CCTV Cameras',
+  quantity: '',
   purchaseDate: '',
   installationDate: '',
   price: ''
@@ -25,39 +27,49 @@ export default function AddProducts() {
   const [productImage, setProductImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+  const [companies, setCompanies] = useState([]);
 
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleFormSubmit = (e) => {
+  // Super admin must pick an organization — load the list for the selector.
+  useEffect(() => {
+    getCompanies({ limit: 100 })
+      .then((data) => setCompanies(data?.items || []))
+      .catch((err) => console.error('[AddProducts] load companies:', err.message));
+  }, []);
+
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim()) return;
+    if (!formData.companyId) {
+      showToast('Please select an organization first.');
+      return;
+    }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      const newProduct = {
-        id: Date.now(),
-        ...formData,
-        price: parseFloat(formData.price || 0),
-        image: productImage
-      };
-
-      const existing = getStoredProducts();
-      const updated = [newProduct, ...existing];
-      saveStoredProducts(updated);
-
-      setIsSubmitting(false);
+    try {
+      await createProduct({
+        companyId: formData.companyId,
+        name: formData.name.trim(),
+        category: formData.category || undefined,
+        quantity: Number(formData.quantity) || 0,
+        unitPrice: formData.price ? Number(formData.price) : undefined,
+        purchaseDate: formData.purchaseDate || undefined,
+        installationDate: formData.installationDate || undefined,
+        imageUrl: productImage || undefined
+      });
       navigate('/superadmin/products');
-    }, 500);
+    } catch (err) {
+      showToast(err.message || 'Failed to add product.');
+      setIsSubmitting(false);
+    }
   };
 
   const handleResetForm = () => {
-    setFormData({
-      ...initialFormData,
-      serialNumber: `SN-CAM-${Math.floor(10000000 + Math.random() * 90000000)}`
-    });
+    setFormData(initialFormData);
     setProductImage(null);
     showToast('Form cleared.');
   };
@@ -126,6 +138,7 @@ export default function AddProducts() {
             onSubmit={handleFormSubmit}
             onReset={handleResetForm}
             isSubmitting={isSubmitting}
+            companies={companies}
           />
         </div>
 

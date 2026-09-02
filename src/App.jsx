@@ -26,6 +26,7 @@ import ClientOverview from './app/clientadmin/overview/ClientOverview';
 import DailyLogsPage from './app/clientadmin/dailylogs/DailyLogsPage';
 import ZoneOfficerPage from './app/clientadmin/zoneofficer/ZoneOfficerPage';
 import ClientUsersPage from './app/clientadmin/users/ClientUsersPage';
+import ClientInventoryPage from './app/clientadmin/inventory/ClientInventoryPage';
 import ClientRequestsPage from './app/clientadmin/requests/ClientRequestsPage';
 import ClientAssetsPage from './app/clientadmin/assets/ClientAssetsPage';
 import ClientInvoicesPage from './app/clientadmin/invoices/ClientInvoicesPage';
@@ -96,6 +97,7 @@ function AppRoutes() {
             <Route path="daily-logs" element={<DailyLogsPage />} />
             <Route path="zone-officer" element={<ZoneOfficerPage />} />
             <Route path="users" element={<ClientUsersPage />} />
+            <Route path="inventory" element={<ClientInventoryPage />} />
             <Route path="requests" element={<ClientRequestsPage />} />
             <Route path="assets" element={<ClientAssetsPage />} />
             <Route path="invoices" element={<ClientInvoicesPage />} />

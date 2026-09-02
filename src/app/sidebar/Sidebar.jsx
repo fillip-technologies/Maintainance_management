@@ -78,6 +78,11 @@ export default function Sidebar({
           icon: Users
         },
         {
+          name: 'Inventory',
+          path: '/clientadmin/inventory',
+          icon: Boxes
+        },
+        {
           name: 'Zone Officer',
           path: '/clientadmin/zone-officer',
           icon: MapPin

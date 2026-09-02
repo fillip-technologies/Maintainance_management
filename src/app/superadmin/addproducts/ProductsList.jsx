@@ -17,11 +17,12 @@ import {
   Filter,
   RotateCcw
 } from 'lucide-react';
-import { getStoredProducts, saveStoredProducts } from './productsData';
+import { getProducts, deleteProduct } from '../../api/productsApi';
 
 export default function ProductsList() {
   const navigate = useNavigate();
-  const [products, setProducts] = useState(getStoredProducts);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [startDate, setStartDate] = useState('');
@@ -34,11 +35,38 @@ export default function ProductsList() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
+  // Map a backend product row to the shape this page renders.
+  const normalize = (p) => ({
+    id: p.id,
+    name: p.name,
+    category: p.category || '—',
+    quantity: p.quantity ?? 0,
+    companyName: p.company?.name || '—',
+    purchaseDate: p.purchaseDate ? p.purchaseDate.slice(0, 10) : '',
+    installationDate: p.installationDate ? p.installationDate.slice(0, 10) : '',
+    price: p.unitPrice != null ? Number(p.unitPrice) : 0,
+    image: p.imageUrl || null
+  });
+
+  const fetchProducts = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getProducts({ limit: 200 });
+      setProducts((data?.items || []).map(normalize));
+    } catch (err) {
+      console.error('[ProductsList] fetch error:', err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
   // Filter products by search, category, and date range
   const filteredProducts = products.filter((prd) => {
-    const matchesSearch =
-      prd.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (prd.serialNumber && prd.serialNumber.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesSearch = prd.name.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesCategory =
       categoryFilter === 'all' || prd.category === categoryFilter;
@@ -80,11 +108,15 @@ export default function ProductsList() {
     0
   );
 
-  const handleDelete = (id, name) => {
-    const updated = products.filter((p) => p.id !== id);
-    setProducts(updated);
-    saveStoredProducts(updated);
-    showToast(`Product "${name}" removed from catalog.`);
+  const handleDelete = async (id, name) => {
+    if (!window.confirm(`Delete "${name}" from inventory?`)) return;
+    try {
+      await deleteProduct(id);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      showToast(`Product "${name}" removed from catalog.`);
+    } catch (err) {
+      showToast(err.message || 'Failed to delete product.');
+    }
   };
 
   const handleClearDateFilter = () => {
@@ -311,8 +343,9 @@ export default function ProductsList() {
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 <th className="py-3 px-4">Product Name & Image</th>
-                <th className="py-3 px-4">Serial Number</th>
+                <th className="py-3 px-4">Organization</th>
                 <th className="py-3 px-4">Category</th>
+                <th className="py-3 px-4">Units</th>
                 <th className="py-3 px-4">Purchase Date</th>
                 <th className="py-3 px-4">Installation Date</th>
                 <th className="py-3 px-4">Price (₹ INR)</th>
@@ -320,9 +353,13 @@ export default function ProductsList() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
-              {filteredProducts.length === 0 ? (
+              {loading ? (
                 <tr>
-                  <td colSpan="7" className="text-center py-12 text-slate-400">
+                  <td colSpan="8" className="text-center py-12 text-slate-400">Loading inventory…</td>
+                </tr>
+              ) : filteredProducts.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="text-center py-12 text-slate-400">
                     No products found matching your search or date filter.
                   </td>
                 </tr>
@@ -343,13 +380,16 @@ export default function ProductsList() {
                         </span>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-indigo-600">
-                      {prd.serialNumber}
+                    <td className="py-3.5 px-4 text-slate-700 font-semibold whitespace-nowrap">
+                      {prd.companyName}
                     </td>
                     <td className="py-3.5 px-4">
                       <span className="bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-md text-[11px] font-semibold whitespace-nowrap">
                         {prd.category}
                       </span>
+                    </td>
+                    <td className="py-3.5 px-4 font-bold text-slate-900">
+                      {prd.quantity}
                     </td>
                     <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">

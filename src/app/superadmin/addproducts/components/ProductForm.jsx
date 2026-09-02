@@ -1,13 +1,13 @@
 import React from 'react';
 import {
   Tag,
-  Hash,
   Layers,
   Calendar,
   IndianRupee,
   CheckCircle,
   RotateCcw,
-  Sparkles
+  Building2,
+  Boxes
 } from 'lucide-react';
 import ImageUploader from './ImageUploader';
 
@@ -18,24 +18,16 @@ export default function ProductForm({
   setImage,
   onSubmit,
   onReset,
-  isSubmitting
+  isSubmitting,
+  // When provided (super_admin), renders a required Organization selector.
+  // Omitted for a client_admin, whose organization is implicit.
+  companies = null
 }) {
   const handleChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value
     }));
-  };
-
-  const handleGenerateSerial = () => {
-    let prefix = 'DEV';
-    if (formData.category?.includes('Camera')) prefix = 'CAM';
-    else if (formData.category?.includes('TV') || formData.category?.includes('Display')) prefix = 'DIS';
-    else if (formData.category?.includes('Fiber')) prefix = 'FIB';
-    else if (formData.category?.includes('LED')) prefix = 'LED';
-
-    const randomNum = Math.floor(10000000 + Math.random() * 90000000);
-    handleChange('serialNumber', `SN-${prefix}-${randomNum}`);
   };
 
   return (
@@ -55,6 +47,29 @@ export default function ProductForm({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* 0. Organization (super_admin only — must select before entering) */}
+          {companies && (
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Organization *
+              </label>
+              <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2">
+                <Building2 size={16} className="text-slate-400 shrink-0" />
+                <select
+                  required
+                  value={formData.companyId || ''}
+                  onChange={(e) => handleChange('companyId', e.target.value)}
+                  className="w-full bg-transparent text-xs font-semibold text-slate-900 outline-hidden cursor-pointer"
+                >
+                  <option value="" disabled>Select an organization…</option>
+                  {companies.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+
           {/* 1. Product Name */}
           <div className="md:col-span-2">
             <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -70,30 +85,22 @@ export default function ProductForm({
             />
           </div>
 
-          {/* 2. Serial Number */}
+          {/* 1b. Units / Quantity (stock count) */}
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-bold text-slate-700">
-                Serial Number *
-              </label>
-              <button
-                type="button"
-                onClick={handleGenerateSerial}
-                className="text-[11px] font-bold text-indigo-600 hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <Sparkles size={11} />
-                <span>Auto-Generate</span>
-              </button>
-            </div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Units (Quantity) *
+            </label>
             <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2">
-              <Hash size={16} className="text-slate-400 shrink-0" />
+              <Boxes size={16} className="text-slate-400 shrink-0" />
               <input
-                type="text"
+                type="number"
+                min="0"
+                step="1"
                 required
-                placeholder="e.g., SN-CAM-90481234"
-                value={formData.serialNumber}
-                onChange={(e) => handleChange('serialNumber', e.target.value)}
-                className="w-full bg-transparent font-mono text-xs font-bold text-slate-900 outline-hidden placeholder:text-slate-400"
+                placeholder="e.g., 25"
+                value={formData.quantity}
+                onChange={(e) => handleChange('quantity', e.target.value)}
+                className="w-full bg-transparent text-xs font-bold text-slate-900 outline-hidden placeholder:text-slate-400"
               />
             </div>
           </div>
@@ -123,13 +130,12 @@ export default function ProductForm({
           {/* 4. Purchase Date */}
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
-              Purchase Date *
+              Purchase Date
             </label>
             <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2">
               <Calendar size={16} className="text-slate-400 shrink-0" />
               <input
                 type="date"
-                required
                 value={formData.purchaseDate}
                 onChange={(e) => handleChange('purchaseDate', e.target.value)}
                 className="w-full bg-transparent text-xs font-semibold text-slate-900 outline-hidden cursor-pointer"
@@ -140,13 +146,12 @@ export default function ProductForm({
           {/* 5. Installation Date */}
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
-              Installation Date *
+              Installation Date
             </label>
             <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2">
               <Calendar size={16} className="text-indigo-600 shrink-0" />
               <input
                 type="date"
-                required
                 value={formData.installationDate}
                 onChange={(e) => handleChange('installationDate', e.target.value)}
                 className="w-full bg-transparent text-xs font-semibold text-slate-900 outline-hidden cursor-pointer"
@@ -157,14 +162,13 @@ export default function ProductForm({
           {/* 6. Price in INR */}
           <div className="md:col-span-2">
             <label className="block text-xs font-bold text-slate-700 mb-1">
-              Price (₹ INR) *
+              Price (₹ INR)
             </label>
             <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 gap-2">
               <IndianRupee size={18} className="text-emerald-600 shrink-0" />
               <input
                 type="number"
                 step="1"
-                required
                 placeholder="e.g., 38500"
                 value={formData.price}
                 onChange={(e) => handleChange('price', e.target.value)}

@@ -6,27 +6,6 @@ import apiClient, {
 } from '../api/apiClient';
 import { socketClient } from '../api/socketClient';
 
-export const DEMO_CLIENT_ADMIN = {
-  user: {
-    id: 'usr_client_02',
-    name: 'David Miller',
-    email: 'client@apexestates.com',
-    role: 'client_admin',
-    facilityName: 'Apex Tech Tower - Campus A',
-    companyName: 'Apex Commercial Estates Ltd.',
-    clientId: 'client_apex_001',
-    zoneName: 'Entire Facility'
-  },
-  accessToken: 'mock_jwt_access_clientadmin_token',
-  refreshToken: 'mock_refresh_hex_clientadmin_7a2d4f8e',
-  zoneDescendants: [
-    { id: 'zone_apex_01', name: 'Apex Tech Tower - Campus A', parentZoneId: null, status: 'active', depth: 0 }
-  ],
-  zoneAncestors: [
-    { id: 'zone_apex_01', name: 'Apex Tech Tower - Campus A', depth: 0 }
-  ]
-};
-
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
@@ -95,24 +74,7 @@ export function AuthProvider({ children }) {
       }
       throw new Error(response?.message || 'Login failed. Please check your credentials.');
     } catch (err) {
-      console.warn('[AuthContext] Backend login error, checking demo credentials fallback:', err.message);
-
-      // 2. Demo Client Admin fallback credentials
-      if (
-        normalizedEmail === 'client@apexestates.com' ||
-        normalizedEmail === 'clientadmin@fixly.io' ||
-        normalizedEmail === 'client@fixly.io'
-      ) {
-        const demo = DEMO_CLIENT_ADMIN;
-        apiClient.setTokens(demo.accessToken, demo.refreshToken);
-        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(demo.user));
-        setCurrentUser(demo.user);
-        setZoneDescendants(demo.zoneDescendants);
-        setZoneAncestors(demo.zoneAncestors);
-        socketClient.connect();
-        return { success: true, user: demo.user, isDemo: true };
-      }
-
+      console.error('[AuthContext] Login error:', err.message);
       throw err;
     } finally {
       setLoading(false);
