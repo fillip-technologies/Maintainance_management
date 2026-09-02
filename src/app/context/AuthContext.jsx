@@ -69,7 +69,10 @@ export function AuthProvider({ children }) {
 
   const isAuthenticated = !!currentUser && !!apiClient.getAccessToken();
   const isSuperAdmin = currentUser?.role === 'super_admin';
-  const isClientAdmin = currentUser?.role === 'client_admin' || currentUser?.role === 'zone_incharge';
+  // client_admin ONLY — a zone_incharge is a zone officer, not a client admin,
+  // and must not inherit client-admin affordances.
+  const isClientAdmin = currentUser?.role === 'client_admin';
+  const isZoneOfficer = currentUser?.role === 'zone_incharge' || currentUser?.role === 'zone_staff';
 
   // Login handler
   const login = async (email, password) => {
@@ -139,6 +142,7 @@ export function AuthProvider({ children }) {
         isAuthenticated,
         isSuperAdmin,
         isClientAdmin,
+        isZoneOfficer,
         zoneDescendants,
         zoneAncestors,
         login,

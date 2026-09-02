@@ -33,6 +33,17 @@ export async function createTechnician(payload) {
   return res?.data ?? null;
 }
 
+// Provision a brand-new technician end-to-end: creates the login user
+// (role=technician) + profile atomically on the backend and emails credentials.
+// payload: { name, email, password, specialization? }
+export async function provisionTechnician(payload) {
+  const res = await apiClient.request('/technicians/provision', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+  return res?.data ?? null;
+}
+
 export async function updateTechnician(id, payload) {
   const res = await apiClient.request(`/technicians/${id}`, {
     method: 'PATCH',

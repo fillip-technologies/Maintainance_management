@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { landingFor } from '../common/roleRouting';
 import {
   Wrench,
   Mail,
@@ -14,7 +15,7 @@ import {
 } from 'lucide-react';
 
 export default function LoginPage() {
-  const { login, isAuthenticated, isSuperAdmin } = useAuth();
+  const { login, isAuthenticated, currentUser } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -26,10 +27,9 @@ export default function LoginPage() {
   // Redirect if already authenticated
   React.useEffect(() => {
     if (isAuthenticated) {
-      const target = isSuperAdmin ? '/superadmin/overview' : '/clientadmin/overview';
-      navigate(target, { replace: true });
+      navigate(landingFor(currentUser?.role), { replace: true });
     }
-  }, [isAuthenticated, isSuperAdmin, navigate]);
+  }, [isAuthenticated, currentUser, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,8 +41,7 @@ export default function LoginPage() {
     try {
       const res = await login(email.trim(), password.trim());
       if (res && res.user) {
-        const dest = res.user.role === 'super_admin' ? '/superadmin/overview' : '/clientadmin/overview';
-        navigate(dest, { replace: true });
+        navigate(landingFor(res.user.role), { replace: true });
       }
     } catch (err) {
       console.error('Login error:', err);

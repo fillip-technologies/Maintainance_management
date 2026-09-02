@@ -2,9 +2,14 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './app/context/AuthContext';
 import ProtectedRoute from './app/common/ProtectedRoute';
+import { landingFor } from './app/common/roleRouting';
 
 // Auth Login View
 import LoginPage from './app/login/LoginPage';
+
+// Zone Officer Layout & Views
+import ZoneLayout from './app/zone/ZoneLayout';
+import ZoneOverview from './app/zone/ZoneOverview';
 
 // Superadmin Layout & Views
 import SuperadminLayout from './app/superadmin/SuperadminLayout';
@@ -13,6 +18,7 @@ import CompaniesPage from './app/superadmin/companies/CompaniesPage';
 import SuperadminClientsPage from './app/superadmin/clientusers/SuperadminClientsPage';
 import ProductsList from './app/superadmin/addproducts/ProductsList';
 import AddProducts from './app/superadmin/addproducts/AddProducts';
+import TechniciansPage from './app/superadmin/technicians/TechniciansPage';
 
 // Clientadmin Layout & Views
 import ClientadminLayout from './app/clientadmin/ClientadminLayout';
@@ -25,13 +31,15 @@ import ClientAssetsPage from './app/clientadmin/assets/ClientAssetsPage';
 import ClientInvoicesPage from './app/clientadmin/invoices/ClientInvoicesPage';
 
 function RootRedirect() {
-  const { isAuthenticated, isSuperAdmin } = useAuth();
-  
+  const { isAuthenticated, currentUser } = useAuth();
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  return <Navigate to={isSuperAdmin ? '/superadmin/overview' : '/clientadmin/overview'} replace />;
+  // Single source of truth for per-role landing — never bucket non-super-admins
+  // together (that was the bug that sent zone officers to the client dashboard).
+  return <Navigate to={landingFor(currentUser?.role)} replace />;
 }
 
 function AppRoutes() {
@@ -63,13 +71,25 @@ function AppRoutes() {
             <Route path="overview" element={<Overview />} />
             <Route path="companies" element={<CompaniesPage />} />
             <Route path="clients" element={<SuperadminClientsPage />} />
+            <Route path="technicians" element={<TechniciansPage />} />
             <Route path="products" element={<ProductsList />} />
             <Route path="add-products" element={<AddProducts />} />
           </Route>
         </Route>
 
-        {/* Clientadmin Routes - Protected strictly for client_admin & facility operational roles */}
-        <Route element={<ProtectedRoute allowedRoles={['client_admin', 'zone_incharge', 'zone_staff', 'technician']} />}>
+        {/* Zone Officer Routes - Protected strictly for zone_incharge & zone_staff.
+            Their own scope-limited area; the backend further restricts every read
+            to their assigned zone subtree. */}
+        <Route element={<ProtectedRoute allowedRoles={['zone_incharge', 'zone_staff']} />}>
+          <Route path="/zone" element={<ZoneLayout />}>
+            <Route index element={<Navigate to="/zone/overview" replace />} />
+            <Route path="overview" element={<ZoneOverview />} />
+          </Route>
+        </Route>
+
+        {/* Clientadmin Routes - client_admin and (for now) technician. Zone
+            officers are intentionally NOT here — they have their own /zone area. */}
+        <Route element={<ProtectedRoute allowedRoles={['client_admin', 'technician']} />}>
           <Route path="/clientadmin" element={<ClientadminLayout />}>
             <Route index element={<Navigate to="/clientadmin/overview" replace />} />
             <Route path="overview" element={<ClientOverview />} />

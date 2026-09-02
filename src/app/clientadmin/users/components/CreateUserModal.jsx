@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, UserPlus, Shield, UserCheck, Wrench, Mail, Lock, Building, CheckCircle2, Eye, EyeOff, MapPin } from 'lucide-react';
+import { X, UserPlus, Lock, Eye, EyeOff } from 'lucide-react';
 import { createUser } from '../../../api/usersApi';
 
 export default function CreateUserModal({ isOpen, onClose, onCreated }) {
@@ -9,16 +9,15 @@ export default function CreateUserModal({ isOpen, onClose, onCreated }) {
     name: '',
     email: '',
     role: 'zone_staff',
-    zoneName: 'North Wing - Floor 1-4',
     specialization: 'HVAC & Chiller Plant',
     password: ''
   });
-  const [isCustomZone, setIsCustomZone] = useState(false);
-  const [customZoneText, setCustomZoneText] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
+  // A client_admin may only create zone officers — never another client_admin
+  // (enforced by the backend; the option is removed here to match).
   const roles = [
     {
       id: 'zone_staff',
@@ -29,26 +28,7 @@ export default function CreateUserModal({ isOpen, onClose, onCreated }) {
       id: 'zone_incharge',
       label: 'Zone In-Charge',
       desc: 'Supervises assigned zone assets, issues, and staff'
-    },
-    {
-      id: 'technician',
-      label: 'Field Technician',
-      desc: 'Assigned to diagnose & resolve maintenance work orders'
-    },
-    {
-      id: 'client_admin',
-      label: 'Client Administrator',
-      desc: 'Full facility configuration & user management access'
     }
-  ];
-
-  const presetZones = [
-    'North Wing - Floor 1-4',
-    'South Wing & Basement Bay',
-    'Roof Plant & Chiller Bay',
-    'Entire Facility Core',
-    'External Parking & Utilities',
-    '__custom__'
   ];
 
   const specializations = [
@@ -60,26 +40,9 @@ export default function CreateUserModal({ isOpen, onClose, onCreated }) {
     'Plumbing & Sanitation'
   ];
 
-  const handleZoneSelectChange = (e) => {
-    const val = e.target.value;
-    if (val === '__custom__') {
-      setIsCustomZone(true);
-      setFormData({ ...formData, zoneName: customZoneText || '' });
-    } else {
-      setIsCustomZone(false);
-      setFormData({ ...formData, zoneName: val });
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.email.trim()) return;
-
-    const assignedZone = isCustomZone ? customZoneText.trim() : formData.zoneName;
-    if (!assignedZone) {
-      setErrorMsg('Please specify an assigned facility zone or area.');
-      return;
-    }
 
     if (!formData.password || formData.password.trim().length < 8) {
       setErrorMsg('Password is mandatory and must contain at least 8 characters.');
@@ -94,7 +57,6 @@ export default function CreateUserModal({ isOpen, onClose, onCreated }) {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         role: formData.role,
-        zoneName: assignedZone,
         specialization: formData.role === 'technician' ? formData.specialization : null,
         password: formData.password.trim()
       };
@@ -106,12 +68,9 @@ export default function CreateUserModal({ isOpen, onClose, onCreated }) {
         name: '',
         email: '',
         role: 'zone_staff',
-        zoneName: 'North Wing - Floor 1-4',
         specialization: 'HVAC & Chiller Plant',
         password: ''
       });
-      setIsCustomZone(false);
-      setCustomZoneText('');
     } catch (err) {
       setErrorMsg(err.message || 'Failed to create user. Email may already exist.');
     } finally {
@@ -133,7 +92,7 @@ export default function CreateUserModal({ isOpen, onClose, onCreated }) {
             </div>
             <div>
               <h2 className="text-base font-bold">Add / Invite Facility User</h2>
-              <p className="text-xs text-slate-400">Define operational role & zone assignments</p>
+              <p className="text-xs text-slate-400">Define operational role & access</p>
             </div>
           </div>
           <button
@@ -208,67 +167,6 @@ export default function CreateUserModal({ isOpen, onClose, onCreated }) {
                 );
               })}
             </div>
-          </div>
-
-          {/* Assigned Facility Zone / Custom Zone Area */}
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-700">
-                Assigned Facility Zone / Area <span className="text-rose-500">*</span>
-              </label>
-              {isCustomZone ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsCustomZone(false);
-                    setFormData({ ...formData, zoneName: 'North Wing - Floor 1-4' });
-                  }}
-                  className="text-[10px] text-indigo-600 font-semibold hover:underline cursor-pointer"
-                >
-                  Choose from preset zones
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setIsCustomZone(true)}
-                  className="text-[10px] text-indigo-600 font-semibold hover:underline cursor-pointer"
-                >
-                  + Type custom zone/area
-                </button>
-              )}
-            </div>
-
-            {!isCustomZone ? (
-              <select
-                value={formData.zoneName}
-                onChange={handleZoneSelectChange}
-                className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer"
-              >
-                {presetZones.map((z) => (
-                  <option key={z} value={z}>
-                    {z === '__custom__' ? '+ Enter custom zone / area...' : z}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <div className="relative flex items-center animate-in fade-in duration-150">
-                <MapPin size={15} className="absolute left-3.5 text-indigo-600 pointer-events-none" />
-                <input
-                  type="text"
-                  required
-                  placeholder="Enter custom zone / area name (e.g. 5th Floor Server Room, East Tower B2)"
-                  value={customZoneText}
-                  onChange={(e) => {
-                    setCustomZoneText(e.target.value);
-                    setFormData({ ...formData, zoneName: e.target.value });
-                  }}
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-indigo-300 bg-indigo-50/30 text-xs font-semibold text-slate-900 outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-                />
-              </div>
-            )}
-            <span className="text-[10px] text-slate-400">
-              Assigned location area for operational logs and maintenance scoping
-            </span>
           </div>
 
           {/* Technician Specialization (if role === technician) */}

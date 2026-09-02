@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Boxes,
   CheckCircle2,
@@ -8,122 +8,78 @@ import {
   X,
   Clock,
   MapPin,
-  Building
+  RefreshCw
 } from 'lucide-react';
+import { getDailyLogs } from '../../api/dailyLogsApi';
+import { getZones } from '../../api/zonesApi';
 
 export default function DailyLogsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'working' | 'not_working'
   const [selectedZone, setSelectedZone] = useState('all');
 
-  // Daily log records for facility products with assigned zones
-  const [logs] = useState([
-    {
-      id: 'log_01',
-      name: 'Chiller Plant Unit #1 (Roof Deck)',
-      code: 'HVAC-CHL-001',
-      zoneName: 'Roof Plant & Chiller Bay',
-      date: '2026-09-01T10:30:00.000Z',
-      status: 'working'
-    },
-    {
-      id: 'log_02',
-      name: 'Main Passenger Elevator Shaft A',
-      code: 'ELV-A-102',
-      zoneName: 'North Wing - Floor 1-4',
-      date: '2026-09-01T09:45:00.000Z',
-      status: 'working'
-    },
-    {
-      id: 'log_03',
-      name: 'High-Voltage DG Genset 500kVA',
-      code: 'PWR-GEN-500',
-      zoneName: 'Basement Power Bay B1',
-      date: '2026-09-01T09:15:00.000Z',
-      status: 'not_working'
-    },
-    {
-      id: 'log_04',
-      name: 'Primary Fire Hydrant Jockey Pump',
-      code: 'FIRE-PMP-001',
-      zoneName: 'Basement Power Bay B1',
-      date: '2026-09-01T08:50:00.000Z',
-      status: 'working'
-    },
-    {
-      id: 'log_05',
-      name: 'Central AHU Air Handling Unit 3B',
-      code: 'HVAC-AHU-03B',
-      zoneName: 'North Wing - Floor 1-4',
-      date: '2026-09-01T08:30:00.000Z',
-      status: 'working'
-    },
-    {
-      id: 'log_06',
-      name: 'Basement Sewage Sump Pump #2',
-      code: 'PLUMB-SMP-02',
-      zoneName: 'Basement Power Bay B1',
-      date: '2026-09-01T08:10:00.000Z',
-      status: 'not_working'
-    },
-    {
-      id: 'log_07',
-      name: 'Main Gate Access Boom Barrier & CCTV',
-      code: 'SEC-CAM-014',
-      zoneName: 'External Parking & Perimeter',
-      date: '2026-09-01T07:45:00.000Z',
-      status: 'working'
-    },
-    {
-      id: 'log_08',
-      name: 'Tower Cooling Water Circulation Pump A',
-      code: 'HVAC-PMP-01A',
-      zoneName: 'Roof Plant & Chiller Bay',
-      date: '2026-09-01T07:20:00.000Z',
-      status: 'working'
-    },
-    {
-      id: 'log_09',
-      name: 'Service Freight Elevator Shaft C',
-      code: 'ELV-C-301',
-      zoneName: 'South Wing & Logistics Bay',
-      date: '2026-09-01T06:55:00.000Z',
-      status: 'not_working'
-    },
-    {
-      id: 'log_10',
-      name: 'Solar Inverter Bank 100kW (Terrace)',
-      code: 'SOL-INV-100',
-      zoneName: 'Roof Plant & Chiller Bay',
-      date: '2026-09-01T06:30:00.000Z',
-      status: 'working'
+  const [logs, setLogs] = useState([]);
+  const [zoneOptions, setZoneOptions] = useState(['all']);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Pull real daily logs + zones (to resolve zone names) from the backend.
+  const fetchLogs = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [logsData, zonesData] = await Promise.all([
+        getDailyLogs({ limit: 100 }),
+        getZones({ limit: 100 })
+      ]);
+
+      const zoneMap = new Map((zonesData?.items || []).map((z) => [z.id, z.name]));
+      setZoneOptions(['all', ...(zonesData?.items || []).map((z) => z.name)]);
+
+      const rows = (logsData?.items || []).map((l) => {
+        const zoneId = l.device?.zoneId ?? null;
+        return {
+          id: l.id,
+          name: l.deviceName || l.device?.name || 'Unknown device',
+          loggedByName: l.loggedByName || null,
+          zoneName: (zoneId && zoneMap.get(zoneId)) || '—',
+          date: l.logDate || l.createdAt,
+          time: l.createdAt,
+          status: l.status // working | not_working | needs_attention
+        };
+      });
+      setLogs(rows);
+    } catch (err) {
+      console.error('Fetch daily logs error:', err);
+      setError('Could not load daily logs. Is the backend running?');
+      setLogs([]);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  }, []);
 
-  const zoneOptions = [
-    'all',
-    'North Wing - Floor 1-4',
-    'Roof Plant & Chiller Bay',
-    'Basement Power Bay B1',
-    'South Wing & Logistics Bay',
-    'External Parking & Perimeter'
-  ];
+  useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
 
-  // Compute 3 primary stats: Total Products, Working, Not Working
+  // Compute 3 primary stats: Total, Working, Not Working (anything not "working").
   const totalProducts = logs.length;
   const workingProducts = logs.filter((l) => l.status === 'working').length;
-  const notWorkingProducts = logs.filter((l) => l.status === 'not_working').length;
+  const notWorkingProducts = logs.filter((l) => l.status !== 'working').length;
 
   // Filter logs based on search, status, and zone
   const filteredLogs = useMemo(() => {
     return logs.filter((l) => {
+      const q = searchQuery.toLowerCase();
       const matchesSearch =
         !searchQuery.trim() ||
-        l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        l.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        l.zoneName.toLowerCase().includes(searchQuery.toLowerCase());
+        l.name.toLowerCase().includes(q) ||
+        (l.loggedByName && l.loggedByName.toLowerCase().includes(q)) ||
+        l.zoneName.toLowerCase().includes(q);
 
-      const matchesStatus = statusFilter === 'all' || l.status === statusFilter;
+      const matchesStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'working' ? l.status === 'working' : l.status !== 'working');
       const matchesZone = selectedZone === 'all' || l.zoneName === selectedZone;
 
       return matchesSearch && matchesStatus && matchesZone;
@@ -158,14 +114,30 @@ export default function DailyLogsPage() {
   return (
     <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200">
       {/* Top Headline Banner */}
-      <div className="flex flex-col gap-1 py-1">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Daily Product Logs
-        </h1>
-        <p className="text-xs md:text-sm text-slate-500 max-w-2xl">
-          Daily operational health checks, zone allocations, and status submissions for all registered facility equipment.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 py-1">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Daily Product Logs
+          </h1>
+          <p className="text-xs md:text-sm text-slate-500 max-w-2xl">
+            Daily operational health checks, zone allocations, and status submissions for all registered facility equipment.
+          </p>
+        </div>
+        <button
+          onClick={fetchLogs}
+          disabled={loading}
+          className="self-start inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+        >
+          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+          Refresh
+        </button>
       </div>
+
+      {error && (
+        <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+          {error}
+        </div>
+      )}
 
       {/* 3 Stats Cards: Total Products, Working, Not Working */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -322,26 +294,58 @@ export default function DailyLogsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
-              {filteredLogs.length === 0 ? (
+              {loading ? (
                 <tr>
                   <td colSpan={4} className="py-10 text-center text-slate-400">
-                    No logs found matching your criteria.
+                    <span className="inline-flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></span>
+                      Loading daily logs…
+                    </span>
+                  </td>
+                </tr>
+              ) : filteredLogs.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="py-10 text-center text-slate-400">
+                    {logs.length === 0
+                      ? 'No daily logs have been submitted yet.'
+                      : 'No logs found matching your criteria.'}
                   </td>
                 </tr>
               ) : (
                 filteredLogs.map((log) => {
-                  const isWorking = log.status === 'working';
+                  const meta =
+                    {
+                      working: {
+                        label: 'Working',
+                        dot: 'bg-emerald-500 animate-pulse',
+                        badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                        icon: 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                      },
+                      needs_attention: {
+                        label: 'Needs Attention',
+                        dot: 'bg-amber-500',
+                        badge: 'bg-amber-50 text-amber-700 border-amber-200',
+                        icon: 'bg-amber-50 text-amber-600 border-amber-200'
+                      },
+                      not_working: {
+                        label: 'Not Working',
+                        dot: 'bg-rose-500',
+                        badge: 'bg-rose-50 text-rose-700 border-rose-200',
+                        icon: 'bg-rose-50 text-rose-600 border-rose-200'
+                      }
+                    }[log.status] || {
+                      label: log.status,
+                      dot: 'bg-slate-400',
+                      badge: 'bg-slate-50 text-slate-700 border-slate-200',
+                      icon: 'bg-slate-50 text-slate-600 border-slate-200'
+                    };
                   return (
                     <tr key={log.id} className="hover:bg-slate-50/60 transition-colors group">
                       {/* 1. Name */}
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs border ${
-                              isWorking
-                                ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
-                                : 'bg-rose-50 text-rose-600 border-rose-200'
-                            }`}
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs border ${meta.icon}`}
                           >
                             <Boxes size={18} />
                           </div>
@@ -349,8 +353,8 @@ export default function DailyLogsPage() {
                             <span className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
                               {log.name}
                             </span>
-                            <span className="text-[11px] text-slate-400 font-mono">
-                              {log.code}
+                            <span className="text-[11px] text-slate-400">
+                              {log.loggedByName ? `Logged by ${log.loggedByName}` : 'Logged by —'}
                             </span>
                           </div>
                         </div>
@@ -381,18 +385,10 @@ export default function DailyLogsPage() {
                       {/* 4. Status */}
                       <td className="py-4 px-6">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
-                            isWorking
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : 'bg-rose-50 text-rose-700 border-rose-200'
-                          }`}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${meta.badge}`}
                         >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              isWorking ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
-                            }`}
-                          ></span>
-                          {isWorking ? 'Working' : 'Not Working'}
+                          <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`}></span>
+                          {meta.label}
                         </span>
                       </td>
                     </tr>

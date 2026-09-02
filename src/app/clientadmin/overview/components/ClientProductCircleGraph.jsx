@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 import {
   CheckCircle2,
   XCircle,
-  Wrench,
-  MapPin
+  Wrench
 } from 'lucide-react';
 
 export default function ClientProductCircleGraph({ stats }) {
   const [hoveredSegment, setHoveredSegment] = useState(null);
 
-  const total = stats?.totalProducts || 24;
-  const working = stats?.workingProducts !== undefined ? stats?.workingProducts : 19;
-  const faulty = stats?.notWorkingProducts !== undefined ? stats?.notWorkingProducts : 2;
-  const maintenance = stats?.maintenanceProducts !== undefined ? stats?.maintenanceProducts : 3;
+  // Real values from the API — no demo fallbacks (0 must render as 0).
+  const total = stats?.totalProducts ?? 0;
+  const working = stats?.workingProducts ?? 0;
+  const faulty = stats?.notWorkingProducts ?? 0;
+  const maintenance = stats?.maintenanceProducts ?? 0;
 
   const workingPct = total > 0 ? Math.round((working / total) * 100) : 0;
   const faultyPct = total > 0 ? Math.round((faulty / total) * 100) : 0;
@@ -34,13 +34,6 @@ export default function ClientProductCircleGraph({ stats }) {
   const workingOffset = 0;
   const maintenanceOffset = -(workingStroke + (workingStroke > 0 ? gap : 0));
   const faultyOffset = -(workingStroke + (workingStroke > 0 ? gap : 0) + maintenanceStroke + (maintenanceStroke > 0 ? gap : 0));
-
-  const zoneBreakdown = [
-    { name: 'North Wing - Floor 1-4', count: Math.round(total * 0.42) || 10, working: Math.round(working * 0.42) || 9, color: 'bg-emerald-500' },
-    { name: 'Roof Plant & Chiller Bay', count: Math.round(total * 0.25) || 6, working: Math.round(working * 0.25) || 5, color: 'bg-indigo-500' },
-    { name: 'South Wing & Basement Bay', count: Math.round(total * 0.21) || 5, working: Math.round(working * 0.21) || 4, color: 'bg-sky-500' },
-    { name: 'External & Utilities Bay', count: Math.max(1, Math.round(total * 0.12)) || 3, working: Math.max(1, Math.round(working * 0.12)) || 3, color: 'bg-purple-500' }
-  ];
 
   return (
     <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-xs flex flex-col gap-6">
@@ -259,34 +252,6 @@ export default function ClientProductCircleGraph({ stats }) {
               </div>
             </div>
 
-          </div>
-
-          {/* Zone-wise Progress Summary */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex flex-col gap-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                <MapPin size={14} className="text-indigo-600" />
-                Zone Product Health Distribution
-              </span>
-              <span className="text-[11px] font-semibold text-slate-400">4 Active Zones</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              {zoneBreakdown.map((z, idx) => {
-                const zPct = Math.round((z.working / z.count) * 100);
-                return (
-                  <div key={idx} className="flex flex-col gap-1">
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="font-semibold text-slate-700 truncate max-w-[140px]">{z.name}</span>
-                      <span className="font-bold text-slate-900">{z.working}/{z.count} Active</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                      <div style={{ width: `${zPct}%` }} className={`h-full ${z.color} rounded-full`} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
           </div>
 
         </div>

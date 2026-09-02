@@ -26,14 +26,6 @@ export default function ZoneMemberModal({ isOpen, onClose, onCreated, defaultZon
       icon: UserCheck,
       color: 'border-emerald-500 bg-emerald-50/80 text-emerald-900 ring-2 ring-emerald-200',
       activeBadge: 'bg-emerald-100 text-emerald-800'
-    },
-    {
-      id: 'technician',
-      label: 'Technician ID (Field Engineer)',
-      desc: 'Assigned to diagnose, service & resolve zone repair work orders',
-      icon: Wrench,
-      color: 'border-amber-500 bg-amber-50/80 text-amber-900 ring-2 ring-amber-200',
-      activeBadge: 'bg-amber-100 text-amber-800'
     }
   ];
 

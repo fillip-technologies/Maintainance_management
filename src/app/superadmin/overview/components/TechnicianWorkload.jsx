@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowUpRight, Users } from 'lucide-react';
 
 /**
@@ -28,10 +29,10 @@ export default function TechnicianWorkload({ technicians, loading }) {
           </p>
         </div>
 
-        <a href="#/superadmin/technicians" className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:underline">
+        <Link to="/superadmin/technicians" className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:underline">
           <span>Team Roster</span>
           <ArrowUpRight size={14} />
-        </a>
+        </Link>
       </div>
 
       {/* Capacity Allocation Summary */}

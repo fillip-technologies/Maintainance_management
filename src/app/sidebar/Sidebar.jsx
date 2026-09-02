@@ -50,6 +50,11 @@ export default function Sidebar({
           icon: Building2
         },
         {
+          name: 'Technicians',
+          path: '/superadmin/technicians',
+          icon: Wrench
+        },
+        {
           name: 'Products & Inventory',
           path: '/superadmin/products',
           icon: Boxes

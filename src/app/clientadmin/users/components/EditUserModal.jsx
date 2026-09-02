@@ -47,7 +47,6 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
   const roles = [
     { id: 'zone_staff', label: 'Zone Floor Staff' },
     { id: 'zone_incharge', label: 'Zone In-Charge' },
-    { id: 'technician', label: 'Field Technician' },
     { id: 'client_admin', label: 'Client Administrator' }
   ];
 

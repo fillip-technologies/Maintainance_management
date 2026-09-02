@@ -134,7 +134,7 @@ export default function ZoneOfficerPage() {
             </h1>
 
             <p className="text-slate-300 text-xs md:text-sm max-w-2xl leading-relaxed">
-              Zone Officer Command Portal. As Zone Officer, you have exclusive authority to create and manage <strong className="text-white">Staff IDs</strong> (for daily logs & inspections) and <strong className="text-white">Technician IDs</strong> (for machinery repairs) within your zone.
+              Zone Officer Command Portal. As Zone Officer, you have exclusive authority to create and manage <strong className="text-white">Staff IDs</strong> (for daily logs & inspections) within your zone.
             </p>
 
             <div className="flex items-center gap-4 pt-2 text-xs text-slate-300 border-t border-slate-700/60 mt-1">
@@ -149,7 +149,7 @@ export default function ZoneOfficerPage() {
             className="flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-sky-500 hover:from-indigo-600 hover:to-sky-600 text-white font-bold text-xs md:text-sm px-5 py-3 rounded-2xl shadow-lg shadow-indigo-950/40 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shrink-0"
           >
             <UserPlus size={18} />
-            <span>+ Create Staff / Technician ID</span>
+            <span>+ Create Staff ID</span>
           </button>
         </div>
       </div>
@@ -286,7 +286,7 @@ export default function ZoneOfficerPage() {
               {users.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-10 text-center text-slate-400">
-                    No Staff or Technician members found in this zone. Click "+ Create Staff / Technician ID" to add.
+                    No Staff members found in this zone. Click "+ Create Staff ID" to add.
                   </td>
                 </tr>
               ) : (

@@ -47,19 +47,18 @@ export default function ClientOverview() {
         getUsers({ limit: 100 })
       ]);
 
-      if (data && (data.totalDevices > 0 || data.workingDevices > 0)) {
-        setStats(data);
-      }
+      // Always reflect the API — even all-zeros. (Previously these were gated on
+      // ">0" so placeholder demo numbers could show for empty data, which made the
+      // page look static/disconnected.)
+      if (data) setStats(data);
 
       const items = usersData?.items || [];
       const activeItems = items.filter((u) => u.accountStatus !== 'removed');
-      if (activeItems.length > 0) {
-        setTeamStats({
-          zoneOfficers: activeItems.filter((u) => u.role === 'zone_incharge').length || 6,
-          staffMembers: activeItems.filter((u) => u.role === 'zone_staff').length || 2,
-          technicians: activeItems.filter((u) => u.role === 'technician').length || 2
-        });
-      }
+      setTeamStats({
+        zoneOfficers: activeItems.filter((u) => u.role === 'zone_incharge').length,
+        staffMembers: activeItems.filter((u) => u.role === 'zone_staff').length,
+        technicians: activeItems.filter((u) => u.role === 'technician').length
+      });
 
       setLastUpdated(new Date());
     } catch (err) {
@@ -109,12 +108,14 @@ export default function ClientOverview() {
     };
   }, [fetchStats]);
 
-  // Map API response to the shape expected by Product Cards & Circular Analytics Graph
+  // Map API response to the shape expected by Product Cards & Circular Analytics Graph.
+  // Use `?? 0` (nullish), NOT `|| <demo>` — a real count of 0 must show as 0, not be
+  // masked by placeholder numbers (that made the page look static/disconnected).
   const cardStats = {
-    totalProducts:       stats.totalDevices || 24,
-    workingProducts:     stats.workingDevices || 19,
-    notWorkingProducts:  stats.faultyDevices || 2,
-    maintenanceProducts: stats.underMaintenance || 3
+    totalProducts:       stats.totalDevices ?? 0,
+    workingProducts:     stats.workingDevices ?? 0,
+    notWorkingProducts:  stats.faultyDevices ?? 0,
+    maintenanceProducts: stats.underMaintenance ?? 0
   };
 
   return (

@@ -12,11 +12,11 @@ import { getStoredProducts, saveStoredProducts } from './productsData';
 
 const initialFormData = {
   name: '',
-  serialNumber: 'SN-CAM-90481234',
+  serialNumber: '',
   category: 'Security & CCTV Cameras',
-  purchaseDate: '2026-08-01',
-  installationDate: '2026-08-15',
-  price: '38500'
+  purchaseDate: '',
+  installationDate: '',
+  price: ''
 };
 
 export default function AddProducts() {
