@@ -8,14 +8,14 @@ import {
 } from 'lucide-react';
 import ProductForm from './components/ProductForm';
 import ProductPreviewCard from './components/ProductPreviewCard';
-import { createProduct } from '../../api/productsApi';
+import ExcelImportModal from '../../common/ExcelImportModal';
+import { createProduct, getCategories } from '../../api/productsApi';
 import { getCompanies } from '../../api/companiesApi';
 
 const initialFormData = {
   companyId: '',
   name: '',
-  category: 'Security & CCTV Cameras',
-  quantity: '',
+  categoryId: '',
   purchaseDate: '',
   installationDate: '',
   price: ''
@@ -28,42 +28,45 @@ export default function AddProducts() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [companies, setCompanies] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Super admin must pick an organization — load the list for the selector.
+  // Super admin must pick an organization + a category.
   useEffect(() => {
     getCompanies({ limit: 100 })
       .then((data) => setCompanies(data?.items || []))
       .catch((err) => console.error('[AddProducts] load companies:', err.message));
+    getCategories()
+      .then((cats) => setCategories(cats || []))
+      .catch((err) => console.error('[AddProducts] load categories:', err.message));
   }, []);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim()) return;
-    if (!formData.companyId) {
-      showToast('Please select an organization first.');
-      return;
-    }
+    if (!formData.companyId) { showToast('Please select an organization first.'); return; }
+    if (!formData.categoryId) { showToast('Please select a category.'); return; }
 
     setIsSubmitting(true);
     try {
       await createProduct({
         companyId: formData.companyId,
+        categoryId: formData.categoryId,
         name: formData.name.trim(),
-        category: formData.category || undefined,
-        quantity: Number(formData.quantity) || 0,
         unitPrice: formData.price ? Number(formData.price) : undefined,
         purchaseDate: formData.purchaseDate || undefined,
-        installationDate: formData.installationDate || undefined,
+        installDate: formData.installationDate || undefined,
         imageUrl: productImage || undefined
+        // no zoneId → unit is created in stock; deploy to a zone later
       });
       navigate('/superadmin/products');
     } catch (err) {
-      showToast(err.message || 'Failed to add product.');
+      showToast(err.message || 'Failed to add unit.');
       setIsSubmitting(false);
     }
   };
@@ -117,11 +120,14 @@ export default function AddProducts() {
         <div className="flex items-center gap-2.5">
           <button
             type="button"
-            onClick={() => showToast('CSV Template with required INR product fields downloaded.')}
+            onClick={() => {
+              if (!formData.companyId) { showToast('Select an organization first, then import.'); return; }
+              setIsImportOpen(true);
+            }}
             className="flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors cursor-pointer"
           >
             <FileSpreadsheet size={15} className="text-emerald-600" />
-            <span>Bulk CSV Import</span>
+            <span>Bulk Import</span>
           </button>
         </div>
       </div>
@@ -139,6 +145,7 @@ export default function AddProducts() {
             onReset={handleResetForm}
             isSubmitting={isSubmitting}
             companies={companies}
+            categories={categories}
           />
         </div>
 
@@ -147,6 +154,16 @@ export default function AddProducts() {
           <ProductPreviewCard formData={formData} image={productImage} />
         </div>
       </div>
+
+      <ExcelImportModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+        companyId={formData.companyId}
+        onImported={(res) => {
+          showToast(`Imported ${res.created} unit(s)${res.skipped ? `, ${res.skipped} skipped` : ''}.`);
+          navigate('/superadmin/products');
+        }}
+      />
     </div>
   );
 }

@@ -35,15 +35,17 @@ export default function ProductsList() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Map a backend product row to the shape this page renders.
+  // productsApi already maps device rows to a unit shape.
   const normalize = (p) => ({
     id: p.id,
+    code: p.code || '—',
     name: p.name,
     category: p.category || '—',
-    quantity: p.quantity ?? 0,
-    companyName: p.company?.name || '—',
-    purchaseDate: p.purchaseDate ? p.purchaseDate.slice(0, 10) : '',
-    installationDate: p.installationDate ? p.installationDate.slice(0, 10) : '',
+    companyName: p.companyName || '—',
+    zoneName: p.zoneName,
+    inStock: p.inStock,
+    purchaseDate: p.purchaseDate || '',
+    installationDate: p.installationDate || '',
     price: p.unitPrice != null ? Number(p.unitPrice) : 0,
     image: p.imageUrl || null
   });
@@ -342,12 +344,12 @@ export default function ProductsList() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                <th className="py-3 px-4">Product Name & Image</th>
+                <th className="py-3 px-4">Code</th>
+                <th className="py-3 px-4">Unit Name & Image</th>
                 <th className="py-3 px-4">Organization</th>
                 <th className="py-3 px-4">Category</th>
-                <th className="py-3 px-4">Units</th>
+                <th className="py-3 px-4">Location / Zone</th>
                 <th className="py-3 px-4">Purchase Date</th>
-                <th className="py-3 px-4">Installation Date</th>
                 <th className="py-3 px-4">Price (₹ INR)</th>
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
@@ -366,6 +368,9 @@ export default function ProductsList() {
               ) : (
                 filteredProducts.map((prd) => (
                   <tr key={prd.id} className="hover:bg-slate-50/80 transition-colors group">
+                    <td className="py-3.5 px-4 font-mono font-bold text-indigo-600 whitespace-nowrap">
+                      {prd.code}
+                    </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
@@ -388,19 +393,17 @@ export default function ProductsList() {
                         {prd.category}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 font-bold text-slate-900">
-                      {prd.quantity}
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      {prd.inStock ? (
+                        <span className="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-md text-[11px] font-semibold">In stock</span>
+                      ) : (
+                        <span className="text-slate-700 font-medium">{prd.zoneName}</span>
+                      )}
                     </td>
                     <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         <Calendar size={13} className="text-slate-400" />
-                        <span>{prd.purchaseDate}</span>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar size={13} className="text-indigo-600" />
-                        <span className="font-medium text-slate-800">{prd.installationDate}</span>
+                        <span>{prd.purchaseDate || '—'}</span>
                       </div>
                     </td>
                     <td className="py-3.5 px-4 font-extrabold text-slate-900 whitespace-nowrap">
