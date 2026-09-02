@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 
 import StatCard from './components/StatCard';
-import QuickActions from './components/QuickActions';
 import EquipmentStatusStats from './components/EquipmentStatusStats';
 import WorkOrderStatus from './components/WorkOrderStatus';
 import CriticalAlerts from './components/CriticalAlerts';
@@ -45,12 +44,10 @@ export default function Overview() {
         setOverview(data);
         setError(null);
         setLastUpdated(new Date());
-      } else {
-        setError('No data returned from server.');
       }
     } catch (err) {
-      console.error('[Overview] platform overview fetch failed:', err.message);
-      setError(err.message || 'Failed to load platform overview.');
+      console.error('[Superadmin Overview] fetch error:', err);
+      setError(err.message || 'Failed to load platform overview from backend');
     } finally {
       setLoading(false);
     }
@@ -58,21 +55,22 @@ export default function Overview() {
 
   useEffect(() => {
     fetchOverview();
-    const onFocus = () => fetchOverview();
-    window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
-  }, [fetchOverview]);
 
-  // Live refresh on domain events (issues/logs) — the whole overview re-aggregates.
-  useEffect(() => {
-    const unsubCreated = socketClient.on('issue:created', () => fetchOverview());
-    const unsubUpdated = socketClient.on('issue:updated', () => fetchOverview());
-    const unsubLog = socketClient.on('log:submitted', () => fetchOverview());
-    setIsLive(socketClient.isConnected);
+    // Re-fetch when socket receives entity updates from the backend
+    const unsubIssue = socketClient.on('issue:new', fetchOverview);
+    const unsubLog = socketClient.on('daily_log:new', fetchOverview);
+    const unsubDev = socketClient.on('device:updated', fetchOverview);
+
+    // Track live connection state
+    const interval = setInterval(() => {
+      setIsLive(socketClient.isConnected());
+    }, 2000);
+
     return () => {
-      unsubCreated();
-      unsubUpdated();
+      unsubIssue();
       unsubLog();
+      unsubDev();
+      clearInterval(interval);
     };
   }, [fetchOverview]);
 
@@ -81,6 +79,7 @@ export default function Overview() {
     fetchOverview();
   };
 
+  // Extract metrics strictly from backend response
   const devices = overview?.devices;
   const issues = overview?.issues;
   const tenancy = overview?.tenancy;
@@ -104,7 +103,7 @@ export default function Overview() {
       )}
 
       {/* Top Headline Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 py-1">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-1">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
             Maintenance Operations Overview
@@ -140,15 +139,15 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* Error banner — never falls back to fabricated numbers */}
+      {/* Error banner */}
       {error && !loading && (
         <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-xl px-4 py-3 text-xs font-semibold flex items-center gap-2">
-          <AlertTriangle size={15} />
-          Could not load live dashboard data: {error}
+          <AlertTriangle size={16} className="shrink-0" />
+          <span>{error}</span>
         </div>
       )}
 
-      {/* Primary KPI Summary Stat Cards (all backend-sourced) */}
+      {/* Primary KPI Summary Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Devices"
@@ -205,12 +204,6 @@ export default function Overview() {
         devices={devices}
         byHardwareType={overview?.byHardwareType}
         loading={loading}
-      />
-
-      {/* Quick Action Triggers */}
-      <QuickActions
-        onOpenNewWorkOrder={() => setIsWorkOrderModalOpen(true)}
-        onNotify={showToast}
       />
 
       {/* Mid Section: Work Orders Status & Critical Alerts */}

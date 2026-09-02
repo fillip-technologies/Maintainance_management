@@ -8,17 +8,11 @@ import {
   UserCheck
 } from 'lucide-react';
 
-export default function ClientStatCards({ stats, teamStats }) {
-  // Product stats bound dynamically from API
+export function ClientProductCards({ stats }) {
   const totalCount = stats?.totalProducts ?? 0;
   const workingCount = stats?.workingProducts ?? 0;
   const notWorkingCount = stats?.notWorkingProducts ?? 0;
   const maintenanceCount = stats?.maintenanceProducts ?? 0;
-
-  // Personnel / Team stats bound dynamically from API
-  const zoneOfficersCount = teamStats?.zoneOfficers ?? 0;
-  const staffMembersCount = teamStats?.staffMembers ?? 0;
-  const techniciansCount = teamStats?.technicians ?? 0;
 
   const productCards = [
     {
@@ -59,6 +53,45 @@ export default function ClientStatCards({ stats, teamStats }) {
     }
   ];
 
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {productCards.map((card, idx) => {
+        const Icon = card.icon;
+        return (
+          <div
+            key={idx}
+            className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group relative overflow-hidden"
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-semibold text-slate-500">{card.title}</span>
+                <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                  {card.value}
+                </span>
+              </div>
+              <div className={`w-12 h-12 rounded-2xl ${card.iconBg} border flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform`}>
+                <Icon size={24} />
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 mt-4 flex items-center justify-between">
+              <span className="text-[11px] font-medium text-slate-500">{card.subtitle}</span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${card.badgeBg}`}>
+                {card.badgeText}
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export function ClientTeamCards({ teamStats }) {
+  const zoneOfficersCount = teamStats?.zoneOfficers ?? 0;
+  const staffMembersCount = teamStats?.staffMembers ?? 0;
+  const techniciansCount = teamStats?.technicians ?? 0;
+
   const teamCards = [
     {
       title: 'Total Zone Officers',
@@ -90,10 +123,16 @@ export default function ClientStatCards({ stats, teamStats }) {
   ];
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* 1. Facility Products Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {productCards.map((card, idx) => {
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          Operations & Zone Personnel
+        </span>
+        <div className="h-px bg-slate-200 flex-1"></div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {teamCards.map((card, idx) => {
           const Icon = card.icon;
           return (
             <div
@@ -122,47 +161,15 @@ export default function ClientStatCards({ stats, teamStats }) {
           );
         })}
       </div>
+    </div>
+  );
+}
 
-      {/* 2. Operations Team Personnel Grid */}
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-            Operations & Zone Personnel
-          </span>
-          <div className="h-px bg-slate-200 flex-1"></div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {teamCards.map((card, idx) => {
-            const Icon = card.icon;
-            return (
-              <div
-                key={idx}
-                className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group relative overflow-hidden"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-slate-500">{card.title}</span>
-                    <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                      {card.value}
-                    </span>
-                  </div>
-                  <div className={`w-12 h-12 rounded-2xl ${card.iconBg} border flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform`}>
-                    <Icon size={24} />
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-slate-100 mt-4 flex items-center justify-between">
-                  <span className="text-[11px] font-medium text-slate-500">{card.subtitle}</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${card.badgeBg}`}>
-                    {card.badgeText}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+export default function ClientStatCards({ stats, teamStats }) {
+  return (
+    <div className="flex flex-col gap-6">
+      <ClientProductCards stats={stats} />
+      <ClientTeamCards teamStats={teamStats} />
     </div>
   );
 }
