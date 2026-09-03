@@ -11,6 +11,9 @@ import LoginPage from './app/login/LoginPage';
 import ZoneLayout from './app/zone/ZoneLayout';
 import ZoneOverview from './app/zone/ZoneOverview';
 
+// Shared "Raise Query" panel (client_admin + zone officers)
+import RaiseQueryPage from './app/common/RaiseQueryPage';
+
 // Superadmin Layout & Views
 import SuperadminLayout from './app/superadmin/SuperadminLayout';
 import Overview from './app/superadmin/overview/Overview';
@@ -27,7 +30,6 @@ import DailyLogsPage from './app/clientadmin/dailylogs/DailyLogsPage';
 import ZoneOfficerPage from './app/clientadmin/zoneofficer/ZoneOfficerPage';
 import ClientUsersPage from './app/clientadmin/users/ClientUsersPage';
 import ClientInventoryPage from './app/clientadmin/inventory/ClientInventoryPage';
-import ClientRequestsPage from './app/clientadmin/requests/ClientRequestsPage';
 import ClientAssetsPage from './app/clientadmin/assets/ClientAssetsPage';
 import ClientInvoicesPage from './app/clientadmin/invoices/ClientInvoicesPage';
 import ZonesPage from './app/clientadmin/zones/ZonesPage';
@@ -87,6 +89,7 @@ function AppRoutes() {
           <Route path="/zone" element={<ZoneLayout />}>
             <Route index element={<Navigate to="/zone/overview" replace />} />
             <Route path="overview" element={<ZoneOverview />} />
+            <Route path="requests" element={<RaiseQueryPage />} />
           </Route>
         </Route>
 
@@ -100,7 +103,7 @@ function AppRoutes() {
             <Route path="zone-officer" element={<ZoneOfficerPage />} />
             <Route path="users" element={<ClientUsersPage />} />
             <Route path="inventory" element={<ClientInventoryPage />} />
-            <Route path="requests" element={<ClientRequestsPage />} />
+            <Route path="requests" element={<RaiseQueryPage />} />
             <Route path="assets" element={<ClientAssetsPage />} />
             <Route path="invoices" element={<ClientInvoicesPage />} />
             <Route path="zones" element={<ZonesPage />} />

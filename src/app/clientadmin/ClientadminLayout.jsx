@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../sidebar/Sidebar';
 import Header from '../common/Header';
-import ClientRaiseRequestModal from './overview/components/ClientRaiseRequestModal';
+import RaiseQueryModal from '../common/RaiseQueryModal';
 
 export default function ClientadminLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -15,8 +15,11 @@ export default function ClientadminLayout() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleRequestCreated = (newTicket) => {
-    showToast(`Request "${newTicket.title}" created successfully (ID: ${newTicket.id})!`);
+  const handleRequestCreated = (issue) => {
+    const unit = issue?.device?.name || 'unit';
+    showToast(`Defect raised on ${unit} — the unit is now under maintenance.`);
+    // Let any open list (e.g. the Requests page) refresh without a socket round-trip.
+    window.dispatchEvent(new CustomEvent('fixly:issue_created'));
   };
 
   return (
@@ -47,7 +50,7 @@ export default function ClientadminLayout() {
       </div>
 
       {/* Global Raise Request Modal for Client Admin */}
-      <ClientRaiseRequestModal
+      <RaiseQueryModal
         isOpen={isRequestModalOpen}
         onClose={() => setIsRequestModalOpen(false)}
         onCreated={handleRequestCreated}

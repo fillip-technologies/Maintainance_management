@@ -60,3 +60,18 @@ export async function getTechnicianAssignments(id) {
   const res = await apiClient.request(`/technicians/${id}/assignments`, { method: 'GET' });
   return res?.data ?? [];
 }
+
+// POST /technicians/:id/assignments — add zone or org coverage for a technician.
+// payload: { clientId? } for org-level, { zoneId? } for zone-level.
+export async function addTechnicianAssignment(technicianId, payload) {
+  const res = await apiClient.request(`/technicians/${technicianId}/assignments`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+  return res?.data ?? null;
+}
+
+// DELETE /technicians/:id/assignments/:assignmentId
+export async function removeTechnicianAssignment(technicianId, assignmentId) {
+  return apiClient.request(`/technicians/${technicianId}/assignments/${assignmentId}`, { method: 'DELETE' });
+}

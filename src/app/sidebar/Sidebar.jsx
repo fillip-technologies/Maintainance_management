@@ -12,6 +12,7 @@ import {
   MapPin,
   CalendarCheck,
   Grid3x3,
+  ClipboardList,
   X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -82,6 +83,11 @@ export default function Sidebar({
           name: 'Inventory',
           path: '/clientadmin/inventory',
           icon: Boxes
+        },
+        {
+          name: 'Raise Query',
+          path: '/clientadmin/requests',
+          icon: ClipboardList
         },
         {
           name: 'Zone Officer',

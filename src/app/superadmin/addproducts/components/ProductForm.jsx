@@ -21,7 +21,9 @@ export default function ProductForm({
   isSubmitting,
   // When provided (super_admin), renders a required Organization selector.
   // Omitted for a client_admin, whose organization is implicit.
-  companies = null
+  companies = null,
+  // Global category list — required selection (drives the unit's unique code).
+  categories = []
 }) {
   const handleChange = (field, value) => {
     setFormData((prev) => ({
@@ -85,46 +87,26 @@ export default function ProductForm({
             />
           </div>
 
-          {/* 1b. Units / Quantity (stock count) */}
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Units (Quantity) *
-            </label>
-            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2">
-              <Boxes size={16} className="text-slate-400 shrink-0" />
-              <input
-                type="number"
-                min="0"
-                step="1"
-                required
-                placeholder="e.g., 25"
-                value={formData.quantity}
-                onChange={(e) => handleChange('quantity', e.target.value)}
-                className="w-full bg-transparent text-xs font-bold text-slate-900 outline-hidden placeholder:text-slate-400"
-              />
-            </div>
-          </div>
-
-          {/* 3. Categories */}
-          <div>
+          {/* 3. Category (global list — required; drives the unique code) */}
+          <div className="md:col-span-2">
             <label className="block text-xs font-bold text-slate-700 mb-1">
               Category *
             </label>
             <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2">
               <Layers size={16} className="text-slate-400 shrink-0" />
               <select
-                value={formData.category}
-                onChange={(e) => handleChange('category', e.target.value)}
+                required
+                value={formData.categoryId || ''}
+                onChange={(e) => handleChange('categoryId', e.target.value)}
                 className="w-full bg-transparent text-xs font-semibold text-slate-900 outline-hidden cursor-pointer"
               >
-                <option value="Security & CCTV Cameras">Security & CCTV Cameras</option>
-                <option value="Smart TVs & Displays">Smart TVs & Displays</option>
-                <option value="Fiber Optics & Networking">Fiber Optics & Networking</option>
-                <option value="LED Video Walls">LED Video Walls</option>
-                <option value="Surveillance & NVR">Surveillance & NVR</option>
-                <option value="AV Cables & Accessories">AV Cables & Accessories</option>
+                <option value="" disabled>Select a category…</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name} ({c.code})</option>
+                ))}
               </select>
             </div>
+            <span className="text-[10px] text-slate-400">A unique code (e.g. {categories[0]?.code || 'CAM'}-000123) is generated automatically.</span>
           </div>
 
           {/* 4. Purchase Date */}

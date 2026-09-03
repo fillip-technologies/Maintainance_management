@@ -15,6 +15,7 @@ export { default as socketClient } from './socketClient';
 export * from './dashboardApi';
 export * from './devicesApi';
 export * from './issuesApi';
+export * from './issueCategoriesApi';
 export * from './dailyLogsApi';
 export * from './techniciansApi';
 export * from './hardwareTypesApi';

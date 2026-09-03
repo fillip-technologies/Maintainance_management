@@ -3,30 +3,27 @@ import apiClient from './apiClient';
 // ─────────────────────────────────────────────
 // ISSUES API — /issues
 // ─────────────────────────────────────────────
-// GET    /issues                   — paginated (deviceId, status, priority, zoneId, assignedTo, page, limit)
-// GET    /issues/:id               — single issue
-// POST   /issues                   — raise new issue
-// PATCH  /issues/:id/status        — state machine transition
-// PATCH  /issues/:id/assign        — assign technician
-// GET    /issues/:id/history       — full audit trail
+// GET    /issues              — paginated list (scope-filtered)
+// POST   /issues              — raise a defect (stays open; all org/zone members + technicians see it)
+// PATCH  /issues/:id/status   — state machine transition (technician picks up: open → in_progress)
+// GET    /issues/:id/history  — full audit trail
 //
-// Issue status state machine:
-//   open → assigned → in_progress ↔ on_hold → resolved → closed (terminal)
-//                                              ↓
-//                                           reopened → assigned
+// State machine: open → in_progress ↔ on_hold → resolved → closed
 // ─────────────────────────────────────────────
 
 export const ISSUE_STATUSES = ['open', 'assigned', 'in_progress', 'on_hold', 'resolved', 'closed', 'reopened'];
 
 // Valid transitions map (frontend hint — backend also enforces these)
+// Mirrors issueStateMachine.js on the backend.
+// Technicians pick up open issues directly (open → in_progress) — no assign step.
 export const VALID_TRANSITIONS = {
-  open:        ['assigned'],
+  open:        ['in_progress', 'on_hold'],
   assigned:    ['in_progress', 'on_hold'],
   in_progress: ['resolved', 'on_hold'],
   on_hold:     ['in_progress'],
   resolved:    ['closed', 'reopened'],
-  reopened:    ['assigned'],
-  closed:      [] // terminal
+  reopened:    ['in_progress', 'on_hold'],
+  closed:      []
 };
 
 export async function getIssues({ deviceId, status, priority, zoneId, assignedTo, page = 1, limit = 20 } = {}) {
@@ -47,7 +44,8 @@ export async function getIssueById(id) {
 }
 
 export async function createIssue(payload) {
-  // Required: deviceId, issueCategoryId, title, priority ('low' | 'medium' | 'high' | 'critical')
+  // Required: deviceId, categoryId (issue/defect category), description.
+  // Optional: priority ('low' | 'medium' | 'high' | 'critical', default 'medium').
   const res = await apiClient.request('/issues', {
     method: 'POST',
     body: JSON.stringify(payload)
@@ -60,15 +58,6 @@ export async function updateIssueStatus(id, status, note = '') {
   const res = await apiClient.request(`/issues/${id}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ status, ...(note ? { note } : {}) })
-  });
-  return res?.data ?? null;
-}
-
-export async function assignIssueTechnician(id, technicianId, note = '') {
-  // PATCH /issues/:id/assign
-  const res = await apiClient.request(`/issues/${id}/assign`, {
-    method: 'PATCH',
-    body: JSON.stringify({ technicianId, ...(note ? { note } : {}) })
   });
   return res?.data ?? null;
 }
