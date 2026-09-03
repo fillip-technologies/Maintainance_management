@@ -31,6 +31,7 @@ import ClientRequestsPage from './app/clientadmin/requests/ClientRequestsPage';
 import ClientAssetsPage from './app/clientadmin/assets/ClientAssetsPage';
 import ClientInvoicesPage from './app/clientadmin/invoices/ClientInvoicesPage';
 import ZonesPage from './app/clientadmin/zones/ZonesPage';
+import ZoneDetailPage from './app/clientadmin/zones/ZoneDetailPage';
 
 function RootRedirect() {
   const { isAuthenticated, currentUser } = useAuth();
@@ -103,6 +104,7 @@ function AppRoutes() {
             <Route path="assets" element={<ClientAssetsPage />} />
             <Route path="invoices" element={<ClientInvoicesPage />} />
             <Route path="zones" element={<ZonesPage />} />
+            <Route path="zones/:zoneId" element={<ZoneDetailPage />} />
           </Route>
         </Route>
 

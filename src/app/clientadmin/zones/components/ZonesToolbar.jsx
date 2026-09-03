@@ -60,14 +60,10 @@ export default function ZonesToolbar({
         {/* Showing count */}
         <span className="text-[11px] font-semibold text-slate-400">{totalVisible} zone{totalVisible !== 1 ? "s" : ""}</span>
 
-        {/* Expand all */}
-        <button
-          onClick={() => setExpandAll((v) => !v)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-200 bg-white text-slate-600 hover:border-indigo-300 hover:text-indigo-700 hover:bg-indigo-50 transition-all cursor-pointer"
-        >
-          {expandAll ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-          {expandAll ? "Collapse All" : "Expand All"}
-        </button>
+        {/* View Hint */}
+        <span className="hidden sm:inline-flex items-center text-[11px] font-medium text-slate-400 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-xl">
+          Click any card to view details
+        </span>
       </div>
     </div>
   );
