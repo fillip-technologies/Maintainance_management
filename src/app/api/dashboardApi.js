@@ -51,6 +51,13 @@ export async function getDashboardSummary({ scope = 'platform', id, includeSubzo
 // }
 // ─────────────────────────────────────────────
 
+export async function getZoneBreakdown({ scope = 'client', id, includeSubzones = false } = {}) {
+  const params = new URLSearchParams({ scope, includeSubzones });
+  if (id) params.set('id', id);
+  const res = await apiClient.request(`/dashboard/zone-breakdown?${params}`, { method: 'GET' });
+  return res?.data?.zones ?? [];
+}
+
 export async function getPlatformOverview() {
   const res = await apiClient.request('/dashboard/overview', { method: 'GET' });
   return res?.data ?? null;

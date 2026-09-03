@@ -132,7 +132,9 @@ export default function UserTable({ users = [], onEditUser }) {
 
                     {/* Assigned Zone */}
                     <td className="py-3 px-4">
-                      <span className="text-slate-800 font-semibold">{u.zoneName || 'Entire Facility'}</span>
+                      <span className="text-slate-800 font-semibold">
+                        {u.zoneAssignments?.[0]?.zone?.name || 'Entire Facility'}
+                      </span>
                     </td>
 
                     {/* Status */}

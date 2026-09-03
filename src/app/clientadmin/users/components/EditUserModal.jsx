@@ -1,55 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { X, UserCheck, Shield, Wrench, CheckCircle2, AlertTriangle, Trash2, MapPin } from 'lucide-react';
+import { X, UserCheck, AlertTriangle, Trash2 } from 'lucide-react';
 import { updateUser, deleteUser } from '../../../api/usersApi';
+import { getZones, assignUserToZone, removeUserFromZone } from '../../../api/zonesApi';
 import { useAuth } from '../../../context/AuthContext';
 
 export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDeleted }) {
   const { currentUser } = useAuth();
 
-  if (!isOpen || !user) return null;
-
-  const isSelf = currentUser?.id === user.id;
-
-  const [formData, setFormData] = useState({
-    name: user.name || '',
-    role: user.role || 'zone_staff',
-    accountStatus: user.accountStatus || 'active',
-    zoneName: user.zoneName || 'North Wing - Floor 1-4',
-    specialization: user.specialization || 'HVAC & Chiller Plant'
-  });
-  const [isCustomZone, setIsCustomZone] = useState(false);
-  const [customZoneText, setCustomZoneText] = useState('');
+  const [formData, setFormData] = useState({ name: '', role: 'zone_staff', accountStatus: 'active' });
+  const [selectedZoneId, setSelectedZoneId] = useState('');
+  const [zones, setZones] = useState([]);
+  const [loadingZones, setLoadingZones] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const presetZones = [
-    'North Wing - Floor 1-4',
-    'South Wing & Basement Bay',
-    'Roof Plant & Chiller Bay',
-    'Entire Facility Core',
-    'External Parking & Utilities'
-  ];
-
-  useEffect(() => {
-    setError('');
-    if (user) {
-      const isPreset = presetZones.includes(user.zoneName);
-      setFormData({
-        name: user.name || '',
-        role: user.role || 'zone_staff',
-        accountStatus: user.accountStatus || 'active',
-        zoneName: user.zoneName || 'North Wing - Floor 1-4',
-        specialization: user.specialization || 'HVAC & Chiller Plant'
-      });
-      if (!isPreset && user.zoneName) {
-        setIsCustomZone(true);
-        setCustomZoneText(user.zoneName);
-      } else {
-        setIsCustomZone(false);
-        setCustomZoneText('');
-      }
-    }
-  }, [user]);
+  const isSelf = currentUser?.id === user?.id;
 
   const roles = [
     { id: 'zone_staff', label: 'Zone Floor Staff' },
@@ -57,36 +22,64 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
     { id: 'client_admin', label: 'Client Administrator' }
   ];
 
-  const specializations = [
-    'HVAC & Chiller Plant',
-    'Electrical & Power Systems',
-    'Elevators & Mobility',
-    'Fire Safety & Pumps',
-    'Access Control & CCTV',
-    'Plumbing & Sanitation'
-  ];
+  const showZonePicker = ['zone_incharge', 'zone_staff'].includes(formData.role);
 
-  const handleZoneSelectChange = (e) => {
-    const val = e.target.value;
-    if (val === '__custom__') {
-      setIsCustomZone(true);
-      setFormData({ ...formData, zoneName: customZoneText || '' });
-    } else {
-      setIsCustomZone(false);
-      setFormData({ ...formData, zoneName: val });
-    }
-  };
+  useEffect(() => {
+    if (!isOpen || !user) return;
+    setError('');
+    setFormData({
+      name: user.name || '',
+      role: user.role || 'zone_staff',
+      accountStatus: user.accountStatus || 'active',
+    });
+    // Pre-select user's current zone assignment
+    const current = user.zoneAssignments?.[0];
+    setSelectedZoneId(current?.zone?.id ?? '');
+  }, [isOpen, user]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const clientId = currentUser?.clientId;
+    if (!clientId) return;
+    setLoadingZones(true);
+    getZones({ clientId, limit: 100 })
+      .then((res) => setZones(res.items ?? []))
+      .catch(() => setZones([]))
+      .finally(() => setLoadingZones(false));
+  }, [isOpen, currentUser?.clientId]);
+
+  if (!isOpen || !user) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
     try {
-      const assignedZone = isCustomZone ? customZoneText.trim() : formData.zoneName;
+      // Update name / role / accountStatus
       const updated = await updateUser(user.id, {
-        ...formData,
-        zoneName: assignedZone
+        name: formData.name,
+        role: formData.role,
+        accountStatus: formData.accountStatus,
       });
+
+      // Handle zone assignment when zone picker is visible
+      if (showZonePicker) {
+        const currentAssignment = user.zoneAssignments?.[0];
+        const currentZoneId = currentAssignment?.zone?.id ?? '';
+        const assignmentRole = formData.role === 'zone_incharge' ? 'incharge' : 'staff';
+        const zoneChanged = selectedZoneId !== currentZoneId;
+        const roleChanged = assignmentRole !== (currentAssignment?.role ?? '');
+
+        if (zoneChanged || roleChanged) {
+          if (currentAssignment) {
+            await removeUserFromZone(currentZoneId, currentAssignment.id).catch(() => {});
+          }
+          if (selectedZoneId) {
+            await assignUserToZone(selectedZoneId, user.id, assignmentRole);
+          }
+        }
+      }
+
       onUpdated(updated);
       onClose();
     } catch (err) {
@@ -182,74 +175,30 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
             </select>
           </div>
 
-          {/* Assigned Facility Zone / Custom Area */}
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-700">Assigned Facility Zone</label>
-              {isCustomZone ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsCustomZone(false);
-                    setFormData({ ...formData, zoneName: 'North Wing - Floor 1-4' });
-                  }}
-                  className="text-[10px] text-indigo-600 font-semibold hover:underline cursor-pointer"
-                >
-                  Choose from preset zones
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setIsCustomZone(true)}
-                  className="text-[10px] text-indigo-600 font-semibold hover:underline cursor-pointer"
-                >
-                  + Type custom zone/area
-                </button>
-              )}
-            </div>
-
-            {!isCustomZone ? (
-              <select
-                value={formData.zoneName}
-                onChange={handleZoneSelectChange}
-                className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer"
-              >
-                {presetZones.map((z) => (
-                  <option key={z} value={z}>{z}</option>
-                ))}
-                <option value="__custom__">+ Enter custom zone / area...</option>
-              </select>
-            ) : (
-              <div className="relative flex items-center animate-in fade-in duration-150">
-                <MapPin size={15} className="absolute left-3.5 text-indigo-600 pointer-events-none" />
-                <input
-                  type="text"
-                  required
-                  placeholder="Enter custom zone / area name (e.g. 5th Floor Server Room)"
-                  value={customZoneText}
-                  onChange={(e) => {
-                    setCustomZoneText(e.target.value);
-                    setFormData({ ...formData, zoneName: e.target.value });
-                  }}
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-indigo-300 bg-indigo-50/30 text-xs font-semibold text-slate-900 outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Technician Specialization */}
-          {formData.role === 'technician' && (
+          {/* Assigned Zone — only for zone roles, populated from DB */}
+          {showZonePicker && (
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-700">Field Specialization</label>
-              <select
-                value={formData.specialization}
-                onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
-                className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer"
-              >
-                {specializations.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+              <label className="text-xs font-bold text-slate-700">Assigned Facility Zone</label>
+              {loadingZones ? (
+                <div className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-400">
+                  Loading zones…
+                </div>
+              ) : zones.length === 0 ? (
+                <div className="px-3.5 py-2.5 rounded-xl border border-amber-200 bg-amber-50 text-xs text-amber-700 font-medium">
+                  No zones found. Create zones first from the Zones page.
+                </div>
+              ) : (
+                <select
+                  value={selectedZoneId}
+                  onChange={(e) => setSelectedZoneId(e.target.value)}
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer"
+                >
+                  <option value="">— No zone assigned —</option>
+                  {zones.map((z) => (
+                    <option key={z.id} value={z.id}>{z.name}</option>
+                  ))}
+                </select>
+              )}
             </div>
           )}
 

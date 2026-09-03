@@ -14,10 +14,11 @@ import apiClient from './apiClient';
 // DELETE /zones/:id/assignments/:userId   — remove assignment
 // ─────────────────────────────────────────────
 
-export async function getZones({ clientId, parentZoneId, search, page = 1, limit = 20 } = {}) {
+export async function getZones({ clientId, parentZoneId, topLevel, search, page = 1, limit = 20 } = {}) {
   const params = new URLSearchParams({ page, limit });
   if (clientId)     params.set('clientId', clientId);
   if (parentZoneId) params.set('parentZoneId', parentZoneId);
+  if (topLevel)     params.set('topLevel', topLevel);
   if (search)       params.set('search', search);
   const res = await apiClient.request(`/zones?${params.toString()}`, { method: 'GET' });
   return res?.data ?? { items: [], page: 1, limit: 20, totalItems: 0, totalPages: 0 };
@@ -60,14 +61,22 @@ export async function getZoneAssignments(id) {
   return res?.data ?? [];
 }
 
-export async function assignUserToZone(zoneId, userId) {
-  const res = await apiClient.request(`/zones/${zoneId}/assignments`, {
+export async function assignUserToZone(zoneId, userId, role = 'staff') {
+  const res = await apiClient.request(`/zones/${zoneId}/assign`, {
     method: 'POST',
-    body: JSON.stringify({ userId })
+    body: JSON.stringify({ userId, role })
   });
   return res?.data ?? null;
 }
 
-export async function removeUserFromZone(zoneId, userId) {
-  return apiClient.request(`/zones/${zoneId}/assignments/${userId}`, { method: 'DELETE' });
+export async function removeUserFromZone(zoneId, assignmentId) {
+  return apiClient.request(`/zones/${zoneId}/assignments/${assignmentId}`, { method: 'DELETE' });
+}
+
+export async function getZoneActivity(zoneId, { page = 1, limit = 30, from, to } = {}) {
+  const params = new URLSearchParams({ page, limit });
+  if (from) params.set('from', from);
+  if (to)   params.set('to', to);
+  const res = await apiClient.request(`/zones/${zoneId}/activity?${params}`, { method: 'GET' });
+  return res?.data ?? { items: [], page: 1, limit: 30, totalItems: 0, totalPages: 0 };
 }

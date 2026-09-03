@@ -59,7 +59,7 @@ export default function ClientUsersPage() {
         !q ||
         u.name?.toLowerCase().includes(q) ||
         u.email?.toLowerCase().includes(q) ||
-        (u.zoneName && u.zoneName.toLowerCase().includes(q)) ||
+        u.zoneAssignments?.some((a) => a.zone?.name?.toLowerCase().includes(q)) ||
         (u.specialization && u.specialization.toLowerCase().includes(q));
 
       return matchesRole && matchesSearch;

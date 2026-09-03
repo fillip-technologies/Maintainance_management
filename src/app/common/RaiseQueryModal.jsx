@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Wrench, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { X, Wrench, ShieldCheck, AlertTriangle, MapPin } from 'lucide-react';
 import { getDevices } from '../api/devicesApi';
 import { getIssueCategories } from '../api/issueCategoriesApi';
 import { createIssue } from '../api/issuesApi';
+import { getZones } from '../api/zonesApi';
+import { useAuth } from '../context/AuthContext';
 
 // Shared "raise a query / report a defect" modal used by every role that can
 // report a faulty unit (client_admin, zone_incharge, zone_staff). It is
@@ -33,28 +35,46 @@ const EMPTY_FORM = {
   description: ''
 };
 
-// initialProductCategoryId — when opened from inventory, pre-selects the unit's
-// product type so the user doesn't have to pick it manually.
-export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialProductCategoryId }) {
+// initialProductCategoryId — pre-selects product type when opened from inventory.
+// initialZoneId — pre-selects a zone; devices are filtered to that zone.
+export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialProductCategoryId, initialZoneId }) {
+  const { currentUser } = useAuth();
+  const clientId = currentUser?.clientId;
+
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [devices, setDevices] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [zones, setZones] = useState([]);
+  const [selectedZoneId, setSelectedZoneId] = useState(initialZoneId ?? '');
+  const [loadingZones, setLoadingZones] = useState(false);
   const [loadingRefs, setLoadingRefs] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Load the units in the caller's scope once the modal opens; product types are
-  // derived from them so we only ever offer types that actually have units.
+  // Load zones when modal opens so user can pick which zone the issue is in.
+  useEffect(() => {
+    if (!isOpen) return;
+    setSelectedZoneId(initialZoneId ?? '');
+    setError('');
+    if (!clientId) return;
+    setLoadingZones(true);
+    getZones({ clientId, limit: 100 })
+      .then((res) => setZones(res?.items ?? []))
+      .catch(() => {})
+      .finally(() => setLoadingZones(false));
+  }, [isOpen, clientId, initialZoneId]);
+
+  // Load devices filtered by the selected zone (or all in scope if none selected).
   useEffect(() => {
     if (!isOpen) return;
     let cancelled = false;
     setError('');
-    // Pre-select product type when launched from the inventory row.
     if (initialProductCategoryId) {
       setFormData((f) => ({ ...f, productCategoryId: initialProductCategoryId }));
     }
     setLoadingRefs(true);
-    getDevices({ limit: 100 })
+    const params = selectedZoneId ? { zoneId: selectedZoneId, limit: 100 } : { limit: 100 };
+    getDevices(params)
       .then((res) => {
         if (cancelled) return;
         setDevices(res?.items ?? []);
@@ -64,7 +84,7 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
       })
       .finally(() => !cancelled && setLoadingRefs(false));
     return () => { cancelled = true; };
-  }, [isOpen]);
+  }, [isOpen, selectedZoneId, initialProductCategoryId]);
 
   // Distinct product types (categories) with the units available to raise a
   // defect against (anything not retired).
@@ -108,6 +128,7 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
   if (!isOpen) return null;
 
   const canSubmit =
+    selectedZoneId &&
     (isOther ? formData.customProductName.trim() : formData.productCategoryId) &&
     formData.categoryId &&
     formData.description.trim() &&
@@ -177,6 +198,34 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
               <span className="text-xs font-medium text-rose-800">{error}</span>
             </div>
           )}
+
+          {/* Zone picker */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <MapPin size={12} className="text-indigo-500" />
+              Zone <span className="text-rose-500">*</span>
+              <span className="text-[10px] font-normal text-slate-400 ml-1">— devices will be filtered to this zone</span>
+            </label>
+            {initialZoneId ? (
+              <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-indigo-200 bg-indigo-50 text-xs font-semibold text-indigo-700">
+                <MapPin size={13} className="text-indigo-500 shrink-0" />
+                {zones.find((z) => z.id === initialZoneId)?.name ?? 'Selected Zone'}
+                <span className="ml-auto text-[10px] font-bold text-indigo-400">Pre-selected</span>
+              </div>
+            ) : (
+              <select
+                value={selectedZoneId}
+                onChange={(e) => { setSelectedZoneId(e.target.value); setFormData(EMPTY_FORM); }}
+                disabled={loadingZones}
+                className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 cursor-pointer disabled:opacity-60"
+              >
+                <option value="">{loadingZones ? 'Loading zones…' : 'Select a zone first…'}</option>
+                {zones.map((z) => (
+                  <option key={z.id} value={z.id}>{z.name}</option>
+                ))}
+              </select>
+            )}
+          </div>
 
           {/* Product Type */}
           <div className="flex flex-col gap-1.5">

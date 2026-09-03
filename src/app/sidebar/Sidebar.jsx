@@ -54,6 +54,11 @@ export default function Sidebar({
           icon: Building2
         },
         {
+          name: 'Zones',
+          path: '/superadmin/zones',
+          icon: MapPin
+        },
+        {
           name: 'Technicians',
           path: '/superadmin/technicians',
           icon: Wrench
