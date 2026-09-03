@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Wrench, Plus, Search, Trash2, RefreshCw, Mail, CheckCircle2, X } from 'lucide-react';
-import { getTechnicians, deleteTechnician } from '../../api/techniciansApi';
+import { Wrench, Plus, Search, Trash2, RefreshCw, Mail, CheckCircle2, X, Building2, MapPin } from 'lucide-react';
+import { getTechnicians, getTechnicianById, deleteTechnician } from '../../api/techniciansApi';
 import CreateTechnicianModal from './components/CreateTechnicianModal';
 
 export default function TechniciansPage() {
@@ -20,7 +20,12 @@ export default function TechniciansPage() {
     setLoading(true);
     try {
       const data = await getTechnicians({ limit: 100, search: search.trim() || undefined });
-      setTechnicians(data?.items || []);
+      // Load each technician with their assignments via getById (includes assignments).
+      const items = data?.items || [];
+      const withAssignments = await Promise.all(
+        items.map((t) => getTechnicianById(t.id).catch(() => t))
+      );
+      setTechnicians(withAssignments);
     } catch (err) {
       console.error('[TechniciansPage] fetch error:', err.message);
     } finally {
@@ -133,6 +138,7 @@ export default function TechniciansPage() {
                 <th className="py-3 px-4">Technician</th>
                 <th className="py-3 px-4">Email</th>
                 <th className="py-3 px-4">Specialization</th>
+                <th className="py-3 px-4">Coverage</th>
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -171,6 +177,33 @@ export default function TechniciansPage() {
                         </span>
                       ) : (
                         <span className="text-slate-400">—</span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      {tech.assignments?.length > 0 ? (
+                        <div className="flex flex-col gap-1">
+                          {tech.assignments.map((a) => (
+                            <div key={a.id} className="flex items-center gap-1.5">
+                              {a.zone ? (
+                                <>
+                                  <MapPin size={11} className="text-indigo-500 shrink-0" />
+                                  <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded">
+                                    {a.zone.name}
+                                  </span>
+                                </>
+                              ) : a.client ? (
+                                <>
+                                  <Building2 size={11} className="text-emerald-500 shrink-0" />
+                                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                                    {a.client.name}
+                                  </span>
+                                </>
+                              ) : null}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 text-[11px]">Unassigned</span>
                       )}
                     </td>
                     <td className="py-3.5 px-4 text-right">
