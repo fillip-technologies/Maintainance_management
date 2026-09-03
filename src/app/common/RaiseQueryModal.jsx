@@ -33,7 +33,9 @@ const EMPTY_FORM = {
   description: ''
 };
 
-export default function RaiseQueryModal({ isOpen, onClose, onCreated }) {
+// initialProductCategoryId — when opened from inventory, pre-selects the unit's
+// product type so the user doesn't have to pick it manually.
+export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialProductCategoryId }) {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [devices, setDevices] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -47,6 +49,10 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated }) {
     if (!isOpen) return;
     let cancelled = false;
     setError('');
+    // Pre-select product type when launched from the inventory row.
+    if (initialProductCategoryId) {
+      setFormData((f) => ({ ...f, productCategoryId: initialProductCategoryId }));
+    }
     setLoadingRefs(true);
     getDevices({ limit: 100 })
       .then((res) => {

@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { X, UserCheck, Shield, Wrench, CheckCircle2, AlertTriangle, Trash2, MapPin } from 'lucide-react';
 import { updateUser, deleteUser } from '../../../api/usersApi';
+import { useAuth } from '../../../context/AuthContext';
 
 export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDeleted }) {
+  const { currentUser } = useAuth();
+
   if (!isOpen || !user) return null;
+
+  const isSelf = currentUser?.id === user.id;
 
   const [formData, setFormData] = useState({
     name: user.name || '',
@@ -15,6 +20,7 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
   const [isCustomZone, setIsCustomZone] = useState(false);
   const [customZoneText, setCustomZoneText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const presetZones = [
     'North Wing - Floor 1-4',
@@ -25,6 +31,7 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
   ];
 
   useEffect(() => {
+    setError('');
     if (user) {
       const isPreset = presetZones.includes(user.zoneName);
       setFormData({
@@ -72,6 +79,7 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     setIsSubmitting(true);
     try {
       const assignedZone = isCustomZone ? customZoneText.trim() : formData.zoneName;
@@ -82,24 +90,34 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
       onUpdated(updated);
       onClose();
     } catch (err) {
-      console.error(err);
+      setError(err.message || 'Failed to update user. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async () => {
-    if (confirm(`Are you sure you want to remove ${user.name}? This will soft-remove their account.`)) {
-      setIsSubmitting(true);
-      try {
-        const deleted = await deleteUser(user.id);
-        onDeleted(deleted || { ...user, accountStatus: 'removed' });
-        onClose();
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsSubmitting(false);
-      }
+    if (isSelf) {
+      setError("You can't remove your own account. Ask another admin to do this.");
+      return;
+    }
+    if (!confirm(`Are you sure you want to remove ${user.name}? This will soft-remove their account.`)) return;
+
+    setError('');
+    setIsSubmitting(true);
+    try {
+      const deleted = await deleteUser(user.id);
+      onDeleted(deleted || { ...user, accountStatus: 'removed' });
+      onClose();
+    } catch (err) {
+      const isSelfError = err.code === 'CANNOT_DELETE_SELF' || err.message?.toLowerCase().includes('self');
+      setError(
+        isSelfError
+          ? "You can't remove your own account. Ask another admin to do this."
+          : err.message || 'Failed to remove user. Please try again.'
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -130,6 +148,14 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
 
         {/* Modal Form */}
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4 overflow-y-auto">
+          {/* Error banner */}
+          {error && (
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2.5">
+              <AlertTriangle size={15} className="text-rose-600 shrink-0 mt-0.5" />
+              <span className="text-xs font-semibold text-rose-700">{error}</span>
+            </div>
+          )}
+
           {/* Full Name */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Full Name</label>
@@ -246,10 +272,16 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
             <button
               type="button"
               onClick={handleDelete}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-bold transition-colors cursor-pointer"
+              disabled={isSubmitting}
+              title={isSelf ? "You can't remove your own account" : 'Remove this user'}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-colors border ${
+                isSelf
+                  ? 'text-rose-300 border-rose-100 bg-rose-50/40 cursor-not-allowed'
+                  : 'text-rose-600 hover:bg-rose-50 border-rose-200 cursor-pointer'
+              }`}
             >
               <Trash2 size={14} />
-              <span>Remove User</span>
+              <span>{isSelf ? "Can't remove self" : 'Remove User'}</span>
             </button>
 
             <div className="flex items-center gap-2">

@@ -13,6 +13,8 @@ import {
   CalendarCheck,
   Grid3x3,
   ClipboardList,
+  AlertTriangle,
+  Tag,
   X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -60,6 +62,16 @@ export default function Sidebar({
           name: 'Products & Inventory',
           path: '/superadmin/products',
           icon: Boxes
+        },
+        {
+          name: 'Product Categories',
+          path: '/superadmin/categories',
+          icon: Tag
+        },
+        {
+          name: 'Issues & Defects',
+          path: '/superadmin/issues',
+          icon: AlertTriangle
         }
       ]
     }
@@ -78,11 +90,6 @@ export default function Sidebar({
           name: 'Team & Roles',
           path: '/clientadmin/users',
           icon: Users
-        },
-        {
-          name: 'Inventory',
-          path: '/clientadmin/inventory',
-          icon: Boxes
         },
         {
           name: 'Raise Query',

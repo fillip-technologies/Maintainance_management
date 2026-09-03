@@ -63,7 +63,7 @@ export default function Overview() {
 
     // Track live connection state
     const interval = setInterval(() => {
-      setIsLive(socketClient.isConnected());
+      setIsLive(socketClient.isConnected);
     }, 2000);
 
     return () => {

@@ -17,25 +17,29 @@ function toUnit(d) {
     id: d.id,
     code: d.code || '—',
     name: d.name,
-    category: d.categoryName || '—',
+    category: d.categoryName || d.category?.name || '—',
     categoryId: d.categoryId || null,
-    companyName: d.companyName || '—',
+    companyName: d.companyName || d.company?.name || '—',
     companyId: d.companyId || null,
-    zoneName: d.zoneName || null,
+    zoneName: d.zoneName || d.zone?.name || null,
+    zoneId: d.zoneId || null,
     inStock: d.inStock === true || d.zoneId == null,
     status: d.status,
     unitPrice: d.unitPrice != null ? Number(d.unitPrice) : null,
     purchaseDate: d.purchaseDate ? String(d.purchaseDate).slice(0, 10) : '',
     installationDate: d.installDate ? String(d.installDate).slice(0, 10) : '',
     imageUrl: d.imageUrl || null,
+    createdAt: d.createdAt ?? null,
+    addedByName: d.addedBy?.name ?? null,
   };
 }
 
-export async function getProducts({ search, status, zoneId, page = 1, limit = 200 } = {}) {
+export async function getProducts({ search, status, zoneId, companyId, page = 1, limit = 100 } = {}) {
   const params = new URLSearchParams({ page, limit });
-  if (search) params.set('search', search);
-  if (status) params.set('status', status);
-  if (zoneId) params.set('zoneId', zoneId);
+  if (search)    params.set('search', search);
+  if (status)    params.set('status', status);
+  if (zoneId)    params.set('zoneId', zoneId);
+  if (companyId) params.set('companyId', companyId);
   const res = await apiClient.request(`/devices?${params.toString()}`, { method: 'GET' });
   const data = res?.data ?? {};
   return {
@@ -73,6 +77,14 @@ export async function deployProduct(id, zoneId) {
   return res?.data ?? null;
 }
 
+export async function retireProduct(id) {
+  const res = await apiClient.request(`/devices/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status: 'retired' }),
+  });
+  return res?.data ?? null;
+}
+
 // ── Global categories (CEO-managed; everyone can read) ──
 export async function getCategories() {
   const res = await apiClient.request('/product-categories', { method: 'GET' });
@@ -85,6 +97,10 @@ export async function createCategory({ name, code }) {
     body: JSON.stringify({ name, code }),
   });
   return res?.data ?? null;
+}
+
+export async function deleteCategory(id) {
+  return apiClient.request(`/product-categories/${id}`, { method: 'DELETE' });
 }
 
 // ── Excel/CSV bulk import ──

@@ -17,11 +17,11 @@ import RaiseQueryPage from './app/common/RaiseQueryPage';
 // Superadmin Layout & Views
 import SuperadminLayout from './app/superadmin/SuperadminLayout';
 import Overview from './app/superadmin/overview/Overview';
-import CompaniesPage from './app/superadmin/companies/CompaniesPage';
 import SuperadminClientsPage from './app/superadmin/clientusers/SuperadminClientsPage';
 import ProductsList from './app/superadmin/addproducts/ProductsList';
-import AddProducts from './app/superadmin/addproducts/AddProducts';
+import CategoriesPage from './app/superadmin/categories/CategoriesPage';
 import TechniciansPage from './app/superadmin/technicians/TechniciansPage';
+import IssuesPage from './app/superadmin/issues/IssuesPage';
 
 // Clientadmin Layout & Views
 import ClientadminLayout from './app/clientadmin/ClientadminLayout';
@@ -29,7 +29,6 @@ import ClientOverview from './app/clientadmin/overview/ClientOverview';
 import DailyLogsPage from './app/clientadmin/dailylogs/DailyLogsPage';
 import ZoneOfficerPage from './app/clientadmin/zoneofficer/ZoneOfficerPage';
 import ClientUsersPage from './app/clientadmin/users/ClientUsersPage';
-import ClientInventoryPage from './app/clientadmin/inventory/ClientInventoryPage';
 import ClientAssetsPage from './app/clientadmin/assets/ClientAssetsPage';
 import ClientInvoicesPage from './app/clientadmin/invoices/ClientInvoicesPage';
 import ZonesPage from './app/clientadmin/zones/ZonesPage';
@@ -74,11 +73,11 @@ function AppRoutes() {
           <Route path="/superadmin" element={<SuperadminLayout />}>
             <Route index element={<Navigate to="/superadmin/overview" replace />} />
             <Route path="overview" element={<Overview />} />
-            <Route path="companies" element={<CompaniesPage />} />
             <Route path="clients" element={<SuperadminClientsPage />} />
             <Route path="technicians" element={<TechniciansPage />} />
             <Route path="products" element={<ProductsList />} />
-            <Route path="add-products" element={<AddProducts />} />
+            <Route path="categories" element={<CategoriesPage />} />
+            <Route path="issues" element={<IssuesPage />} />
           </Route>
         </Route>
 
@@ -102,8 +101,7 @@ function AppRoutes() {
             <Route path="daily-logs" element={<DailyLogsPage />} />
             <Route path="zone-officer" element={<ZoneOfficerPage />} />
             <Route path="users" element={<ClientUsersPage />} />
-            <Route path="inventory" element={<ClientInventoryPage />} />
-            <Route path="requests" element={<RaiseQueryPage />} />
+<Route path="requests" element={<RaiseQueryPage />} />
             <Route path="assets" element={<ClientAssetsPage />} />
             <Route path="invoices" element={<ClientInvoicesPage />} />
             <Route path="zones" element={<ZonesPage />} />

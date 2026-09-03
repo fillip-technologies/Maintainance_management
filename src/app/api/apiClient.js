@@ -54,14 +54,18 @@ class ApiClient {
 
       const resData = await response.json().catch(() => ({}));
 
-      // Handle 401 Token Expired -> Attempt Refresh Token rotation if real token exists
-      if (response.status === 401 && resData.code === 'TOKEN_INVALID' && !options._retry) {
+      // Handle 401 — try token refresh first, then give up and force login
+      if (response.status === 401 && !options._retry) {
         options._retry = true;
         const newAccessToken = await this.handleTokenRefresh();
         if (newAccessToken) {
           headers.Authorization = `Bearer ${newAccessToken}`;
           return this.request(endpoint, { ...options, headers });
         }
+        // Refresh failed or no refresh token — session is dead, kick to login
+        this.clearAuth();
+        window.location.href = '/login';
+        return;
       }
 
       if (!response.ok) {

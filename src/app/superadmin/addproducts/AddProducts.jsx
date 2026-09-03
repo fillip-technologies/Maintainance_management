@@ -11,9 +11,12 @@ import ProductPreviewCard from './components/ProductPreviewCard';
 import ExcelImportModal from '../../common/ExcelImportModal';
 import { createProduct, getCategories } from '../../api/productsApi';
 import { getCompanies } from '../../api/companiesApi';
+import { getClients } from '../../api/clientsApi';
+import { getZones } from '../../api/zonesApi';
 
 const initialFormData = {
   companyId: '',
+  zoneId: '',       // optional — empty = in stock
   name: '',
   categoryId: '',
   purchaseDate: '',
@@ -29,6 +32,8 @@ export default function AddProducts() {
   const [toastMessage, setToastMessage] = useState(null);
   const [companies, setCompanies] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [zones, setZones] = useState([]);
+  const [loadingZones, setLoadingZones] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
 
   const showToast = (msg) => {
@@ -36,7 +41,7 @@ export default function AddProducts() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Super admin must pick an organization + a category.
+  // Load companies and categories once.
   useEffect(() => {
     getCompanies({ limit: 100 })
       .then((data) => setCompanies(data?.items || []))
@@ -45,6 +50,24 @@ export default function AddProducts() {
       .then((cats) => setCategories(cats || []))
       .catch((err) => console.error('[AddProducts] load categories:', err.message));
   }, []);
+
+  // When company changes, resolve its client then load zones for that client.
+  useEffect(() => {
+    if (!formData.companyId) { setZones([]); return; }
+    let cancelled = false;
+    setLoadingZones(true);
+    setFormData((f) => ({ ...f, zoneId: '' }));
+    getClients({ companyId: formData.companyId, limit: 10 })
+      .then(async (res) => {
+        const client = (res?.items || [])[0];
+        if (!client || cancelled) return;
+        const z = await getZones({ clientId: client.id, limit: 200 });
+        if (!cancelled) setZones(z?.items || []);
+      })
+      .catch(() => !cancelled && setZones([]))
+      .finally(() => !cancelled && setLoadingZones(false));
+    return () => { cancelled = true; };
+  }, [formData.companyId]);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -61,8 +84,8 @@ export default function AddProducts() {
         unitPrice: formData.price ? Number(formData.price) : undefined,
         purchaseDate: formData.purchaseDate || undefined,
         installDate: formData.installationDate || undefined,
-        imageUrl: productImage || undefined
-        // no zoneId → unit is created in stock; deploy to a zone later
+        imageUrl: productImage || undefined,
+        zoneId: formData.zoneId || undefined,  // undefined = in stock
       });
       navigate('/superadmin/products');
     } catch (err) {
@@ -146,6 +169,8 @@ export default function AddProducts() {
             isSubmitting={isSubmitting}
             companies={companies}
             categories={categories}
+            zones={zones}
+            loadingZones={loadingZones}
           />
         </div>
 

@@ -7,6 +7,7 @@ import {
   CheckCircle,
   RotateCcw,
   Building2,
+  MapPin,
   Boxes
 } from 'lucide-react';
 import ImageUploader from './ImageUploader';
@@ -23,7 +24,10 @@ export default function ProductForm({
   // Omitted for a client_admin, whose organization is implicit.
   companies = null,
   // Global category list — required selection (drives the unit's unique code).
-  categories = []
+  categories = [],
+  // Zones for the selected company (super_admin only). Optional — empty = in stock.
+  zones = [],
+  loadingZones = false,
 }) {
   const handleChange = (field, value) => {
     setFormData((prev) => ({
@@ -69,6 +73,34 @@ export default function ProductForm({
                   ))}
                 </select>
               </div>
+            </div>
+          )}
+
+          {/* Zone (super_admin only — shown once a company is selected) */}
+          {companies && formData.companyId && (
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Deploy to Zone <span className="text-slate-400 font-medium">(optional — leave blank to add to stock)</span>
+              </label>
+              <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2">
+                <MapPin size={16} className="text-slate-400 shrink-0" />
+                <select
+                  value={formData.zoneId || ''}
+                  onChange={(e) => handleChange('zoneId', e.target.value)}
+                  disabled={loadingZones}
+                  className="w-full bg-transparent text-xs font-semibold text-slate-900 outline-hidden cursor-pointer disabled:opacity-60"
+                >
+                  <option value="">In stock (no zone)</option>
+                  {zones.map((z) => (
+                    <option key={z.id} value={z.id}>{z.name}</option>
+                  ))}
+                </select>
+              </div>
+              {!loadingZones && zones.length === 0 && (
+                <p className="text-[11px] text-slate-400 mt-1">
+                  No zones set up for this organization yet — unit will be added to stock.
+                </p>
+              )}
             </div>
           )}
 
