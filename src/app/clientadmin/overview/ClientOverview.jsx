@@ -10,21 +10,21 @@ import { RefreshCw, Wifi, WifiOff } from 'lucide-react';
 export default function ClientOverview() {
   const { currentUser, isSuperAdmin } = useAuth();
 
-  // Stats shape mirrors GET /dashboard/summary response with default fallback
+  // Live stats from GET /dashboard/summary (initialized to 0, no mock/fallback data)
   const [stats, setStats] = useState({
-    totalDevices: 24,
-    workingDevices: 19,
-    faultyDevices: 2,
-    underMaintenance: 3,
-    openIssues: 2,
+    totalDevices: 0,
+    workingDevices: 0,
+    faultyDevices: 0,
+    underMaintenance: 0,
+    openIssues: 0,
     missingLogs: 0
   });
 
   // Dynamic Team counts from GET /users API
   const [teamStats, setTeamStats] = useState({
-    zoneOfficers: 6,
-    staffMembers: 2,
-    technicians: 2
+    zoneOfficers: 0,
+    staffMembers: 0,
+    technicians: 0
   });
 
   const [loading, setLoading] = useState(true);
@@ -62,7 +62,7 @@ export default function ClientOverview() {
 
       setLastUpdated(new Date());
     } catch (err) {
-      console.warn('[ClientOverview] Dashboard fetch fallback:', err.message);
+      console.error('[ClientOverview] Dashboard fetch error:', err.message);
     } finally {
       setLoading(false);
     }
@@ -139,7 +139,7 @@ export default function ClientOverview() {
               : 'bg-slate-100 text-slate-500 border-slate-200'
           }`}>
             {isLive ? <Wifi size={13} className="animate-pulse" /> : <WifiOff size={13} />}
-            <span>{isLive ? 'Live Sync Active' : 'Offline / Demo'}</span>
+            <span>{isLive ? 'Live Sync Active' : 'Offline'}</span>
           </div>
 
           {lastUpdated && (
