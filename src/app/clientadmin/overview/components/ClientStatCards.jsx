@@ -9,10 +9,10 @@ import {
 } from 'lucide-react';
 
 export function ClientProductCards({ stats }) {
-  const totalCount = stats?.totalProducts ?? 0;
-  const workingCount = stats?.workingProducts ?? 0;
+  const totalCount      = stats?.totalProducts ?? 0;
+  const workingCount    = stats?.workingProducts ?? 0;
   const notWorkingCount = stats?.notWorkingProducts ?? 0;
-  const maintenanceCount = stats?.maintenanceProducts ?? 0;
+  const onHoldCount     = stats?.onHoldIssues ?? 0;
 
   const productCards = [
     {
@@ -43,11 +43,11 @@ export function ClientProductCards({ stats }) {
       badgeBg: 'bg-rose-50 text-rose-700'
     },
     {
-      title: 'Maintenance Products',
-      value: maintenanceCount,
-      subtitle: 'Under routine PM or servicing',
+      title: 'Services On Hold',
+      value: onHoldCount,
+      subtitle: 'Queries paused / awaiting action',
       icon: Wrench,
-      badgeText: 'In Servicing',
+      badgeText: 'On Hold',
       iconBg: 'bg-amber-50 text-amber-600 border-amber-100',
       badgeBg: 'bg-amber-50 text-amber-700'
     }

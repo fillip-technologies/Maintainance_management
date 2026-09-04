@@ -26,11 +26,13 @@ export async function getDashboardSummary({ scope = 'platform', id, includeSubzo
   if (!d) return null;
   return {
     ...d,
-    underMaintenance: d.underMaintenance ?? 0,
+    workingDevices:      d.workingDevices      ?? 0,
+    underMaintenance:    d.underMaintenance    ?? 0,
+    faultyDevices:       d.faultyDevices       ?? 0,
+    provisionedDevices:  d.provisionedDevices  ?? 0,
+    onHoldIssues:        d.onHoldIssues        ?? 0,
+    assignedTechnicians: d.assignedTechnicians ?? 0,
     missingLogs: d.devicesMissingTodayLog ?? d.missingLogs ?? 0,
-    workingDevices:
-      d.workingDevices ??
-      Math.max(0, (d.totalDevices ?? 0) - (d.faultyDevices ?? 0) - (d.underMaintenance ?? 0)),
   };
 }
 

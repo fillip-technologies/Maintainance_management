@@ -52,12 +52,15 @@ export default function ClientOverview() {
       // page look static/disconnected.)
       if (data) setStats(data);
 
+      // zone_incharge / zone_staff come from the users list (they have clientId set).
+      // Technicians are platform-level (clientId = null) and assigned via
+      // technician_assignments — their count comes from the dashboard summary instead.
       const items = usersData?.items || [];
       const activeItems = items.filter((u) => u.accountStatus !== 'removed');
       setTeamStats({
         zoneOfficers: activeItems.filter((u) => u.role === 'zone_incharge').length,
         staffMembers: activeItems.filter((u) => u.role === 'zone_staff').length,
-        technicians: activeItems.filter((u) => u.role === 'technician').length
+        technicians: data?.assignedTechnicians ?? 0,
       });
 
       setLastUpdated(new Date());
@@ -112,10 +115,10 @@ export default function ClientOverview() {
   // Use `?? 0` (nullish), NOT `|| <demo>` — a real count of 0 must show as 0, not be
   // masked by placeholder numbers (that made the page look static/disconnected).
   const cardStats = {
-    totalProducts:       stats.totalDevices ?? 0,
-    workingProducts:     stats.workingDevices ?? 0,
-    notWorkingProducts:  stats.faultyDevices ?? 0,
-    maintenanceProducts: stats.underMaintenance ?? 0
+    totalProducts:    stats.totalDevices ?? 0,
+    workingProducts:  stats.workingDevices ?? 0,
+    notWorkingProducts: (stats.faultyDevices ?? 0) + (stats.underMaintenance ?? 0),
+    onHoldIssues:     stats.onHoldIssues ?? 0,
   };
 
   return (
@@ -163,7 +166,7 @@ export default function ClientOverview() {
       <ClientProductCards stats={cardStats} />
 
       {/* 2. Middle Row: Circular / Donut Products Graph */}
-      <ClientProductCircleGraph stats={cardStats} />
+      <ClientProductCircleGraph stats={stats} />
 
       {/* 3. Bottom Row: Operations & Zone Personnel */}
       <ClientTeamCards teamStats={teamStats} />
