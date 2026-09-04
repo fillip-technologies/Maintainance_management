@@ -53,6 +53,16 @@ export async function createIssue(payload) {
   return res?.data ?? null;
 }
 
+export async function createIssues({ deviceIds, categoryId, priority, description }) {
+  // Bulk-create: one issue per deviceId, all in a single server-side transaction.
+  // Returns an array of created issue objects.
+  const res = await apiClient.request('/issues/bulk', {
+    method: 'POST',
+    body: JSON.stringify({ deviceIds, categoryId, priority, description }),
+  });
+  return res?.data ?? [];
+}
+
 export async function updateIssueStatus(id, status, notes = '') {
   // PATCH /issues/:id/status — enforces state machine
   const res = await apiClient.request(`/issues/${id}/status`, {

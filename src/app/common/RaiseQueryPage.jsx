@@ -64,9 +64,13 @@ export default function RaiseQueryPage() {
   // Prefer the layout's global modal when present; otherwise use the local one.
   const openModal = context.onOpenRequestModal || (() => setLocalModalOpen(true));
 
-  const handleCreated = (issue) => {
-    const unit = issue?.device?.name || 'unit';
-    showToast(`Defect raised on ${unit} — the unit is now under maintenance.`);
+  const handleCreated = (issues) => {
+    const count = Array.isArray(issues) ? issues.length : 1;
+    const unit = (Array.isArray(issues) ? issues[0] : issues)?.device?.name || 'unit';
+    const msg = count > 1
+      ? `${count} defects raised — units are now under maintenance.`
+      : `Defect raised on ${unit} — the unit is now under maintenance.`;
+    showToast(msg);
     fetchIssues();
   };
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { X, Wrench, ShieldCheck, AlertTriangle, MapPin } from 'lucide-react';
 import { getDevices } from '../api/devicesApi';
 import { getIssueCategories } from '../api/issueCategoriesApi';
-import { createIssue } from '../api/issuesApi';
+import { createIssues } from '../api/issuesApi';
 import { getZones } from '../api/zonesApi';
 import { useAuth } from '../context/AuthContext';
 
@@ -171,9 +171,9 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
         return;
       }
       const units = qty;
-      // A defect targets one specific unit — attach it to an available unit and
-      // record the product type/name + affected count in the description.
-      const targetDevice = availableUnits[0];
+      // Pick the first `qty` available units — each gets its own issue record so
+      // they can be tracked, resolved, and assigned independently.
+      const targetDevices = availableUnits.slice(0, units);
       const catLabel = isOtherCat ? `Other — ${formData.customCategoryName.trim()}` : null;
       const header = [
         `Product: ${productName} · Units affected: ${units}`,
@@ -181,13 +181,13 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
       ].filter(Boolean).join('\n');
       const description = `${header}\n${formData.description.trim()}`;
 
-      const issue = await createIssue({
-        deviceId: targetDevice.id,
+      const issues = await createIssues({
+        deviceIds: targetDevices.map((d) => d.id),
         categoryId: effectiveCategoryId,
         priority: formData.priority,
-        description
+        description,
       });
-      onCreated?.(issue);
+      onCreated?.(issues);
       onClose();
       setFormData(EMPTY_FORM);
     } catch (err) {

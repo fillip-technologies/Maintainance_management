@@ -15,9 +15,13 @@ export default function ClientadminLayout() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleRequestCreated = (issue) => {
-    const unit = issue?.device?.name || 'unit';
-    showToast(`Defect raised on ${unit} — the unit is now under maintenance.`);
+  const handleRequestCreated = (issues) => {
+    const count = Array.isArray(issues) ? issues.length : 1;
+    const unit = (Array.isArray(issues) ? issues[0] : issues)?.device?.name || 'unit';
+    const msg = count > 1
+      ? `${count} defects raised — units are now under maintenance.`
+      : `Defect raised on ${unit} — the unit is now under maintenance.`;
+    showToast(msg);
     // Let any open list (e.g. the Requests page) refresh without a socket round-trip.
     window.dispatchEvent(new CustomEvent('fixly:issue_created'));
   };
