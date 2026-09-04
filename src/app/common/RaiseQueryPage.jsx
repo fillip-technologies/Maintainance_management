@@ -111,6 +111,7 @@ export default function RaiseQueryPage() {
         loading={loading}
         onOpenRequestModal={openModal}
         onNotify={showToast}
+        onRefresh={fetchIssues}
       />
 
       {/* Only render a local modal when the layout doesn't already own one. */}

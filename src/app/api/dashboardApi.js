@@ -24,9 +24,9 @@ export async function getDashboardSummary({ scope = 'platform', id, includeSubzo
   const res = await apiClient.request(`/dashboard/summary?${params.toString()}`, { method: 'GET' });
   const d = res?.data;
   if (!d) return null;
-  // `workingDevices` is derived from real counts (summary doesn't send it directly).
   return {
     ...d,
+    underMaintenance: d.underMaintenance ?? 0,
     missingLogs: d.devicesMissingTodayLog ?? d.missingLogs ?? 0,
     workingDevices:
       d.workingDevices ??

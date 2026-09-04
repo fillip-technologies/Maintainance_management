@@ -53,6 +53,15 @@ export async function createIssue(payload) {
   return res?.data ?? null;
 }
 
+export async function bulkUpdateStatus({ ids, status, notes = '' }) {
+  // Apply the same status to multiple issues. Returns { updated: [], errors: [] }.
+  const res = await apiClient.request('/issues/bulk-status', {
+    method: 'PATCH',
+    body: JSON.stringify({ ids, status, ...(notes ? { notes } : {}) }),
+  });
+  return res?.data ?? { updated: [], errors: [] };
+}
+
 export async function createIssues({ deviceIds, categoryId, priority, description }) {
   // Bulk-create: one issue per deviceId, all in a single server-side transaction.
   // Returns an array of created issue objects.
