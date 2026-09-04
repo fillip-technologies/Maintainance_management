@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MapPin, RefreshCw, Search, X, Loader2, AlertTriangle, Plus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getZones } from '../../api/zonesApi';
 import { getZoneBreakdown } from '../../api/dashboardApi';
+import { socketClient } from '../../api/socketClient';
 import ZoneCard from './components/ZoneCard';
 import ZoneIssuesModal from './components/ZoneIssuesModal';
 import RaiseQueryModal from '../../common/RaiseQueryModal';
@@ -49,7 +50,31 @@ export default function ZonesPage() {
     }
   }, [clientId]);
 
+  // Debounced breakdown refresh — fires at most once per 2 s to avoid
+  // hammering the dashboard endpoint when multiple issues update at once.
+  const refreshTimer = useRef(null);
+  const refreshBreakdown = useCallback(() => {
+    clearTimeout(refreshTimer.current);
+    refreshTimer.current = setTimeout(async () => {
+      if (!clientId) return;
+      try {
+        const breakdown = await getZoneBreakdown({ scope: 'client', id: clientId });
+        const map = {};
+        (breakdown ?? []).forEach((z) => { map[z.zoneId] = z; });
+        setStatsMap(map);
+      } catch { /* silent — stale stats are fine until next manual refresh */ }
+    }, 2000);
+  }, [clientId]);
+
   useEffect(() => { load(); }, [load]);
+
+  // When an issue is created or updated, the device status may have changed
+  // (e.g. resolved → device goes active). Refresh the zone breakdown stats.
+  useEffect(() => {
+    const unsub1 = socketClient.on('issue:created', refreshBreakdown);
+    const unsub2 = socketClient.on('issue:updated', refreshBreakdown);
+    return () => { unsub1(); unsub2(); clearTimeout(refreshTimer.current); };
+  }, [refreshBreakdown]);
 
   const filtered = zones.filter((z) => {
     const q = search.toLowerCase().trim();

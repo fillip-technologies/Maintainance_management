@@ -15,7 +15,8 @@ import {
   ClipboardList,
   AlertTriangle,
   Tag,
-  X
+  X,
+  UserCog
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -57,6 +58,11 @@ export default function Sidebar({
           name: 'Client Users',
           path: '/superadmin/clients',
           icon: Users
+        },
+        {
+          name: 'Team Management',
+          path: '/superadmin/team',
+          icon: UserCog
         },
         {
           name: 'Zones',

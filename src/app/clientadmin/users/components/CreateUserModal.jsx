@@ -4,9 +4,9 @@ import { createUser } from '../../../api/usersApi';
 import { getZones, assignUserToZone } from '../../../api/zonesApi';
 import { useAuth } from '../../../context/AuthContext';
 
-export default function CreateUserModal({ isOpen, onClose, onCreated }) {
+export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: propClientId }) {
   const { currentUser } = useAuth();
-  const clientId = currentUser?.clientId;
+  const clientId = propClientId ?? currentUser?.clientId;
 
   const [formData, setFormData] = useState({
     name: '',
@@ -64,6 +64,7 @@ export default function CreateUserModal({ isOpen, onClose, onCreated }) {
         email: formData.email.trim().toLowerCase(),
         role: formData.role,
         password: formData.password.trim(),
+        ...(clientId ? { clientId } : {}),
       });
 
       // 2. Assign to zone immediately if one was selected

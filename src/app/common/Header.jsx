@@ -4,7 +4,7 @@ import { LogOut, Menu, Building2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Header({ onToggleMobileSidebar }) {
-  const { currentUser, isClientAdmin, logout } = useAuth();
+  const { currentUser, isClientAdmin, isZoneOfficer, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -31,7 +31,7 @@ export default function Header({ onToggleMobileSidebar }) {
 
       {/* Centre: company name */}
       <div className="flex-1 flex items-center justify-center">
-        {isClientAdmin && companyName && (
+        {(isClientAdmin || isZoneOfficer) && companyName && (
           <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-50 border border-indigo-200">
             <Building2 size={15} className="text-indigo-500 shrink-0" />
             <span className="text-sm font-bold text-indigo-700 max-w-[260px] truncate">

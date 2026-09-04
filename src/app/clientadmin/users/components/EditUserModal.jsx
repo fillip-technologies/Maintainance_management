@@ -4,7 +4,7 @@ import { updateUser, deleteUser } from '../../../api/usersApi';
 import { getZones, assignUserToZone, removeUserFromZone } from '../../../api/zonesApi';
 import { useAuth } from '../../../context/AuthContext';
 
-export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDeleted }) {
+export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDeleted, clientId: propClientId }) {
   const { currentUser } = useAuth();
 
   const [formData, setFormData] = useState({ name: '', role: 'zone_staff', accountStatus: 'active' });
@@ -39,7 +39,7 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
 
   useEffect(() => {
     if (!isOpen) return;
-    const clientId = currentUser?.clientId;
+    const clientId = propClientId ?? currentUser?.clientId;
     if (!clientId) return;
     setLoadingZones(true);
     getZones({ clientId, limit: 100 })

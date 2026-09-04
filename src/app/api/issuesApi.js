@@ -13,17 +13,17 @@ import apiClient from './apiClient';
 
 export const ISSUE_STATUSES = ['open', 'assigned', 'in_progress', 'on_hold', 'resolved', 'closed', 'reopened'];
 
-// Valid transitions map (frontend hint — backend also enforces these)
-// Mirrors issueStateMachine.js on the backend.
-// Technicians pick up open issues directly (open → in_progress) — no assign step.
+// Any non-closed issue can move to any other status (mirrors backend issueStateMachine.js).
+// closed is terminal — nothing can transition out of it.
+const ANY = ['open', 'assigned', 'in_progress', 'on_hold', 'resolved', 'reopened', 'closed'];
 export const VALID_TRANSITIONS = {
-  open:        ['in_progress', 'on_hold'],
-  assigned:    ['in_progress', 'on_hold'],
-  in_progress: ['resolved', 'on_hold'],
-  on_hold:     ['in_progress'],
-  resolved:    ['closed', 'reopened'],
-  reopened:    ['in_progress', 'on_hold'],
-  closed:      []
+  open:        ANY,
+  assigned:    ANY,
+  in_progress: ANY,
+  on_hold:     ANY,
+  resolved:    ANY,
+  reopened:    ANY,
+  closed:      [],
 };
 
 export async function getIssues({ deviceId, status, priority, zoneId, assignedTo, page = 1, limit = 20 } = {}) {
@@ -53,11 +53,11 @@ export async function createIssue(payload) {
   return res?.data ?? null;
 }
 
-export async function updateIssueStatus(id, status, note = '') {
+export async function updateIssueStatus(id, status, notes = '') {
   // PATCH /issues/:id/status — enforces state machine
   const res = await apiClient.request(`/issues/${id}/status`, {
     method: 'PATCH',
-    body: JSON.stringify({ status, ...(note ? { note } : {}) })
+    body: JSON.stringify({ status, ...(notes ? { notes } : {}) })
   });
   return res?.data ?? null;
 }

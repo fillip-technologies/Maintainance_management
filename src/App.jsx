@@ -20,6 +20,7 @@ import SuperadminLayout from './app/superadmin/SuperadminLayout';
 import Overview from './app/superadmin/overview/Overview';
 import CompaniesPage from './app/superadmin/companies/CompaniesPage';
 import SuperadminClientsPage from './app/superadmin/clientusers/SuperadminClientsPage';
+import SuperadminUsersPage from './app/superadmin/users/SuperadminUsersPage';
 import SuperadminZonesPage from './app/superadmin/zones/SuperadminZonesPage';
 import ProductsList from './app/superadmin/products/ProductsList';
 import InventoryLogsPage from './app/superadmin/inventorylogs/InventoryLogsPage';
@@ -78,6 +79,7 @@ function AppRoutes() {
             <Route path="overview" element={<Overview />} />
             <Route path="organizations" element={<CompaniesPage />} />
             <Route path="clients" element={<SuperadminClientsPage />} />
+            <Route path="team" element={<SuperadminUsersPage />} />
             <Route path="zones" element={<SuperadminZonesPage />} />
             <Route path="zones/:zoneId" element={<ZoneDetailPage backRoute="/superadmin/zones" />} />
             <Route path="technicians" element={<TechniciansPage />} />

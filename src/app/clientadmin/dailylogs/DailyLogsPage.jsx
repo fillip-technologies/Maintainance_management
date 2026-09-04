@@ -683,10 +683,23 @@ export default function DailyLogsPage() {
   const fetchLogs = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const [logsData, zonesData] = await Promise.all([
+      // Use allSettled so both fetches run independently; report the real error
+      // message from whichever call failed so it's easy to diagnose.
+      const [logsResult, zonesResult] = await Promise.allSettled([
         getDailyLogs({ limit: 100 }),
         getZones({ limit: 100 }),
       ]);
+
+      if (logsResult.status === 'rejected') {
+        throw new Error(`Daily logs: ${logsResult.reason?.message ?? 'request failed'}`);
+      }
+      if (zonesResult.status === 'rejected') {
+        throw new Error(`Zones: ${zonesResult.reason?.message ?? 'request failed'}`);
+      }
+
+      const logsData  = logsResult.value;
+      const zonesData = zonesResult.value;
+
       const zoneMap = new Map((zonesData?.items ?? []).map((z) => [z.id, z.name]));
       setZoneOptions((zonesData?.items ?? []).map((z) => z.name));
       setRawLogs((logsData?.items ?? []).map((l) => ({
@@ -703,7 +716,7 @@ export default function DailyLogsPage() {
       })));
       setLastUpdated(new Date());
     } catch (err) {
-      setError('Could not load daily logs.');
+      setError(err.message || 'Could not load daily logs.');
     } finally {
       setLoading(false);
     }
