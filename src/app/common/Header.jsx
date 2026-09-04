@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Menu, Building2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import NotificationBell from './NotificationBell';
 
 export default function Header({ onToggleMobileSidebar }) {
   const { currentUser, isClientAdmin, isZoneOfficer, logout } = useAuth();
@@ -41,8 +42,9 @@ export default function Header({ onToggleMobileSidebar }) {
         )}
       </div>
 
-      {/* Right: logout */}
-      <div className="flex-1 flex items-center justify-end">
+      {/* Right: notification bell + logout */}
+      <div className="flex-1 flex items-center justify-end gap-2">
+        <NotificationBell />
         <button
           onClick={handleLogout}
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100/80 border border-rose-200 shadow-2xs transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
