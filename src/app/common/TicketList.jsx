@@ -246,6 +246,9 @@ export default function TicketList({ tickets = [], loading = false, onOpenReques
 
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 mt-0.5">
                       <span>Unit: <strong className="text-slate-700">{ticket.asset}</strong></span>
+                      {ticket.zone && ticket.zone !== '—' && (
+                        <span>Zone: <strong className="text-indigo-600">{ticket.zone}</strong></span>
+                      )}
                       <span>Category: <span className="text-slate-600">{ticket.category}</span></span>
                       <span>Raised: <span className="text-slate-600">{formatDate(ticket.createdAt)}</span></span>
                     </div>

@@ -5,6 +5,7 @@ import { getUsers } from '../../api/usersApi';
 import { socketClient } from '../../api/socketClient';
 import { ClientProductCards, ClientTeamCards } from './components/ClientStatCards';
 import ClientProductCircleGraph from './components/ClientProductCircleGraph';
+import ClientDetailDrawer from './components/ClientDetailDrawer';
 import { RefreshCw, Wifi, WifiOff } from 'lucide-react';
 
 export default function ClientOverview() {
@@ -30,6 +31,7 @@ export default function ClientOverview() {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLive, setIsLive] = useState(false);
+  const [drawer, setDrawer] = useState(null); // drawer type key, e.g. 'working'
 
   // Determine dashboard scope from logged-in user
   const getScope = () => {
@@ -163,13 +165,18 @@ export default function ClientOverview() {
       </div>
 
       {/* 1. Top Row: 4 Product Metric Cards */}
-      <ClientProductCards stats={cardStats} />
+      <ClientProductCards stats={cardStats} onCardClick={setDrawer} />
 
       {/* 2. Middle Row: Circular / Donut Products Graph */}
       <ClientProductCircleGraph stats={stats} />
 
       {/* 3. Bottom Row: Operations & Zone Personnel */}
-      <ClientTeamCards teamStats={teamStats} />
+      <ClientTeamCards teamStats={teamStats} onCardClick={setDrawer} />
+
+      {/* Detail Drawer — opens on any card click */}
+      {drawer && (
+        <ClientDetailDrawer type={drawer} onClose={() => setDrawer(null)} />
+      )}
     </div>
   );
 }

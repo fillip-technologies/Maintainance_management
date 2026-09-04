@@ -18,11 +18,12 @@ function mapIssue(issue) {
     shortId: issue.id.slice(0, 8).toUpperCase(),
     title: issue.description,
     asset: issue.device?.name ?? '—',
+    zone: issue.device?.zone?.name ?? '—',
     category: issue.category?.name ?? 'Uncategorized',
     priority: issue.priority,
     status: issue.status,
     createdAt: issue.createdAt,
-    assignedTech: issue.assignedTechnician?.user?.name ?? null
+    assignedTech: issue.assignedTechnician?.user?.name ?? null,
   };
 }
 

@@ -43,13 +43,19 @@ export async function getIssueById(id) {
   return res?.data ?? null;
 }
 
-export async function createIssue(payload) {
-  // Required: deviceId, categoryId (issue/defect category), description.
-  // Optional: priority ('low' | 'medium' | 'high' | 'critical', default 'medium').
-  const res = await apiClient.request('/issues', {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  });
+export async function createIssue(payload, files = []) {
+  // When files are present, send as multipart/form-data so the backend can
+  // receive both the JSON fields and the file buffers in one request.
+  if (files && files.length > 0) {
+    const fd = new FormData();
+    Object.entries(payload).forEach(([k, v]) => {
+      if (v !== undefined && v !== null) fd.append(k, String(v));
+    });
+    files.forEach((f) => fd.append('attachments', f));
+    const res = await apiClient.request('/issues', { method: 'POST', body: fd, _multipart: true });
+    return res?.data ?? null;
+  }
+  const res = await apiClient.request('/issues', { method: 'POST', body: JSON.stringify(payload) });
   return res?.data ?? null;
 }
 
@@ -62,9 +68,19 @@ export async function bulkUpdateStatus({ ids, status, notes = '' }) {
   return res?.data ?? { updated: [], errors: [] };
 }
 
-export async function createIssues({ deviceIds, categoryId, priority, description }) {
-  // Bulk-create: one issue per deviceId, all in a single server-side transaction.
-  // Returns an array of created issue objects.
+export async function createIssues({ deviceIds, categoryId, priority, description }, files = []) {
+  // Bulk-create: one issue per deviceId. When files are present, the first issue
+  // gets the attachments (bulk endpoint doesn't support per-device files).
+  if (files && files.length > 0) {
+    const fd = new FormData();
+    deviceIds.forEach((id) => fd.append('deviceIds', id));
+    fd.append('categoryId', categoryId);
+    fd.append('priority', priority ?? 'medium');
+    fd.append('description', description);
+    files.forEach((f) => fd.append('attachments', f));
+    const res = await apiClient.request('/issues/bulk', { method: 'POST', body: fd, _multipart: true });
+    return res?.data ?? [];
+  }
   const res = await apiClient.request('/issues/bulk', {
     method: 'POST',
     body: JSON.stringify({ deviceIds, categoryId, priority, description }),
@@ -72,11 +88,18 @@ export async function createIssues({ deviceIds, categoryId, priority, descriptio
   return res?.data ?? [];
 }
 
-export async function updateIssueStatus(id, status, notes = '') {
-  // PATCH /issues/:id/status — enforces state machine
+export async function updateIssueStatus(id, status, notes = '', files = []) {
+  if (files && files.length > 0) {
+    const fd = new FormData();
+    fd.append('status', status);
+    if (notes) fd.append('notes', notes);
+    files.forEach((f) => fd.append('attachments', f));
+    const res = await apiClient.request(`/issues/${id}/status`, { method: 'PATCH', body: fd, _multipart: true });
+    return res?.data ?? null;
+  }
   const res = await apiClient.request(`/issues/${id}/status`, {
     method: 'PATCH',
-    body: JSON.stringify({ status, ...(notes ? { notes } : {}) })
+    body: JSON.stringify({ status, ...(notes ? { notes } : {}) }),
   });
   return res?.data ?? null;
 }

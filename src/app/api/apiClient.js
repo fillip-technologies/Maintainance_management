@@ -35,10 +35,12 @@ class ApiClient {
     const url = `${this.baseUrl}${endpoint}`;
     const token = this.getAccessToken();
 
+    // For multipart/form-data requests (file uploads), omit Content-Type so the
+    // browser sets it automatically with the correct boundary string.
     const headers = {
-      'Content-Type': 'application/json',
+      ...(options._multipart ? {} : { 'Content-Type': 'application/json' }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers
+      ...options.headers,
     };
 
     try {

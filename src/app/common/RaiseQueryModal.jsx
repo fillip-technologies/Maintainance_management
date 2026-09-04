@@ -5,6 +5,7 @@ import { getIssueCategories } from '../api/issueCategoriesApi';
 import { createIssues } from '../api/issuesApi';
 import { getZones } from '../api/zonesApi';
 import { useAuth } from '../context/AuthContext';
+import AttachmentPicker from './AttachmentPicker';
 
 // Shared "raise a query / report a defect" modal used by every role that can
 // report a faulty unit (client_admin, zone_incharge, zone_staff). It is
@@ -52,6 +53,7 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
   const [loadingRefs, setLoadingRefs] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [attachmentFiles, setAttachmentFiles] = useState([]);
 
   // Load zones when modal opens so user can pick which zone the issue is in.
   useEffect(() => {
@@ -186,10 +188,11 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
         categoryId: effectiveCategoryId,
         priority: formData.priority,
         description,
-      });
+      }, attachmentFiles);
       onCreated?.(issues);
       onClose();
       setFormData(EMPTY_FORM);
+      setAttachmentFiles([]);
     } catch (err) {
       setError(err.message || 'Could not raise the defect. Please try again.');
     } finally {
@@ -397,6 +400,13 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
               className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 resize-none"
             />
           </div>
+
+          {/* Attachments */}
+          <AttachmentPicker
+            files={attachmentFiles}
+            onFilesChange={setAttachmentFiles}
+            disabled={isSubmitting}
+          />
 
           {/* Info note */}
           <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-start gap-2.5">
