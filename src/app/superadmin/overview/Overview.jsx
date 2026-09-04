@@ -18,14 +18,11 @@ import CriticalAlerts from './components/CriticalAlerts';
 import FacilityOverviewTable from './components/FacilityOverviewTable';
 import TechnicianWorkload from './components/TechnicianWorkload';
 import RecentActivityFeed from './components/RecentActivityFeed';
-import NewWorkOrderModal from './components/NewWorkOrderModal';
 import { getPlatformOverview } from '../../api/dashboardApi';
 import { socketClient } from '../../api/socketClient';
 
 export default function Overview() {
-  const [isWorkOrderModalOpen, setIsWorkOrderModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
-
   const [overview, setOverview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -56,12 +53,10 @@ export default function Overview() {
   useEffect(() => {
     fetchOverview();
 
-    // Re-fetch when socket receives entity updates from the backend
     const unsubIssue = socketClient.on('issue:new', fetchOverview);
     const unsubLog = socketClient.on('daily_log:new', fetchOverview);
     const unsubDev = socketClient.on('device:updated', fetchOverview);
 
-    // Track live connection state
     const interval = setInterval(() => {
       setIsLive(socketClient.isConnected);
     }, 2000);
@@ -74,19 +69,13 @@ export default function Overview() {
     };
   }, [fetchOverview]);
 
-  const handleWorkOrderCreated = (data) => {
-    showToast(`Work Order "${data.title}" successfully dispatched to ${data.assignedTech}!`);
-    fetchOverview();
-  };
-
-  // Extract metrics strictly from backend response
   const devices = overview?.devices;
   const issues = overview?.issues;
   const tenancy = overview?.tenancy;
 
   return (
     <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 relative">
-      {/* Toast Notification Alert */}
+      {/* Toast */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 animate-in slide-in-from-bottom-4 duration-200">
           <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
@@ -102,7 +91,7 @@ export default function Overview() {
         </div>
       )}
 
-      {/* Top Headline Banner */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-1">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -147,7 +136,7 @@ export default function Overview() {
         </div>
       )}
 
-      {/* Primary KPI Summary Stat Cards */}
+      {/* KPI stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Devices"
@@ -179,7 +168,7 @@ export default function Overview() {
       {tenancy && !loading && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {[
-            { label: 'Companies', value: tenancy.companies },
+            { label: 'Organizations', value: tenancy.companies },
             { label: 'Clients', value: tenancy.clients },
             { label: 'Zones', value: tenancy.zones },
             { label: 'Users', value: tenancy.users },
@@ -199,34 +188,22 @@ export default function Overview() {
         </div>
       )}
 
-      {/* Equipment Live Working / Breakdown Status Stats Widget */}
       <EquipmentStatusStats
         devices={devices}
         byHardwareType={overview?.byHardwareType}
         loading={loading}
       />
 
-      {/* Mid Section: Work Orders Status & Critical Alerts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <WorkOrderStatus issues={issues} loading={loading} />
         <CriticalAlerts alerts={overview?.criticalAlerts} loading={loading} />
       </div>
 
-      {/* Technician Workload */}
       <TechnicianWorkload technicians={overview?.technicians} loading={loading} />
 
-      {/* Multi-facility (client) performance table */}
       <FacilityOverviewTable facilities={overview?.facilities} loading={loading} onNotify={showToast} />
 
-      {/* Real-time Activity Feed */}
       <RecentActivityFeed activities={overview?.recentActivity} loading={loading} />
-
-      {/* New Work Order Modal */}
-      <NewWorkOrderModal
-        isOpen={isWorkOrderModalOpen}
-        onClose={() => setIsWorkOrderModalOpen(false)}
-        onCreated={handleWorkOrderCreated}
-      />
     </div>
   );
 }

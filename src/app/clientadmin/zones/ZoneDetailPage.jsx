@@ -3,12 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, MapPin, Layers, Package, CheckCircle2, XCircle,
   Wrench, Loader2, AlertTriangle, RefreshCw, Clock, User,
-  ChevronRight, Plus, Activity, Trash2
+  ChevronRight, Plus, Activity, Trash2, Settings
 } from 'lucide-react';
 import { getZoneById, getZoneDescendants, getZoneActivity, deleteZone } from '../../api/zonesApi';
 import { getDashboardSummary } from '../../api/dashboardApi';
+import { useAuth } from '../../context/AuthContext';
 import ZoneIssuesModal from './components/ZoneIssuesModal';
 import RaiseQueryModal from '../../common/RaiseQueryModal';
+import CreateZoneModal from './components/CreateZoneModal';
+import ManageZoneModal from './components/ManageZoneModal';
 
 // ── Activity log colour per transition ───────────────────────────────────
 const ACTIVITY_STYLE = {
@@ -216,6 +219,8 @@ function SubzoneRow({ zone, depth = 0, allZones, onDeleted, backRoute }) {
 export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
   const { zoneId } = useParams();
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const clientId = currentUser?.clientId;
 
   const [zone, setZone]         = useState(null);
   const [stats, setStats]       = useState(null);
@@ -224,8 +229,10 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
   const [error, setError]       = useState('');
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'activity'
 
-  const [issuesModal, setIssuesModal] = useState(false);
-  const [raiseModal, setRaiseModal]   = useState(false);
+  const [issuesModal, setIssuesModal]       = useState(false);
+  const [raiseModal, setRaiseModal]         = useState(false);
+  const [createSubzoneModal, setCreateSubzoneModal] = useState(false);
+  const [manageModal, setManageModal]       = useState(false);
 
   const load = useCallback(async () => {
     if (!zoneId) return;
@@ -292,7 +299,15 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
             &nbsp;·&nbsp;{descendants.length} sub-zone{descendants.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          <button onClick={() => setCreateSubzoneModal(true)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold transition-colors cursor-pointer">
+            <Plus size={12} /> Add Sub-Zone
+          </button>
+          <button onClick={() => setManageModal(true)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition-colors cursor-pointer">
+            <Settings size={12} /> Manage Zone
+          </button>
           <button onClick={() => setRaiseModal(true)}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors cursor-pointer">
             <Plus size={12} /> Raise Issue
@@ -411,6 +426,21 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
           initialZoneId={zoneId}
           onClose={() => setRaiseModal(false)}
           onCreated={() => { setRaiseModal(false); load(); }}
+        />
+      )}
+      <CreateZoneModal
+        isOpen={createSubzoneModal}
+        clientId={clientId}
+        initialParentZoneId={zoneId}
+        onClose={() => setCreateSubzoneModal(false)}
+        onCreated={() => { setCreateSubzoneModal(false); load(); }}
+      />
+      {manageModal && zone && (
+        <ManageZoneModal
+          zone={zone}
+          clientId={clientId}
+          onClose={() => setManageModal(false)}
+          onUpdated={(updated) => { setZone((z) => ({ ...z, ...updated })); }}
         />
       )}
     </div>

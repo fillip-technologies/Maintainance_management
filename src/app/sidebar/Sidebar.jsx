@@ -69,7 +69,7 @@ export default function Sidebar({
           icon: Wrench
         },
         {
-          name: 'Products & Inventory',
+          name: 'Inventory',
           path: '/superadmin/products',
           icon: Boxes
         },

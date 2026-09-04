@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, XCircle, Package, ArrowUpRight, MapPin, Plus, Trash2, Loader2 } from 'lucide-react';
+import { CheckCircle2, XCircle, Package, ArrowUpRight, MapPin, Plus, Trash2, Loader2, Settings } from 'lucide-react';
 import { deleteZone } from '../../../api/zonesApi';
 
 const GRADIENT = [
@@ -12,7 +12,7 @@ const GRADIENT = [
   'from-cyan-600 to-blue-500',
 ];
 
-export default function ZoneCard({ zone, stats = {}, index = 0, basePath = '/clientadmin', onNotWorkingClick, onRaiseIssue, onDeleted }) {
+export default function ZoneCard({ zone, stats = {}, index = 0, basePath = '/clientadmin', onNotWorkingClick, onRaiseIssue, onDeleted, onManage }) {
   const navigate = useNavigate();
   const gradient = GRADIENT[index % GRADIENT.length];
   const [deleting, setDeleting] = useState(false);
@@ -144,6 +144,15 @@ export default function ZoneCard({ zone, stats = {}, index = 0, basePath = '/cli
         </button>
 
         <div className="flex items-center gap-2">
+          {/* Manage */}
+          <button
+            onClick={() => onManage?.(zone)}
+            title="Manage zone"
+            className="flex items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
+          >
+            <Settings size={12} /> Manage
+          </button>
+
           {/* Delete */}
           <button
             onClick={handleDelete}

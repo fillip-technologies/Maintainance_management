@@ -407,6 +407,7 @@ export default function ProductsList() {
   const [statusTab, setStatusTab] = useState('all');
   const [search, setSearch]       = useState('');
 
+  const [activeSection, setActiveSection] = useState('units'); // 'units' | 'logs'
   const [isAddOpen,    setIsAddOpen]    = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [deployTarget, setDeployTarget] = useState(null);
@@ -516,6 +517,27 @@ export default function ProductsList() {
         ))}
       </div>
 
+      {/* ── Section tabs ── */}
+      <div className="flex items-center bg-slate-100 p-1 rounded-xl w-fit gap-0.5">
+        {[
+          { key: 'units', label: 'Units' },
+          { key: 'logs',  label: 'Inventory Logs' },
+        ].map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setActiveSection(t.key)}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              activeSection === t.key
+                ? 'bg-white text-slate-900 shadow-xs'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {activeSection === 'units' && <>
       {/* ── Status count strip (clickable filters) ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         {[
@@ -655,8 +677,9 @@ export default function ProductsList() {
         </div>
       </div>
 
-      {/* ── Additions Log ── */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col gap-4 shadow-xs">
+      </>}
+
+      {activeSection === 'logs' && <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col gap-4 shadow-xs">
         <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
           <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"><ClipboardList size={18} /></div>
           <div>
@@ -719,7 +742,7 @@ export default function ProductsList() {
             </tbody>
           </table>
         </div>
-      </div>
+      </div>}
 
       {/* ── Modals ── */}
       {isAddOpen && (

@@ -10,6 +10,7 @@ import LoginPage from './app/login/LoginPage';
 // Zone Officer Layout & Views
 import ZoneLayout from './app/zone/ZoneLayout';
 import ZoneOverview from './app/zone/ZoneOverview';
+import ZoneTeamPage from './app/zone/ZoneTeamPage';
 
 // Shared "Raise Query" panel (client_admin + zone officers)
 import RaiseQueryPage from './app/common/RaiseQueryPage';
@@ -20,7 +21,8 @@ import Overview from './app/superadmin/overview/Overview';
 import CompaniesPage from './app/superadmin/companies/CompaniesPage';
 import SuperadminClientsPage from './app/superadmin/clientusers/SuperadminClientsPage';
 import SuperadminZonesPage from './app/superadmin/zones/SuperadminZonesPage';
-import ProductsList from './app/superadmin/addproducts/ProductsList';
+import ProductsList from './app/superadmin/products/ProductsList';
+import InventoryLogsPage from './app/superadmin/inventorylogs/InventoryLogsPage';
 import CategoriesPage from './app/superadmin/categories/CategoriesPage';
 import TechniciansPage from './app/superadmin/technicians/TechniciansPage';
 import IssuesPage from './app/superadmin/issues/IssuesPage';
@@ -80,6 +82,7 @@ function AppRoutes() {
             <Route path="zones/:zoneId" element={<ZoneDetailPage backRoute="/superadmin/zones" />} />
             <Route path="technicians" element={<TechniciansPage />} />
             <Route path="products" element={<ProductsList />} />
+            <Route path="inventory-logs" element={<InventoryLogsPage />} />
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="issues" element={<IssuesPage />} />
           </Route>
@@ -92,6 +95,7 @@ function AppRoutes() {
           <Route path="/zone" element={<ZoneLayout />}>
             <Route index element={<Navigate to="/zone/overview" replace />} />
             <Route path="overview" element={<ZoneOverview />} />
+            <Route path="team" element={<ZoneTeamPage />} />
             <Route path="requests" element={<RaiseQueryPage />} />
           </Route>
         </Route>

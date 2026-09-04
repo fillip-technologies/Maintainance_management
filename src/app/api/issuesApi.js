@@ -67,3 +67,7 @@ export async function getIssueHistory(id) {
   const res = await apiClient.request(`/issues/${id}/history`, { method: 'GET' });
   return res?.data ?? [];
 }
+
+export async function deleteIssue(id) {
+  return apiClient.request(`/issues/${id}`, { method: 'DELETE' });
+}

@@ -73,6 +73,13 @@ export async function removeUserFromZone(zoneId, assignmentId) {
   return apiClient.request(`/zones/${zoneId}/assignments/${assignmentId}`, { method: 'DELETE' });
 }
 
+export async function setZoneStatus(id, status) {
+  return apiClient.request(`/zones/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status })
+  });
+}
+
 export async function getZoneActivity(zoneId, { page = 1, limit = 30, from, to } = {}) {
   const params = new URLSearchParams({ page, limit });
   if (from) params.set('from', from);

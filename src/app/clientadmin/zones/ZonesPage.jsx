@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { MapPin, RefreshCw, Search, X, Loader2, AlertTriangle } from 'lucide-react';
+import { MapPin, RefreshCw, Search, X, Loader2, AlertTriangle, Plus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getZones } from '../../api/zonesApi';
 import { getZoneBreakdown } from '../../api/dashboardApi';
 import ZoneCard from './components/ZoneCard';
 import ZoneIssuesModal from './components/ZoneIssuesModal';
 import RaiseQueryModal from '../../common/RaiseQueryModal';
+import CreateZoneModal from './components/CreateZoneModal';
+import ManageZoneModal from './components/ManageZoneModal';
 
 export default function ZonesPage() {
   const { currentUser } = useAuth();
@@ -23,6 +25,10 @@ export default function ZonesPage() {
 
   // Raise issue modal
   const [raiseModal, setRaiseModal] = useState(null); // { zoneId }
+
+  // Create / manage zone modals
+  const [createModal, setCreateModal] = useState(false);
+  const [managingZone, setManagingZone] = useState(null);
 
   const load = useCallback(async () => {
     if (!clientId) return;
@@ -68,10 +74,18 @@ export default function ZonesPage() {
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Zones</h1>
           <p className="text-xs text-slate-500 mt-0.5">Click "Not Working" on any card to see active issues. Click "Raise Issue" to log a new defect.</p>
         </div>
-        <button onClick={load} disabled={loading}
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 shrink-0">
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => setCreateModal(true)}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors cursor-pointer shadow-sm shadow-indigo-200"
+          >
+            <Plus size={14} /> Create Zone
+          </button>
+          <button onClick={load} disabled={loading}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50">
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Search + filter */}
@@ -145,6 +159,7 @@ export default function ZonesPage() {
               onNotWorkingClick={(zoneId, zoneName) => setIssuesModal({ zoneId, zoneName })}
               onRaiseIssue={(zoneId) => setRaiseModal({ zoneId })}
               onDeleted={(deletedId) => setZones((prev) => prev.filter((z) => z.id !== deletedId))}
+              onManage={(z) => setManagingZone(z)}
             />
           ))}
         </div>
@@ -166,6 +181,24 @@ export default function ZonesPage() {
           initialZoneId={raiseModal.zoneId}
           onClose={() => setRaiseModal(null)}
           onCreated={() => { setRaiseModal(null); load(); }}
+        />
+      )}
+
+      {/* Create zone modal */}
+      <CreateZoneModal
+        isOpen={createModal}
+        clientId={clientId}
+        onClose={() => setCreateModal(false)}
+        onCreated={() => { setCreateModal(false); load(); }}
+      />
+
+      {/* Manage zone modal */}
+      {managingZone && (
+        <ManageZoneModal
+          zone={managingZone}
+          clientId={clientId}
+          onClose={() => setManagingZone(null)}
+          onUpdated={() => load()}
         />
       )}
     </div>

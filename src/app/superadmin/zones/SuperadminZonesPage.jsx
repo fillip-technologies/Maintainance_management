@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  MapPin, RefreshCw, Search, X, Loader2, AlertTriangle, Building2
+  MapPin, RefreshCw, Search, X, Loader2, AlertTriangle, Building2, Plus
 } from 'lucide-react';
 import { getClients } from '../../api/clientsApi';
 import { getZones } from '../../api/zonesApi';
@@ -8,6 +8,8 @@ import { getZoneBreakdown } from '../../api/dashboardApi';
 import ZoneCard from '../../clientadmin/zones/components/ZoneCard';
 import ZoneIssuesModal from '../../clientadmin/zones/components/ZoneIssuesModal';
 import RaiseQueryModal from '../../common/RaiseQueryModal';
+import CreateZoneModal from '../../clientadmin/zones/components/CreateZoneModal';
+import ManageZoneModal from '../../clientadmin/zones/components/ManageZoneModal';
 
 export default function SuperadminZonesPage() {
   const [clients, setClients]             = useState([]);
@@ -23,6 +25,8 @@ export default function SuperadminZonesPage() {
 
   const [issuesModal, setIssuesModal] = useState(null);
   const [raiseModal, setRaiseModal]   = useState(null);
+  const [createModal, setCreateModal] = useState(false);
+  const [managingZone, setManagingZone] = useState(null);
 
   // Load all clients once
   useEffect(() => {
@@ -86,10 +90,18 @@ export default function SuperadminZonesPage() {
           <p className="text-xs text-slate-500 mt-1">Select a company to manage its zones.</p>
         </div>
         {selectedClientId && (
-          <button onClick={() => loadZones(selectedClientId)} disabled={loading}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 shrink-0">
-            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setCreateModal(true)}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors cursor-pointer shadow-sm shadow-indigo-200"
+            >
+              <Plus size={14} /> Create Zone
+            </button>
+            <button onClick={() => loadZones(selectedClientId)} disabled={loading}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50">
+              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+            </button>
+          </div>
         )}
       </div>
 
@@ -199,6 +211,7 @@ export default function SuperadminZonesPage() {
                   onNotWorkingClick={(zoneId, zoneName) => setIssuesModal({ zoneId, zoneName })}
                   onRaiseIssue={(zoneId) => setRaiseModal({ zoneId })}
                   onDeleted={(deletedId) => setZones((prev) => prev.filter((z) => z.id !== deletedId))}
+                  onManage={(z) => setManagingZone(z)}
                 />
               ))}
             </div>
@@ -220,6 +233,22 @@ export default function SuperadminZonesPage() {
           initialZoneId={raiseModal.zoneId}
           onClose={() => setRaiseModal(null)}
           onCreated={() => { setRaiseModal(null); loadZones(selectedClientId); }}
+        />
+      )}
+
+      <CreateZoneModal
+        isOpen={createModal}
+        clientId={selectedClientId}
+        onClose={() => setCreateModal(false)}
+        onCreated={() => { setCreateModal(false); loadZones(selectedClientId); }}
+      />
+
+      {managingZone && (
+        <ManageZoneModal
+          zone={managingZone}
+          clientId={selectedClientId}
+          onClose={() => setManagingZone(null)}
+          onUpdated={() => loadZones(selectedClientId)}
         />
       )}
     </div>

@@ -109,6 +109,18 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
   const availableCount = availableUnits.length;
   const productName = isOther ? formData.customProductName.trim() : (selectedType?.name ?? '');
 
+  // Strict quantity validation — "Other" type has no deployment record so we
+  // skip the cap; tracked types are hard-limited to what's actually deployed.
+  const deployedLimit = isOther ? null : availableCount;
+  const qty = parseInt(formData.quantity, 10);
+  const qtyValid = !isNaN(qty) && qty >= 1;
+  const qtyOverLimit = deployedLimit !== null && qtyValid && qty > deployedLimit;
+  const qtyError = !qtyValid
+    ? 'Enter a whole number of at least 1.'
+    : qtyOverLimit
+    ? `Only ${deployedLimit} unit${deployedLimit !== 1 ? 's' : ''} of this product are deployed in this zone.`
+    : '';
+
   // Defect categories depend on the chosen product type (global + that type's).
   // "Other" (or none) → global categories only.
   useEffect(() => {
@@ -133,6 +145,8 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
     formData.categoryId &&
     formData.description.trim() &&
     availableCount > 0 &&
+    qtyValid &&
+    !qtyOverLimit &&
     !isSubmitting;
 
   const handleSubmit = async (e) => {
@@ -142,7 +156,13 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
     setIsSubmitting(true);
     setError('');
     try {
-      const units = Math.max(1, Math.min(Number(formData.quantity) || 1, availableCount));
+      // Re-validate: guard against race where zone/devices reloaded between
+      // user typing and hitting submit.
+      if (qtyOverLimit) {
+        setError(`Only ${deployedLimit} unit${deployedLimit !== 1 ? 's' : ''} of this product are deployed in this zone.`);
+        return;
+      }
+      const units = qty;
       // A defect targets one specific unit — attach it to an available unit and
       // record the product type/name + affected count in the description.
       const targetDevice = availableUnits[0];
@@ -215,7 +235,7 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
             ) : (
               <select
                 value={selectedZoneId}
-                onChange={(e) => { setSelectedZoneId(e.target.value); setFormData(EMPTY_FORM); }}
+                onChange={(e) => { setSelectedZoneId(e.target.value); setFormData({ ...EMPTY_FORM, quantity: 1 }); }}
                 disabled={loadingZones}
                 className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 cursor-pointer disabled:opacity-60"
               >
@@ -235,7 +255,7 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
             <select
               required
               value={formData.productCategoryId}
-              onChange={(e) => setFormData({ ...formData, productCategoryId: e.target.value, quantity: 1 })}
+              onChange={(e) => setFormData({ ...formData, productCategoryId: e.target.value, quantity: 1, customProductName: '' })}
               disabled={loadingRefs}
               className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 cursor-pointer disabled:opacity-60"
             >
@@ -306,24 +326,31 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
             <input
               type="number"
               min={1}
-              max={Math.max(1, availableCount)}
+              max={deployedLimit ?? undefined}
               step={1}
               value={formData.quantity}
               disabled={!formData.productCategoryId}
               onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-              onBlur={(e) =>
-                setFormData({
-                  ...formData,
-                  quantity: Math.max(1, Math.min(Number(e.target.value) || 1, Math.max(1, availableCount)))
-                })
-              }
-              className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 w-32 disabled:opacity-60"
+              className={`px-3.5 py-2.5 rounded-xl border text-xs font-medium outline-hidden focus:ring-2 w-32 disabled:opacity-60 transition-colors ${
+                qtyError
+                  ? 'border-rose-400 bg-rose-50 focus:border-rose-500 focus:ring-rose-100'
+                  : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-100'
+              }`}
             />
-            <span className="text-[11px] text-slate-500">
-              {formData.productCategoryId
-                ? `How many units are affected${availableCount ? ` (max ${availableCount})` : ''}. Recorded on the defect.`
-                : 'Select a product type first.'}
-            </span>
+            {qtyError ? (
+              <span className="text-[11px] font-semibold text-rose-600 flex items-center gap-1">
+                <AlertTriangle size={11} className="shrink-0" />
+                {qtyError}
+              </span>
+            ) : (
+              <span className="text-[11px] text-slate-500">
+                {formData.productCategoryId
+                  ? deployedLimit !== null
+                    ? `Max ${deployedLimit} unit${deployedLimit !== 1 ? 's' : ''} deployed in this zone.`
+                    : 'Enter the number of units affected.'
+                  : 'Select a product type first.'}
+              </span>
+            )}
           </div>
 
           {/* Description */}
