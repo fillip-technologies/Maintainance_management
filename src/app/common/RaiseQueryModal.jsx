@@ -25,11 +25,13 @@ const PRIORITIES = [
 ];
 
 const OTHER = '__other__';
+const OTHER_CAT = '__other_cat__';
 
 const EMPTY_FORM = {
   productCategoryId: '',
   customProductName: '',
   categoryId: '',
+  customCategoryName: '',
   priority: 'medium',
   quantity: 1,
   description: ''
@@ -139,10 +141,16 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
 
   if (!isOpen) return null;
 
+  const isOtherCat = formData.categoryId === OTHER_CAT;
+  const otherCatRecord = isOtherCat
+    ? categories.find((c) => c.name.toLowerCase() === 'other')
+    : null;
+  const effectiveCategoryId = isOtherCat ? (otherCatRecord?.id ?? null) : formData.categoryId;
+
   const canSubmit =
     selectedZoneId &&
     (isOther ? formData.customProductName.trim() : formData.productCategoryId) &&
-    formData.categoryId &&
+    (isOtherCat ? (otherCatRecord !== null && formData.customCategoryName.trim()) : formData.categoryId) &&
     formData.description.trim() &&
     availableCount > 0 &&
     qtyValid &&
@@ -166,12 +174,16 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
       // A defect targets one specific unit — attach it to an available unit and
       // record the product type/name + affected count in the description.
       const targetDevice = availableUnits[0];
-      const header = `Product: ${productName} · Units affected: ${units}`;
+      const catLabel = isOtherCat ? `Other — ${formData.customCategoryName.trim()}` : null;
+      const header = [
+        `Product: ${productName} · Units affected: ${units}`,
+        catLabel ? `Defect type: ${catLabel}` : null,
+      ].filter(Boolean).join('\n');
       const description = `${header}\n${formData.description.trim()}`;
 
       const issue = await createIssue({
         deviceId: targetDevice.id,
-        categoryId: formData.categoryId,
+        categoryId: effectiveCategoryId,
         priority: formData.priority,
         description
       });
@@ -296,14 +308,32 @@ export default function RaiseQueryModal({ isOpen, onClose, onCreated, initialPro
               <select
                 required
                 value={formData.categoryId}
-                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value, customCategoryName: '' })}
                 className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 cursor-pointer"
               >
                 <option value="">Select a category…</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
+                <option value={OTHER_CAT}>Other (specify below)…</option>
               </select>
+              {isOtherCat && (
+                <input
+                  type="text"
+                  autoFocus
+                  required
+                  placeholder="Describe the defect type"
+                  value={formData.customCategoryName}
+                  onChange={(e) => setFormData({ ...formData, customCategoryName: e.target.value })}
+                  className="mt-1 px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                />
+              )}
+              {isOtherCat && !otherCatRecord && (
+                <span className="text-[11px] font-semibold text-amber-700 flex items-center gap-1">
+                  <AlertTriangle size={11} className="shrink-0" />
+                  No "Other" category configured — ask the super admin to create one from Defect Categories.
+                </span>
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5">

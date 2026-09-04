@@ -20,3 +20,15 @@ export async function getIssueCategories({ deviceId, categoryId } = {}) {
   const res = await apiClient.request(`/issue-categories${qs ? `?${qs}` : ''}`, { method: 'GET' });
   return res?.data?.items ?? [];
 }
+
+export async function createIssueCategory({ name, categoryId }) {
+  const res = await apiClient.request('/issue-categories', {
+    method: 'POST',
+    body: JSON.stringify({ name, categoryId: categoryId ?? null }),
+  });
+  return res?.data ?? null;
+}
+
+export async function deleteIssueCategory(id) {
+  return apiClient.request(`/issue-categories/${id}`, { method: 'DELETE' });
+}

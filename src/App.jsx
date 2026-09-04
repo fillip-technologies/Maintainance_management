@@ -25,6 +25,7 @@ import SuperadminZonesPage from './app/superadmin/zones/SuperadminZonesPage';
 import ProductsList from './app/superadmin/products/ProductsList';
 import InventoryLogsPage from './app/superadmin/inventorylogs/InventoryLogsPage';
 import CategoriesPage from './app/superadmin/categories/CategoriesPage';
+import DefectCategoriesPage from './app/superadmin/defectcategories/DefectCategoriesPage';
 import TechniciansPage from './app/superadmin/technicians/TechniciansPage';
 import IssuesPage from './app/superadmin/issues/IssuesPage';
 
@@ -86,6 +87,7 @@ function AppRoutes() {
             <Route path="products" element={<ProductsList />} />
             <Route path="inventory-logs" element={<InventoryLogsPage />} />
             <Route path="categories" element={<CategoriesPage />} />
+            <Route path="defect-categories" element={<DefectCategoriesPage />} />
             <Route path="issues" element={<IssuesPage />} />
           </Route>
         </Route>

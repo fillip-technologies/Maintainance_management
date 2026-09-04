@@ -15,6 +15,7 @@ import {
   ClipboardList,
   AlertTriangle,
   Tag,
+  ShieldAlert,
   X,
   UserCog
 } from 'lucide-react';
@@ -83,6 +84,11 @@ export default function Sidebar({
           name: 'Product Categories',
           path: '/superadmin/categories',
           icon: Tag
+        },
+        {
+          name: 'Defect Categories',
+          path: '/superadmin/defect-categories',
+          icon: ShieldAlert
         },
         {
           name: 'Issues & Defects',
