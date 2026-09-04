@@ -1,12 +1,13 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Building2, UserPlus, Search, X, CheckCircle2, RefreshCw } from 'lucide-react';
-import { getUsers, deleteUser } from '../../api/usersApi';
+import { getUsers } from '../../api/usersApi';
 import { getClients } from '../../api/clientsApi';
 import { getCompanies } from '../../api/companiesApi';
 import ClientStatCards from './components/ClientStatCards';
 import ClientTable from './components/ClientTable';
 import CreateClientModal from './components/CreateClientModal';
 import EditClientModal from './components/EditClientModal';
+import DeleteClientModal from './components/DeleteClientModal';
 
 export default function SuperadminClientsPage() {
   const [clients, setClients] = useState([]);
@@ -15,6 +16,7 @@ export default function SuperadminClientsPage() {
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'active' | 'invited'
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
+  const [deletingClient, setDeletingClient] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
   const showToast = (msg) => {
@@ -22,45 +24,44 @@ export default function SuperadminClientsPage() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Fetch all users with strictly role === 'client_admin'
+  // Client-driven fetch: start from Client records so orphan clients (no admin
+  // user yet) are always visible. Users are joined in for display only.
   const fetchClientUsers = useCallback(async () => {
     setLoading(true);
     try {
-      // Join client_admins to their client (tenant) and the client's company so
-      // the table shows real DB data instead of fabricated placeholders.
-      const [usersData, clientsData, companiesData] = await Promise.all([
-        getUsers({ role: 'client_admin', limit: 100 }),
+      const [clientsData, usersData, companiesData] = await Promise.all([
         getClients({ limit: 100 }),
+        getUsers({ role: 'client_admin', limit: 100 }),
         getCompanies({ limit: 100 })
       ]);
 
-      const clientsById = new Map((clientsData?.items || []).map((c) => [c.id, c]));
+      // Index active admins by their clientId for O(1) lookup
+      const adminByClientId = new Map(
+        (usersData?.items || [])
+          .filter((u) => u.clientId && u.accountStatus !== 'removed')
+          .map((u) => [u.clientId, u])
+      );
       const companiesById = new Map((companiesData?.items || []).map((c) => [c.id, c]));
 
-      const clientAdmins = (usersData?.items || []).filter(
-        (u) => u.role === 'client_admin' && u.accountStatus !== 'removed'
-      );
-
-      const mapped = clientAdmins.map((u) => {
-        const client = clientsById.get(u.clientId);
-        const company = client ? companiesById.get(client.companyId) : null;
+      const mapped = (clientsData?.items || []).map((client) => {
+        const admin = adminByClientId.get(client.id);
+        const company = companiesById.get(client.companyId);
         return {
-          id: u.id,
-          clientId: u.clientId || null,
-          companyName: company?.name || '—',
-          facilityName: client?.facilityName || client?.name || '—',
-          adminName: u.name,
-          email: u.email,
-          location: client?.location || '—',
-          status: u.accountStatus || 'active',
-          role: 'client_admin',
-          createdAt: u.createdAt || new Date().toISOString()
+          id: admin?.id ?? null,               // user id — null when no admin exists
+          clientId: client.id,                  // always set from the client record
+          companyName: company?.name ?? '—',
+          facilityName: client.facilityName ?? client.name ?? '—',
+          adminName: admin?.name ?? null,
+          email: admin?.email ?? null,
+          location: client.location ?? '—',
+          status: admin?.accountStatus ?? 'no_admin',
+          createdAt: client.createdAt ?? new Date().toISOString()
         };
       });
 
       setClients(mapped);
     } catch (err) {
-      console.error('Fetch client admins error:', err);
+      console.error('Fetch clients error:', err);
     } finally {
       setLoading(false);
     }
@@ -92,14 +93,10 @@ export default function SuperadminClientsPage() {
     fetchClientUsers();
   };
 
-  const handleClientDeleted = async (deletedClient) => {
-    try {
-      await deleteUser(deletedClient.id);
-      showToast(`Client Admin "${deletedClient.adminName || deletedClient.name}" removed.`);
-      fetchClientUsers();
-    } catch (err) {
-      console.error(err);
-    }
+  // Called by DeleteClientModal after the deletion is confirmed and done.
+  const handleClientDeleted = (deletedClient) => {
+    showToast(`Client "${deletedClient.facilityName || deletedClient.companyName || deletedClient.adminName}" removed.`);
+    fetchClientUsers();
   };
 
   // Filter clients based on search and status
@@ -216,6 +213,17 @@ export default function SuperadminClientsPage() {
           </button>
 
           <button
+            onClick={() => setStatusFilter('no_admin')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              statusFilter === 'no_admin'
+                ? 'bg-rose-600 text-white shadow-xs'
+                : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+            }`}
+          >
+            No Admin ({clients.filter((c) => c.status === 'no_admin').length})
+          </button>
+
+          <button
             onClick={fetchClientUsers}
             disabled={loading}
             className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors ml-1 cursor-pointer"
@@ -236,7 +244,7 @@ export default function SuperadminClientsPage() {
         <ClientTable
           clients={filteredClients}
           onEditClient={(client) => setEditingClient(client)}
-          onDeleteClient={handleClientDeleted}
+          onDeleteClient={(client) => setDeletingClient(client)}
         />
       )}
 
@@ -253,6 +261,17 @@ export default function SuperadminClientsPage() {
         client={editingClient}
         onClose={() => setEditingClient(null)}
         onUpdated={handleClientUpdated}
+        onDelete={(client) => {
+          setEditingClient(null);
+          setDeletingClient(client);
+        }}
+      />
+
+      {/* Delete Client Modal — shows dependency breakdown + download before confirming */}
+      <DeleteClientModal
+        isOpen={!!deletingClient}
+        client={deletingClient}
+        onClose={() => setDeletingClient(null)}
         onDeleted={handleClientDeleted}
       />
     </div>

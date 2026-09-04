@@ -17,6 +17,7 @@ import RaiseQueryPage from './app/common/RaiseQueryPage';
 // Superadmin Layout & Views
 import SuperadminLayout from './app/superadmin/SuperadminLayout';
 import Overview from './app/superadmin/overview/Overview';
+import CompaniesPage from './app/superadmin/companies/CompaniesPage';
 import SuperadminClientsPage from './app/superadmin/clientusers/SuperadminClientsPage';
 import SuperadminZonesPage from './app/superadmin/zones/SuperadminZonesPage';
 import ProductsList from './app/superadmin/addproducts/ProductsList';
@@ -73,6 +74,7 @@ function AppRoutes() {
           <Route path="/superadmin" element={<SuperadminLayout />}>
             <Route index element={<Navigate to="/superadmin/overview" replace />} />
             <Route path="overview" element={<Overview />} />
+            <Route path="organizations" element={<CompaniesPage />} />
             <Route path="clients" element={<SuperadminClientsPage />} />
             <Route path="zones" element={<SuperadminZonesPage />} />
             <Route path="zones/:zoneId" element={<ZoneDetailPage backRoute="/superadmin/zones" />} />

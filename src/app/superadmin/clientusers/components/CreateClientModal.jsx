@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { X, Building2, User, Mail, Lock, Eye, EyeOff, MapPin } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Building2, User, Mail, Lock, Eye, EyeOff, MapPin, ChevronDown } from 'lucide-react';
 import { createUser } from '../../../api/usersApi';
 import { createClient } from '../../../api/clientsApi';
+import { getCompanies } from '../../../api/companiesApi';
 
 const EMPTY_FORM = {
-  companyName: '',
+  companyId: '',
+  clientName: '',
   adminName: '',
   email: '',
   location: '',
@@ -13,15 +15,30 @@ const EMPTY_FORM = {
 
 export default function CreateClientModal({ isOpen, onClose, onCreated }) {
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const [organizations, setOrganizations] = useState([]);
+  const [loadingOrgs, setLoadingOrgs] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setLoadingOrgs(true);
+    getCompanies({ limit: 100 })
+      .then((data) => setOrganizations(data?.items || []))
+      .catch(() => setOrganizations([]))
+      .finally(() => setLoadingOrgs(false));
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.companyName.trim() || !formData.adminName.trim() || !formData.email.trim()) {
+    if (!formData.companyId) {
+      setErrorMsg('Please select an organization.');
+      return;
+    }
+    if (!formData.clientName.trim() || !formData.adminName.trim() || !formData.email.trim()) {
       setErrorMsg('Please fill in all required fields.');
       return;
     }
@@ -34,10 +51,10 @@ export default function CreateClientModal({ isOpen, onClose, onCreated }) {
     setIsSubmitting(true);
 
     try {
-      // Company name = client name. Backend creates both in one shot.
       const client = await createClient({
-        companyName: formData.companyName.trim(),
-        location: formData.location.trim() || undefined
+        companyId: formData.companyId,
+        name: formData.clientName.trim(),
+        location: formData.location.trim() || undefined,
       });
       if (!client?.id) throw new Error('Client was not created (no id returned).');
 
@@ -46,7 +63,7 @@ export default function CreateClientModal({ isOpen, onClose, onCreated }) {
         email: formData.email.trim().toLowerCase(),
         role: 'client_admin',
         clientId: client.id,
-        password: formData.password.trim()
+        password: formData.password.trim(),
       });
 
       onCreated({ ...newAdmin, client });
@@ -72,8 +89,8 @@ export default function CreateClientModal({ isOpen, onClose, onCreated }) {
               <Building2 size={20} />
             </div>
             <div>
-              <h2 className="text-base font-bold">Super Admin • Provision Client</h2>
-              <p className="text-xs text-slate-400">Creates the company, client, and its administrator</p>
+              <h2 className="text-base font-bold">Provision Client</h2>
+              <p className="text-xs text-slate-400">Creates a client under an existing organization and sets up its admin</p>
             </div>
           </div>
           <button
@@ -91,19 +108,51 @@ export default function CreateClientModal({ isOpen, onClose, onCreated }) {
             </div>
           )}
 
-          {/* Company / Client Name */}
+          {/* Organization selector */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">
-              Company Name <span className="text-rose-500">*</span>
+              Organization <span className="text-rose-500">*</span>
+            </label>
+            <div className="relative flex items-center">
+              <Building2 size={15} className="absolute left-3.5 text-slate-400 pointer-events-none z-10" />
+              <select
+                required
+                value={formData.companyId}
+                onChange={(e) => setFormData({ ...formData, companyId: e.target.value })}
+                disabled={loadingOrgs}
+                className="w-full pl-10 pr-8 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 appearance-none cursor-pointer disabled:opacity-60"
+              >
+                <option value="">
+                  {loadingOrgs ? 'Loading organizations…' : 'Select an organization'}
+                </option>
+                {organizations.map((org) => (
+                  <option key={org.id} value={org.id}>
+                    {org.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="absolute right-3 text-slate-400 pointer-events-none" />
+            </div>
+            {organizations.length === 0 && !loadingOrgs && (
+              <p className="text-[11px] text-amber-600 font-medium">
+                No organizations found. Create one first under Organizations.
+              </p>
+            )}
+          </div>
+
+          {/* Client Name */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-slate-700">
+              Client Name <span className="text-rose-500">*</span>
             </label>
             <div className="relative flex items-center">
               <Building2 size={15} className="absolute left-3.5 text-slate-400 pointer-events-none" />
               <input
                 type="text"
                 required
-                placeholder="e.g. Apex Group"
-                value={formData.companyName}
-                onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                placeholder="e.g. Apex Tower Mumbai"
+                value={formData.clientName}
+                onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
                 className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
               />
             </div>
@@ -203,7 +252,8 @@ export default function CreateClientModal({ isOpen, onClose, onCreated }) {
               type="submit"
               disabled={
                 isSubmitting ||
-                !formData.companyName.trim() ||
+                !formData.companyId ||
+                !formData.clientName.trim() ||
                 !formData.adminName.trim() ||
                 !formData.email.trim() ||
                 !formData.password.trim()

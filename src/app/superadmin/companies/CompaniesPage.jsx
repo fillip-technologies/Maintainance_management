@@ -45,8 +45,8 @@ export default function CompaniesPage() {
       }
       setClientCounts(counts);
     } catch (err) {
-      console.error('Fetch companies error:', err);
-      showToast('Could not load companies. Is the backend running?');
+      console.error('Fetch organizations error:', err);
+      showToast('Could not load organizations. Is the backend running?');
     } finally {
       setLoading(false);
     }
@@ -67,24 +67,23 @@ export default function CompaniesPage() {
   };
 
   const handleSaved = (company, mode) => {
-    showToast(`Company "${company.name}" ${mode === 'create' ? 'created' : 'updated'} successfully!`);
+    showToast(`Organization "${company.name}" ${mode === 'create' ? 'created' : 'updated'} successfully!`);
     fetchCompanies();
   };
 
   const handleDelete = async (company) => {
     const count = clientCounts[company.id] || 0;
-    if (count > 0) {
-      showToast(`"${company.name}" still has ${count} client(s) — remove them first.`);
-      return;
-    }
-    if (!window.confirm(`Delete company "${company.name}"? This cannot be undone.`)) return;
+    const msg = count > 0
+      ? `Delete organization "${company.name}"? This will also delete its ${count} client(s) and all associated zones, devices, and users. This cannot be undone.`
+      : `Delete organization "${company.name}"? This cannot be undone.`;
+    if (!window.confirm(msg)) return;
     setDeletingId(company.id);
     try {
       await deleteCompany(company.id);
-      showToast(`Company "${company.name}" deleted.`);
+      showToast(`Organization "${company.name}" deleted.`);
       fetchCompanies();
     } catch (err) {
-      showToast(err.message || 'Failed to delete company.');
+      showToast(err.message || 'Failed to delete organization.');
     } finally {
       setDeletingId(null);
     }
@@ -124,10 +123,10 @@ export default function CompaniesPage() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 py-1">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Companies & Organizations
+            Organizations
           </h1>
           <p className="text-xs md:text-sm text-slate-500 max-w-2xl">
-            Provision the top-level tenant organizations. Every client is created under a company.
+            Manage top-level organizations. Each client is created under an organization.
           </p>
         </div>
 
@@ -136,14 +135,14 @@ export default function CompaniesPage() {
           className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-indigo-200 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shrink-0"
         >
           <Plus size={16} />
-          <span>Add Company</span>
+          <span>Add Organization</span>
         </button>
       </div>
 
       {/* KPI mini-cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: 'Total Companies', value: companies.length, color: 'text-slate-900' },
+          { label: 'Total Organizations', value: companies.length, color: 'text-slate-900' },
           { label: 'Active', value: activeCount, color: 'text-emerald-600' },
           { label: 'Inactive', value: inactiveCount, color: 'text-slate-500' }
         ].map((k) => (
@@ -165,7 +164,7 @@ export default function CompaniesPage() {
           <Search size={16} className="text-slate-400 shrink-0" />
           <input
             type="text"
-            placeholder="Search company name..."
+            placeholder="Search organization name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="bg-transparent border-none text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-slate-400"
@@ -208,14 +207,14 @@ export default function CompaniesPage() {
       {loading && companies.length === 0 ? (
         <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-xs font-semibold text-slate-500">Loading companies...</span>
+          <span className="text-xs font-semibold text-slate-500">Loading organizations...</span>
         </div>
       ) : filtered.length === 0 ? (
         <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 flex flex-col items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 text-slate-400 flex items-center justify-center">
             <Building2 size={24} />
           </div>
-          <span className="text-sm font-bold text-slate-700">No companies yet</span>
+          <span className="text-sm font-bold text-slate-700">No organizations yet</span>
           <span className="text-xs text-slate-500 max-w-sm">
             Create your first organization to start onboarding clients and facilities.
           </span>
@@ -223,7 +222,7 @@ export default function CompaniesPage() {
             onClick={openCreate}
             className="mt-1 flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors cursor-pointer"
           >
-            <Plus size={15} /> Add Company
+            <Plus size={15} /> Add Organization
           </button>
         </div>
       ) : (
@@ -231,7 +230,7 @@ export default function CompaniesPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                <th className="py-3 px-4">Company</th>
+                <th className="py-3 px-4">Organization</th>
                 <th className="py-3 px-4">Status</th>
                 <th className="py-3 px-4">Clients</th>
                 <th className="py-3 px-4">Created</th>
@@ -272,15 +271,15 @@ export default function CompaniesPage() {
                         <button
                           onClick={() => openEdit(c)}
                           className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
-                          title="Edit company"
+                          title="Edit organization"
                         >
                           <Pencil size={15} />
                         </button>
                         <button
                           onClick={() => handleDelete(c)}
-                          disabled={deletingId === c.id || count > 0}
+                          disabled={deletingId === c.id}
                           className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                          title={count > 0 ? 'Remove clients before deleting' : 'Delete company'}
+                          title="Delete organization"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -297,11 +296,10 @@ export default function CompaniesPage() {
       {companies.some((c) => (clientCounts[c.id] || 0) > 0) && (
         <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
           <AlertTriangle size={12} />
-          A company with attached clients can't be deleted until its clients are removed.
+          Deleting an organization with clients will also remove those clients and all their data.
         </p>
       )}
 
-      {/* Create / Edit modal */}
       <CompanyModal
         isOpen={modalOpen}
         company={modalCompany}

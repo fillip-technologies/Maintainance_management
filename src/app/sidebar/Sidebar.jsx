@@ -49,9 +49,14 @@ export default function Sidebar({
           icon: LayoutDashboard
         },
         {
+          name: 'Organizations',
+          path: '/superadmin/organizations',
+          icon: Building2
+        },
+        {
           name: 'Client Users',
           path: '/superadmin/clients',
-          icon: Building2
+          icon: Users
         },
         {
           name: 'Zones',

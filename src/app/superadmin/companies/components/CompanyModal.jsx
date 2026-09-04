@@ -61,7 +61,7 @@ export default function CompanyModal({ isOpen, company, onClose, onSaved }) {
             </div>
             <div>
               <h2 className="text-base font-bold">
-                {isEdit ? 'Edit Company' : 'Add Company'}
+                {isEdit ? 'Edit Organization' : 'Add Organization'}
               </h2>
               <p className="text-xs text-slate-400">
                 {isEdit ? 'Update this organization' : 'Provision a new top-level organization'}
@@ -86,7 +86,7 @@ export default function CompanyModal({ isOpen, company, onClose, onSaved }) {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">
-              Company Name <span className="text-rose-500">*</span>
+              Organization Name <span className="text-rose-500">*</span>
             </label>
             <div className="relative flex items-center">
               <Building2 size={15} className="absolute left-3.5 text-slate-400 pointer-events-none" />
@@ -139,7 +139,7 @@ export default function CompanyModal({ isOpen, company, onClose, onSaved }) {
               disabled={isSubmitting || !name.trim()}
               className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white text-xs font-bold shadow-md shadow-indigo-200 transition-all disabled:opacity-50 cursor-pointer"
             >
-              {isSubmitting ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Company'}
+              {isSubmitting ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Organization'}
             </button>
           </div>
         </form>

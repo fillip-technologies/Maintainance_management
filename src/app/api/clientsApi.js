@@ -42,3 +42,27 @@ export async function updateClient(id, payload) {
 export async function deleteClient(id) {
   return apiClient.request(`/clients/${id}`, { method: 'DELETE' });
 }
+
+export async function getClientDependents(id) {
+  const res = await apiClient.request(`/clients/${id}/dependents`, { method: 'GET' });
+  return res?.data ?? null;
+}
+
+export async function downloadClientExport(id, clientName) {
+  const token = apiClient.getAccessToken();
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
+  const res = await fetch(`${BASE_URL}/clients/${id}/export`, {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Export failed');
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `client-${(clientName || id).replace(/[^a-z0-9]/gi, '_').toLowerCase()}-export.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
