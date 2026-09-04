@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Wrench, Plus, Search, Trash2, RefreshCw, Mail, CheckCircle2, X, Building2, MapPin } from 'lucide-react';
+import {
+  Wrench, Plus, Search, Trash2, RefreshCw, Mail,
+  CheckCircle2, X, Building2, MapPin, Settings2, ShieldCheck
+} from 'lucide-react';
 import { getTechnicians, getTechnicianById, deleteTechnician } from '../../api/techniciansApi';
 import CreateTechnicianModal from './components/CreateTechnicianModal';
+import ManageAssignmentsModal from './components/ManageAssignmentsModal';
 
 export default function TechniciansPage() {
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [managingTech, setManagingTech] = useState(null);
   const [toast, setToast] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
 
@@ -20,7 +25,6 @@ export default function TechniciansPage() {
     setLoading(true);
     try {
       const data = await getTechnicians({ limit: 100, search: search.trim() || undefined });
-      // Load each technician with their assignments via getById (includes assignments).
       const items = data?.items || [];
       const withAssignments = await Promise.all(
         items.map((t) => getTechnicianById(t.id).catch(() => t))
@@ -37,11 +41,23 @@ export default function TechniciansPage() {
     fetchTechnicians();
   }, [fetchTechnicians]);
 
+  // After an assignment change, refresh full list and update the modal's technician data.
+  const handleAssignmentUpdated = async () => {
+    const data = await getTechnicians({ limit: 100, search: search.trim() || undefined });
+    const items = data?.items || [];
+    const withAssignments = await Promise.all(
+      items.map((t) => getTechnicianById(t.id).catch(() => t))
+    );
+    setTechnicians(withAssignments);
+    if (managingTech) {
+      const updated = withAssignments.find((t) => t.id === managingTech.id);
+      if (updated) setManagingTech(updated);
+    }
+  };
+
   const handleDelete = async (tech) => {
     const name = tech.user?.name || 'this technician';
-    if (!window.confirm(`Delete ${name}? This permanently removes their login account and profile.`)) {
-      return;
-    }
+    if (!window.confirm(`Delete ${name}? This permanently removes their login account and profile.`)) return;
     setDeletingId(tech.id);
     try {
       await deleteTechnician(tech.id);
@@ -85,7 +101,7 @@ export default function TechniciansPage() {
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Technicians</h1>
           <p className="text-xs md:text-sm text-slate-500">
-            Field service engineers. Day-to-day work is managed in the mobile app — here you create and remove technician accounts.
+            Field service engineers. Create accounts, assign coverage to organizations or zones, and manage their scope.
           </p>
         </div>
 
@@ -145,17 +161,18 @@ export default function TechniciansPage() {
             <tbody className="divide-y divide-slate-100 text-xs">
               {loading ? (
                 <tr>
-                  <td colSpan="4" className="text-center py-12 text-slate-400">Loading technicians…</td>
+                  <td colSpan="5" className="text-center py-12 text-slate-400">Loading technicians…</td>
                 </tr>
               ) : technicians.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="text-center py-12 text-slate-400">
-                    No technicians yet. Click “Add Technician” to create one.
+                  <td colSpan="5" className="text-center py-12 text-slate-400">
+                    No technicians yet. Click "Add Technician" to create one.
                   </td>
                 </tr>
               ) : (
                 technicians.map((tech) => (
                   <tr key={tech.id} className="hover:bg-slate-50/80 transition-colors group">
+                    {/* Name */}
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-600 to-orange-500 flex items-center justify-center font-bold text-[11px] text-white shrink-0">
@@ -164,12 +181,16 @@ export default function TechniciansPage() {
                         <span className="font-bold text-slate-900">{tech.user?.name || '—'}</span>
                       </div>
                     </td>
+
+                    {/* Email */}
                     <td className="py-3.5 px-4 text-slate-600">
                       <div className="flex items-center gap-1.5">
                         <Mail size={13} className="text-slate-400" />
                         <span>{tech.user?.email || '—'}</span>
                       </div>
                     </td>
+
+                    {/* Specialization */}
                     <td className="py-3.5 px-4">
                       {tech.specialization ? (
                         <span className="bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-md text-[11px] font-semibold">
@@ -179,43 +200,62 @@ export default function TechniciansPage() {
                         <span className="text-slate-400">—</span>
                       )}
                     </td>
-                    <td className="py-3.5 px-4">
+
+                    {/* Coverage */}
+                    <td className="py-3.5 px-4 max-w-[200px]">
                       {tech.assignments?.length > 0 ? (
                         <div className="flex flex-col gap-1">
-                          {tech.assignments.map((a) => (
-                            <div key={a.id} className="flex items-center gap-1.5">
-                              {a.zone ? (
-                                <>
-                                  <MapPin size={11} className="text-indigo-500 shrink-0" />
-                                  <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded">
-                                    {a.zone.name}
-                                  </span>
-                                </>
-                              ) : a.client ? (
-                                <>
-                                  <Building2 size={11} className="text-emerald-500 shrink-0" />
-                                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
-                                    {a.client.name}
-                                  </span>
-                                </>
-                              ) : null}
-                            </div>
-                          ))}
+                          {tech.assignments.map((a) => {
+                            const isOrg = !!a.clientId && !a.zoneId;
+                            return (
+                              <div key={a.id} className="flex items-center gap-1.5">
+                                {isOrg ? (
+                                  <>
+                                    <Building2 size={11} className="text-emerald-500 shrink-0" />
+                                    <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded truncate">
+                                      {a.client?.name}
+                                    </span>
+                                    <ShieldCheck size={10} className="text-emerald-400 shrink-0" title="Entire org" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <MapPin size={11} className="text-indigo-500 shrink-0" />
+                                    <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded truncate">
+                                      {a.zone?.name}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       ) : (
                         <span className="text-slate-400 text-[11px]">Unassigned</span>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(tech)}
-                        disabled={deletingId === tech.id}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer disabled:opacity-40"
-                        title="Delete Technician"
-                      >
-                        <Trash2 size={15} />
-                      </button>
+
+                    {/* Actions */}
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setManagingTech(tech)}
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-amber-400 bg-white hover:bg-amber-50 text-slate-600 hover:text-amber-700 text-[11px] font-semibold transition-all cursor-pointer shadow-2xs"
+                          title="Manage coverage assignments"
+                        >
+                          <Settings2 size={13} />
+                          <span>Manage</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(tech)}
+                          disabled={deletingId === tech.id}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer disabled:opacity-40"
+                          title="Delete Technician"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -229,6 +269,13 @@ export default function TechniciansPage() {
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onCreated={handleCreated}
+      />
+
+      <ManageAssignmentsModal
+        isOpen={!!managingTech}
+        technician={managingTech}
+        onClose={() => setManagingTech(null)}
+        onUpdated={handleAssignmentUpdated}
       />
     </div>
   );

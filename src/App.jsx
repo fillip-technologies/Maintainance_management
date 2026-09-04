@@ -28,7 +28,6 @@ import IssuesPage from './app/superadmin/issues/IssuesPage';
 import ClientadminLayout from './app/clientadmin/ClientadminLayout';
 import ClientOverview from './app/clientadmin/overview/ClientOverview';
 import DailyLogsPage from './app/clientadmin/dailylogs/DailyLogsPage';
-import ZoneOfficerPage from './app/clientadmin/zoneofficer/ZoneOfficerPage';
 import ClientUsersPage from './app/clientadmin/users/ClientUsersPage';
 import ClientAssetsPage from './app/clientadmin/assets/ClientAssetsPage';
 import ClientInvoicesPage from './app/clientadmin/invoices/ClientInvoicesPage';
@@ -102,7 +101,6 @@ function AppRoutes() {
             <Route index element={<Navigate to="/clientadmin/overview" replace />} />
             <Route path="overview" element={<ClientOverview />} />
             <Route path="daily-logs" element={<DailyLogsPage />} />
-            <Route path="zone-officer" element={<ZoneOfficerPage />} />
             <Route path="users" element={<ClientUsersPage />} />
 <Route path="requests" element={<RaiseQueryPage />} />
             <Route path="assets" element={<ClientAssetsPage />} />

@@ -102,11 +102,6 @@ export default function Sidebar({
           icon: ClipboardList
         },
         {
-          name: 'Zone Officer',
-          path: '/clientadmin/zone-officer',
-          icon: MapPin
-        },
-        {
           name: 'Daily Logs',
           path: '/clientadmin/daily-logs',
           icon: CalendarCheck
