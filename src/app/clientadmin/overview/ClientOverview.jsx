@@ -6,7 +6,8 @@ import { socketClient } from '../../api/socketClient';
 import { ClientProductCards, ClientTeamCards } from './components/ClientStatCards';
 import ClientProductCircleGraph from './components/ClientProductCircleGraph';
 import ClientDetailDrawer from './components/ClientDetailDrawer';
-import { RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import ZoneQueryView from '../../common/ZoneQueryView';
+import { RefreshCw, Wifi, WifiOff, BarChart2, LayoutGrid } from 'lucide-react';
 
 export default function ClientOverview() {
   const { currentUser, isSuperAdmin } = useAuth();
@@ -32,6 +33,7 @@ export default function ClientOverview() {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLive, setIsLive] = useState(false);
   const [drawer, setDrawer] = useState(null); // drawer type key, e.g. 'working'
+  const [activeTab, setActiveTab] = useState('analytics'); // 'analytics' | 'zone'
 
   // Determine dashboard scope from logged-in user
   const getScope = () => {
@@ -164,19 +166,46 @@ export default function ClientOverview() {
         </div>
       </div>
 
-      {/* 1. Top Row: 4 Product Metric Cards */}
-      <ClientProductCards stats={cardStats} onCardClick={setDrawer} />
+      {/* Tab nav — centered segmented control */}
+      <div className="flex justify-center">
+        <div className="flex items-center bg-slate-100 rounded-2xl p-1.5 gap-1 shadow-inner">
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer
+              ${activeTab === 'analytics'
+                ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
+                : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            <BarChart2 size={16} />
+            Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab('zone')}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer
+              ${activeTab === 'zone'
+                ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
+                : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            <LayoutGrid size={16} />
+            Zone View
+          </button>
+        </div>
+      </div>
 
-      {/* 2. Middle Row: Circular / Donut Products Graph */}
-      <ClientProductCircleGraph stats={stats} />
-
-      {/* 3. Bottom Row: Operations & Zone Personnel */}
-      <ClientTeamCards teamStats={teamStats} onCardClick={setDrawer} />
-
-      {/* Detail Drawer — opens on any card click */}
-      {drawer && (
-        <ClientDetailDrawer type={drawer} onClose={() => setDrawer(null)} />
+      {/* Analytics tab */}
+      {activeTab === 'analytics' && (
+        <>
+          <ClientProductCards stats={cardStats} onCardClick={setDrawer} />
+          <ClientProductCircleGraph stats={stats} />
+          <ClientTeamCards teamStats={teamStats} onCardClick={setDrawer} />
+          {drawer && (
+            <ClientDetailDrawer type={drawer} onClose={() => setDrawer(null)} />
+          )}
+        </>
       )}
+
+      {/* Zone View tab */}
+      {activeTab === 'zone' && <ZoneQueryView />}
     </div>
   );
 }
