@@ -191,18 +191,15 @@ export default function ZoneDailyLogPage() {
 
   // ── selection helpers ────────────────────────────────────────────────────
 
-  const visibleIds   = filtered.map((d) => d.id);
-  const allVisible   = visibleIds.length > 0 && visibleIds.every((id) => selected.has(id));
+  const visibleIds     = filtered.map((d) => d.id);
+  const pendingVisible = visibleIds.filter((id) => !todayMap.has(id));
+  const allVisible     = pendingVisible.length > 0 && pendingVisible.every((id) => selected.has(id));
 
   // Only un-logged devices can be selected.
   const toggleDevice = (id) => {
     if (todayMap.has(id)) return;           // already logged — locked
     setSelected((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   };
-
-  // "Select all visible" only picks un-logged ones.
-  const pendingVisible = visibleIds.filter((id) => !todayMap.has(id));
-  const allVisible     = pendingVisible.length > 0 && pendingVisible.every((id) => selected.has(id));
 
   const toggleAllVisible = () =>
     setSelected(allVisible

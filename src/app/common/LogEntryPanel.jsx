@@ -122,12 +122,7 @@ export default function LogEntryPanel({ onSubmitted }) {
     const ids = [...selected];
     const results = await Promise.allSettled(
       ids.map((deviceId) =>
-        submitDailyLog({
-          deviceId,
-          status,
-          notes: notes.trim(),
-          overwrite: todayMap.has(deviceId),
-        }),
+        submitDailyLog({ deviceId, status, notes: notes.trim() }),
       ),
     );
     const ok     = results.filter((r) => r.status === 'fulfilled').length;
@@ -237,7 +232,8 @@ export default function LogEntryPanel({ onSubmitted }) {
               <Package size={15} /> No active devices in scope
             </div>
           ) : devices.map((device) => {
-            const isSelected  = selected.has(device.id);
+            const isLogged    = todayMap.has(device.id);
+            const isSelected  = !isLogged && selected.has(device.id);
             const existing    = todayMap.get(device.id);
             const existingCfg = existing ? statusCfg(existing.status) : null;
 
@@ -246,13 +242,16 @@ export default function LogEntryPanel({ onSubmitted }) {
                 key={device.id}
                 type="button"
                 onClick={() => toggleDevice(device.id)}
-                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border-2 text-left w-full transition-all duration-150 cursor-pointer
-                  ${isSelected
-                    ? 'bg-indigo-50 border-indigo-400 shadow-sm shadow-indigo-100'
-                    : 'bg-slate-50/60 border-slate-200 hover:border-slate-300 hover:bg-white'}`}
+                disabled={isLogged}
+                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border-2 text-left w-full transition-all duration-150
+                  ${isLogged
+                    ? 'bg-slate-50 border-slate-100 opacity-55 cursor-not-allowed'
+                    : isSelected
+                    ? 'bg-indigo-50 border-indigo-400 shadow-sm shadow-indigo-100 cursor-pointer'
+                    : 'bg-slate-50/60 border-slate-200 hover:border-slate-300 hover:bg-white cursor-pointer'}`}
               >
-                {/* Checkbox */}
-                <div className={`shrink-0 transition-colors ${isSelected ? 'text-indigo-600' : 'text-slate-300'}`}>
+                {/* Checkbox — hidden once logged */}
+                <div className={`shrink-0 transition-colors ${isLogged ? 'invisible' : isSelected ? 'text-indigo-600' : 'text-slate-300'}`}>
                   {isSelected
                     ? <SquareCheck size={17} />
                     : <Square size={17} />}
@@ -260,7 +259,7 @@ export default function LogEntryPanel({ onSubmitted }) {
 
                 {/* Device info */}
                 <div className="flex-1 min-w-0">
-                  <p className={`text-xs font-bold truncate leading-tight ${isSelected ? 'text-indigo-900' : 'text-slate-800'}`}>
+                  <p className={`text-xs font-bold truncate leading-tight ${isSelected ? 'text-indigo-900' : isLogged ? 'text-slate-500' : 'text-slate-800'}`}>
                     {device.name}
                   </p>
                   {device.zone?.name && (
