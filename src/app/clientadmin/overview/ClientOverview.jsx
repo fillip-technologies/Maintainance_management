@@ -5,6 +5,7 @@ import { getUsers } from '../../api/usersApi';
 import { socketClient } from '../../api/socketClient';
 import { ClientProductCards, ClientTeamCards } from './components/ClientStatCards';
 import ClientProductCircleGraph from './components/ClientProductCircleGraph';
+import ClientProductHealthCards from './components/ClientProductHealthCards';
 import ClientDetailDrawer from './components/ClientDetailDrawer';
 import ZoneQueryView from '../../common/ZoneQueryView';
 import { RefreshCw, Wifi, WifiOff, BarChart2, LayoutGrid } from 'lucide-react';
@@ -32,8 +33,9 @@ export default function ClientOverview() {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLive, setIsLive] = useState(false);
-  const [drawer, setDrawer] = useState(null); // drawer type key, e.g. 'working'
+  const [drawer, setDrawer] = useState(null);
   const [activeTab, setActiveTab] = useState('analytics'); // 'analytics' | 'zone'
+  const [zoneInitialCat, setZoneInitialCat] = useState(null);
 
   // Determine dashboard scope from logged-in user
   const getScope = () => {
@@ -119,55 +121,18 @@ export default function ClientOverview() {
   // Use `?? 0` (nullish), NOT `|| <demo>` — a real count of 0 must show as 0, not be
   // masked by placeholder numbers (that made the page look static/disconnected).
   const cardStats = {
-    totalProducts:    stats.totalDevices ?? 0,
-    workingProducts:  stats.workingDevices ?? 0,
-    notWorkingProducts: (stats.faultyDevices ?? 0) + (stats.underMaintenance ?? 0),
-    onHoldIssues:     stats.onHoldIssues ?? 0,
+    totalProducts:       stats.totalDevices       ?? 0,
+    workingProducts:     stats.workingDevices      ?? 0,
+    notWorkingProducts:  (stats.faultyDevices ?? 0) + (stats.underMaintenance ?? 0),
+    provisionedProducts: stats.provisionedDevices  ?? 0,
   };
 
   return (
     <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200">
-      {/* Top Headline Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 py-1">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Facility Overview & Operations
-          </h1>
-          <p className="text-xs md:text-sm text-slate-500 max-w-2xl">
-            Live overview of facility products, equipment operational health, and operations personnel (Zone Officers, Staff & Technicians).
-          </p>
-        </div>
+      {/* Status bar + Tab nav — single row */}
+      <div className="flex items-center justify-between gap-4">
 
-        {/* Status bar — live indicator + last updated + manual refresh */}
-        <div className="flex items-center gap-3 shrink-0">
-          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
-            isLive
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-              : 'bg-slate-100 text-slate-500 border-slate-200'
-          }`}>
-            {isLive ? <Wifi size={13} className="animate-pulse" /> : <WifiOff size={13} />}
-            <span>{isLive ? 'Live Sync Active' : 'Offline'}</span>
-          </div>
-
-          {lastUpdated && (
-            <span className="text-[11px] text-slate-400 hidden sm:block">
-              Updated {lastUpdated.toLocaleTimeString()}
-            </span>
-          )}
-
-          <button
-            onClick={fetchStats}
-            disabled={loading}
-            className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 transition-all cursor-pointer disabled:opacity-40"
-            title="Refresh dashboard data"
-          >
-            <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
-          </button>
-        </div>
-      </div>
-
-      {/* Tab nav — centered segmented control */}
-      <div className="flex justify-center">
+        {/* Tab switcher */}
         <div className="flex items-center bg-slate-100 rounded-2xl p-1.5 gap-1 shadow-inner">
           <button
             onClick={() => setActiveTab('analytics')}
@@ -180,7 +145,7 @@ export default function ClientOverview() {
             Analytics
           </button>
           <button
-            onClick={() => setActiveTab('zone')}
+            onClick={() => { setActiveTab('zone'); setZoneInitialCat(null); }}
             className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer
               ${activeTab === 'zone'
                 ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
@@ -190,12 +155,41 @@ export default function ClientOverview() {
             Zone View
           </button>
         </div>
+
+        {/* Live status + refresh */}
+        <div className="flex items-center gap-3 shrink-0">
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
+            isLive
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+              : 'bg-slate-100 text-slate-500 border-slate-200'
+          }`}>
+            {isLive ? <Wifi size={13} className="animate-pulse" /> : <WifiOff size={13} />}
+            <span>{isLive ? 'Live Sync Active' : 'Offline'}</span>
+          </div>
+          {lastUpdated && (
+            <span className="text-[11px] text-slate-400 hidden sm:block">
+              Updated {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
+          <button
+            onClick={fetchStats}
+            disabled={loading}
+            className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 transition-all cursor-pointer disabled:opacity-40"
+            title="Refresh"
+          >
+            <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
+          </button>
+        </div>
       </div>
 
       {/* Analytics tab */}
       {activeTab === 'analytics' && (
         <>
           <ClientProductCards stats={cardStats} onCardClick={setDrawer} />
+          <ClientProductHealthCards
+            refreshTick={lastUpdated}
+            onCategoryClick={(cat) => { setZoneInitialCat(cat); setActiveTab('zone'); }}
+          />
           <ClientProductCircleGraph stats={stats} />
           <ClientTeamCards teamStats={teamStats} onCardClick={setDrawer} />
           {drawer && (
@@ -205,7 +199,12 @@ export default function ClientOverview() {
       )}
 
       {/* Zone View tab */}
-      {activeTab === 'zone' && <ZoneQueryView />}
+      {activeTab === 'zone' && (
+        <ZoneQueryView
+          key={zoneInitialCat?.categoryId ?? 'all'}
+          initialCat={zoneInitialCat}
+        />
+      )}
     </div>
   );
 }

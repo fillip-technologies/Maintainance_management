@@ -1,18 +1,23 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  Tag, Plus, Trash2, RefreshCw, AlertTriangle, CheckCircle2, X
+  Tag, Plus, Trash2, RefreshCw, AlertTriangle, CheckCircle2, X, Upload, ImageIcon, Loader2
 } from 'lucide-react';
-import { getCategories, createCategory, deleteCategory } from '../../api/productsApi';
+import { getCategories, createCategory, deleteCategory, uploadCategoryLogo } from '../../api/productsApi';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading]       = useState(true);
   const [name, setName]             = useState('');
   const [code, setCode]             = useState('');
+  const [logoFile, setLogoFile]     = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
   const [saving, setSaving]         = useState(false);
   const [error, setError]           = useState('');
   const [deletingId, setDeletingId] = useState(null);
+  const [uploadingLogoId, setUploadingLogoId] = useState(null);
   const [toast, setToast]           = useState(null);
+  const logoInputRef = useRef(null);
+  const rowLogoRefs  = useRef({});
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3500); };
 
@@ -30,19 +35,49 @@ export default function CategoriesPage() {
 
   useEffect(() => { fetch_(); }, [fetch_]);
 
+  const handleLogoFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
+
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!name.trim() || !code.trim()) { setError('Both name and code are required.'); return; }
     setSaving(true); setError('');
     try {
-      const cat = await createCategory({ name: name.trim(), code: code.trim() });
+      let cat = await createCategory({ name: name.trim(), code: code.trim() });
+      // Upload logo immediately after creation if one was selected
+      if (logoFile) {
+        try {
+          cat = await uploadCategoryLogo(cat.id, logoFile);
+        } catch {
+          showToast(`Category "${cat.name}" created — logo upload failed, try again via the table.`);
+        }
+      }
       setCategories((prev) => [...prev, cat].sort((a, b) => a.name.localeCompare(b.name)));
-      setName(''); setCode('');
+      setName(''); setCode(''); setLogoFile(null); setLogoPreview(null);
+      if (logoInputRef.current) logoInputRef.current.value = '';
       showToast(`Category "${cat.name}" (${cat.code}) created.`);
     } catch (err) {
       setError(err.message || 'Failed to create category.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleUploadLogo = async (cat, file) => {
+    setUploadingLogoId(cat.id);
+    try {
+      const updated = await uploadCategoryLogo(cat.id, file);
+      setCategories((prev) => prev.map((c) => (c.id === cat.id ? updated : c)));
+      showToast(`Logo updated for "${cat.name}".`);
+    } catch (err) {
+      showToast(err.message || 'Logo upload failed.');
+    } finally {
+      setUploadingLogoId(null);
+      if (rowLogoRefs.current[cat.id]) rowLogoRefs.current[cat.id].value = '';
     }
   };
 
@@ -156,6 +191,23 @@ export default function CategoriesPage() {
               />
             </div>
 
+            {/* Logo upload */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-slate-700">Logo <span className="text-slate-400 font-normal">(optional)</span></label>
+              <div className="flex items-center gap-2">
+                {logoPreview
+                  ? <img src={logoPreview} alt="preview" className="w-9 h-9 rounded-xl object-cover border border-slate-200 shrink-0" />
+                  : <div className="w-9 h-9 rounded-xl border border-dashed border-slate-300 flex items-center justify-center shrink-0 bg-slate-50">
+                      <ImageIcon size={14} className="text-slate-400" />
+                    </div>
+                }
+                <label className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors">
+                  <Upload size={13} /> Browse
+                  <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoFileChange} />
+                </label>
+              </div>
+            </div>
+
             <button
               type="submit"
               disabled={saving || !name.trim() || !code.trim()}
@@ -190,6 +242,7 @@ export default function CategoriesPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <th className="py-3 px-5">Logo</th>
                 <th className="py-3 px-5">Code Prefix</th>
                 <th className="py-3 px-5">Category Name</th>
                 <th className="py-3 px-5">Units Assigned</th>
@@ -199,15 +252,39 @@ export default function CategoriesPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
               {loading ? (
-                <tr><td colSpan="5" className="text-center py-14 text-slate-400">Loading categories…</td></tr>
+                <tr><td colSpan="6" className="text-center py-14 text-slate-400">Loading categories…</td></tr>
               ) : categories.length === 0 ? (
-                <tr><td colSpan="5" className="text-center py-14 text-slate-400">No categories yet. Add one above.</td></tr>
+                <tr><td colSpan="6" className="text-center py-14 text-slate-400">No categories yet. Add one above.</td></tr>
               ) : (
                 categories.map((cat) => {
                   const unitCount = cat._count?.devices ?? 0;
                   const canDelete = unitCount === 0;
                   return (
                     <tr key={cat.id} className="hover:bg-slate-50/60 transition-colors">
+                      {/* Logo cell */}
+                      <td className="py-4 px-5">
+                        <label className="flex items-center gap-2 cursor-pointer group w-fit" title="Click to upload logo">
+                          {cat.imageUrl
+                            ? <img src={cat.imageUrl} alt={cat.name} className="w-9 h-9 rounded-xl object-cover border border-slate-200 group-hover:opacity-80 transition-opacity" />
+                            : <div className="w-9 h-9 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center group-hover:border-amber-400 group-hover:bg-amber-50 transition-colors">
+                                {uploadingLogoId === cat.id
+                                  ? <Loader2 size={13} className="animate-spin text-amber-500" />
+                                  : <ImageIcon size={13} className="text-slate-400 group-hover:text-amber-500" />}
+                              </div>
+                          }
+                          <span className="text-[10px] font-semibold text-slate-400 group-hover:text-amber-600 transition-colors">
+                            {uploadingLogoId === cat.id ? 'Uploading…' : cat.imageUrl ? 'Change' : 'Upload'}
+                          </span>
+                          <input
+                            ref={(el) => { rowLogoRefs.current[cat.id] = el; }}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={uploadingLogoId === cat.id}
+                            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUploadLogo(cat, f); }}
+                          />
+                        </label>
+                      </td>
                       <td className="py-4 px-5">
                         <span className="font-mono font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg text-[12px]">
                           {cat.code}

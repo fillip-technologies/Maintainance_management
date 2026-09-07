@@ -103,6 +103,20 @@ export async function deleteCategory(id) {
   return apiClient.request(`/product-categories/${id}`, { method: 'DELETE' });
 }
 
+export async function uploadCategoryLogo(id, file) {
+  const form = new FormData();
+  form.append('file', file);
+  const token = apiClient.getAccessToken();
+  const res = await fetch(`${apiClient.baseUrl}/product-categories/${id}/logo`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.message || 'Logo upload failed');
+  return json.data ?? null;
+}
+
 // ── Excel/CSV bulk import ──
 // Download the .xlsx template (returns a Blob for the browser to save).
 export async function getImportTemplate() {

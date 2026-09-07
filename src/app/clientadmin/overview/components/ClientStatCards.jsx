@@ -3,16 +3,17 @@ import {
   Package,
   CheckCircle2,
   XCircle,
+  Archive,
   Wrench,
   Shield,
   UserCheck
 } from 'lucide-react';
 
 export function ClientProductCards({ stats, onCardClick }) {
-  const totalCount      = stats?.totalProducts ?? 0;
-  const workingCount    = stats?.workingProducts ?? 0;
-  const notWorkingCount = stats?.notWorkingProducts ?? 0;
-  const onHoldCount     = stats?.onHoldIssues ?? 0;
+  const totalCount       = stats?.totalProducts       ?? 0;
+  const workingCount     = stats?.workingProducts     ?? 0;
+  const notWorkingCount  = stats?.notWorkingProducts  ?? 0;
+  const provisionedCount = stats?.provisionedProducts ?? 0;
 
   const productCards = [
     {
@@ -49,15 +50,15 @@ export function ClientProductCards({ stats, onCardClick }) {
       ring: 'hover:ring-2 hover:ring-rose-200',
     },
     {
-      key: 'on_hold',
-      title: 'Services On Hold',
-      value: onHoldCount,
-      subtitle: 'Click to view paused service queries',
-      icon: Wrench,
-      badgeText: 'On Hold',
-      iconBg: 'bg-amber-50 text-amber-600 border-amber-100',
-      badgeBg: 'bg-amber-50 text-amber-700',
-      ring: 'hover:ring-2 hover:ring-amber-200',
+      key: 'provisioned',
+      title: 'In Stock',
+      value: provisionedCount,
+      subtitle: 'Added but not yet deployed to a zone',
+      icon: Archive,
+      badgeText: 'Undeployed',
+      iconBg: 'bg-sky-50 text-sky-600 border-sky-100',
+      badgeBg: 'bg-sky-50 text-sky-700',
+      ring: 'hover:ring-2 hover:ring-sky-200',
     },
   ];
 

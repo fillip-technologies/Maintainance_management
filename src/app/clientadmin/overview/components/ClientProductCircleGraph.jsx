@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, XCircle, Wrench, Box, PauseCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, Wrench, Box } from 'lucide-react';
 
 const SEGMENTS = [
   {
@@ -70,23 +70,6 @@ const SEGMENTS = [
     dot: 'bg-sky-500',
     unit: 'in stock',
   },
-  {
-    key: 'onHold',
-    label: 'Services On Hold',
-    sub: 'Queries paused / awaiting action',
-    strokeColor: '#f97316',
-    strokeHoverColor: '#fb923c',
-    bar: 'bg-orange-500',
-    ring: 'ring-orange-300',
-    border: 'border-orange-400',
-    bg: 'bg-orange-50',
-    hoverBg: 'hover:bg-orange-50 hover:border-orange-300',
-    badge: 'bg-orange-100 text-orange-800',
-    icon: PauseCircle,
-    iconCls: 'text-orange-600',
-    dot: 'bg-orange-500',
-    unit: 'on hold',
-  },
 ];
 
 export default function ClientProductCircleGraph({ stats }) {
@@ -97,12 +80,11 @@ export default function ClientProductCircleGraph({ stats }) {
   const maintenance  = stats?.underMaintenance   ?? 0;
   const faulty       = stats?.faultyDevices      ?? 0;
   const provisioned  = stats?.provisionedDevices ?? 0;
-  const onHold       = stats?.onHoldIssues       ?? 0;
 
-  const counts = { working, underMaintenance: maintenance, faulty, provisioned, onHold };
+  const counts = { working, underMaintenance: maintenance, faulty, provisioned };
 
-  // All 5 values summed — used for proportional arc sizing so the donut is full.
-  const grandTotal = working + maintenance + faulty + provisioned + onHold;
+  // Use totalDevices as the denominator so percentages always reference the same base.
+  const grandTotal = totalDevices || (working + maintenance + faulty + provisioned);
 
   const pct = (n) => (grandTotal > 0 ? Math.round((n / grandTotal) * 100) : 0);
 

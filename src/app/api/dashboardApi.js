@@ -53,11 +53,19 @@ export async function getDashboardSummary({ scope = 'platform', id, includeSubzo
 // }
 // ─────────────────────────────────────────────
 
-export async function getZoneBreakdown({ scope = 'client', id, includeSubzones = false } = {}) {
+export async function getZoneBreakdown({ scope = 'client', id, includeSubzones = false, categoryId } = {}) {
   const params = new URLSearchParams({ scope, includeSubzones });
   if (id) params.set('id', id);
+  if (categoryId) params.set('categoryId', categoryId);
   const res = await apiClient.request(`/dashboard/zone-breakdown?${params}`, { method: 'GET' });
   return res?.data?.zones ?? [];
+}
+
+export async function getProductBreakdown({ scope = 'client', id } = {}) {
+  const params = new URLSearchParams({ scope });
+  if (id) params.set('id', id);
+  const res = await apiClient.request(`/dashboard/product-breakdown?${params}`, { method: 'GET' });
+  return res?.data?.categories ?? [];
 }
 
 export async function getPlatformOverview() {
