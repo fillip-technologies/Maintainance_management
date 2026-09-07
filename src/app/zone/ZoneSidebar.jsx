@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ClipboardList, ChevronLeft, ChevronRight, Wrench, LogOut, X, Users } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, ChevronLeft, ChevronRight, Wrench, LogOut, X, Users, BookOpen } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 /**
@@ -34,9 +34,10 @@ export default function ZoneSidebar({
     {
       group: 'Zone Operations',
       items: [
-        { name: 'Facility Overview', path: '/zone/overview', icon: LayoutDashboard },
-        { name: 'My Team', path: '/zone/team', icon: Users },
-        { name: 'Raise Query', path: '/zone/requests', icon: ClipboardList },
+        { name: 'Facility Overview', path: '/zone/overview',   icon: LayoutDashboard },
+        { name: 'My Team',           path: '/zone/team',       icon: Users },
+        { name: 'Daily Log Entry',   path: '/zone/daily-logs', icon: BookOpen },
+        { name: 'Raise Query',       path: '/zone/requests',   icon: ClipboardList },
       ],
     },
   ];

@@ -11,6 +11,7 @@ import LoginPage from './app/login/LoginPage';
 import ZoneLayout from './app/zone/ZoneLayout';
 import ZoneOverview from './app/zone/ZoneOverview';
 import ZoneTeamPage from './app/zone/ZoneTeamPage';
+import ZoneDailyLogPage from './app/zone/ZoneDailyLogPage';
 
 // Shared "Raise Query" panel (client_admin + zone officers)
 import RaiseQueryPage from './app/common/RaiseQueryPage';
@@ -101,6 +102,7 @@ function AppRoutes() {
             <Route path="overview" element={<ZoneOverview />} />
             <Route path="team" element={<ZoneTeamPage />} />
             <Route path="requests" element={<RaiseQueryPage />} />
+            <Route path="daily-logs" element={<ZoneDailyLogPage />} />
           </Route>
         </Route>
 

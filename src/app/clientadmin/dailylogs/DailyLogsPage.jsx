@@ -11,6 +11,7 @@ import { getIssues, deleteIssue } from '../../api/issuesApi';
 import { getDevices } from '../../api/devicesApi';
 import { socketClient } from '../../api/socketClient';
 import { useAuth } from '../../context/AuthContext';
+import DailyLogModal from '../../common/DailyLogModal';
 
 // ── helpers ───────────────────────────────────────────────────────────────
 function fmt(isoStr, timeOnly = false) {
@@ -679,6 +680,7 @@ export default function DailyLogsPage() {
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [logModalOpen, setLogModalOpen] = useState(false);
 
   const fetchLogs = useCallback(async () => {
     setLoading(true); setError(null);
@@ -746,12 +748,20 @@ export default function DailyLogsPage() {
               Refreshed {fmt(lastUpdated, true)}
             </span>
           )}
-          {activeTab === 'logs' && (
-            <button onClick={fetchLogs} disabled={loading}
-              className="self-start inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50">
-              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setLogModalOpen(true)}
+              className="self-start inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm shadow-amber-200 transition-colors cursor-pointer"
+            >
+              <ClipboardList size={14} /> Log Today's Status
             </button>
-          )}
+            {activeTab === 'logs' && (
+              <button onClick={fetchLogs} disabled={loading}
+                className="self-start inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50">
+                <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -775,6 +785,12 @@ export default function DailyLogsPage() {
       {activeTab === 'logs'    && <DailyLogsTab rawLogs={rawLogs} loading={loading} zoneOptions={zoneOptions} onRefresh={fetchLogs} />}
       {activeTab === 'queries' && <QueriesTab />}
       {activeTab === 'devices' && <DevicesTab />}
+
+      <DailyLogModal
+        isOpen={logModalOpen}
+        onClose={() => setLogModalOpen(false)}
+        onSubmitted={fetchLogs}
+      />
     </div>
   );
 }

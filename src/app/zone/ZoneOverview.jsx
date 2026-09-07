@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { getDashboardSummary } from '../api/dashboardApi';
 import { socketClient } from '../api/socketClient';
 import ZoneQueryView from '../common/ZoneQueryView';
+import DailyLogModal from '../common/DailyLogModal';
 import { RefreshCw, Wifi, WifiOff, MapPinOff, Boxes, CheckCircle2, AlertTriangle, ClipboardList, BarChart2, LayoutGrid } from 'lucide-react';
 
 /**
@@ -30,6 +31,7 @@ export default function ZoneOverview() {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLive, setIsLive] = useState(false);
   const [activeTab, setActiveTab] = useState('analytics');
+  const [logModalOpen, setLogModalOpen] = useState(false);
 
   const fetchStats = useCallback(async () => {
     if (!zoneId) return; // no assignment → nothing to fetch
@@ -191,11 +193,24 @@ export default function ZoneOverview() {
       )}
 
       {stats.missingLogs > 0 && (
-        <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold">
-          <AlertTriangle size={15} />
-          {stats.missingLogs} device{stats.missingLogs === 1 ? '' : 's'} missing today&apos;s status log.
-        </div>
+        <button
+          type="button"
+          onClick={() => setLogModalOpen(true)}
+          className="flex items-center justify-between gap-2.5 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold w-full hover:bg-amber-100 hover:border-amber-300 transition-colors cursor-pointer text-left"
+        >
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle size={15} />
+            {stats.missingLogs} device{stats.missingLogs === 1 ? '' : 's'} missing today&apos;s status log.
+          </div>
+          <span className="text-[11px] font-bold text-amber-700 underline underline-offset-2">Log now →</span>
+        </button>
       )}
+
+      <DailyLogModal
+        isOpen={logModalOpen}
+        onClose={() => setLogModalOpen(false)}
+        onSubmitted={fetchStats}
+      />
 
       </>} {/* end analytics tab */}
     </div>
