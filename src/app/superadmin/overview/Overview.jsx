@@ -8,7 +8,10 @@ import {
   X,
   RefreshCw,
   Wifi,
-  WifiOff
+  WifiOff,
+  BarChart2,
+  LayoutGrid,
+  ChevronDown,
 } from 'lucide-react';
 
 import StatCard from './components/StatCard';
@@ -18,7 +21,9 @@ import CriticalAlerts from './components/CriticalAlerts';
 import FacilityOverviewTable from './components/FacilityOverviewTable';
 import TechnicianWorkload from './components/TechnicianWorkload';
 import RecentActivityFeed from './components/RecentActivityFeed';
+import ZoneQueryView from '../../common/ZoneQueryView';
 import { getPlatformOverview } from '../../api/dashboardApi';
+import { getClients } from '../../api/clientsApi';
 import { socketClient } from '../../api/socketClient';
 
 export default function Overview() {
@@ -28,6 +33,9 @@ export default function Overview() {
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLive, setIsLive] = useState(false);
+  const [activeTab, setActiveTab] = useState('analytics'); // 'analytics' | 'zone'
+  const [clients, setClients] = useState([]);
+  const [selectedClientId, setSelectedClientId] = useState('');
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -69,6 +77,18 @@ export default function Overview() {
     };
   }, [fetchOverview]);
 
+  // Load clients when Zone View tab is first opened
+  useEffect(() => {
+    if (activeTab !== 'zone' || clients.length > 0) return;
+    getClients({ limit: 100 })
+      .then((res) => {
+        const items = res?.items ?? [];
+        setClients(items);
+        if (items.length > 0) setSelectedClientId(items[0].id);
+      })
+      .catch(() => {});
+  }, [activeTab, clients.length]);
+
   const devices = overview?.devices;
   const issues = overview?.issues;
   const tenancy = overview?.tenancy;
@@ -95,7 +115,7 @@ export default function Overview() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-1">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Maintenance Operations Overview
+            Dashboard
           </h1>
           <p className="text-xs md:text-sm text-slate-500 max-w-2xl">
             Platform-wide command center for assets, work orders, technicians, and client facilities.
@@ -128,13 +148,73 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* Error banner */}
-      {error && !loading && (
+      {/* Tab nav — centered segmented control */}
+      <div className="flex justify-center">
+        <div className="flex items-center bg-slate-100 rounded-2xl p-1.5 gap-1 shadow-inner">
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer
+              ${activeTab === 'analytics'
+                ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
+                : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            <BarChart2 size={16} />
+            Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab('zone')}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer
+              ${activeTab === 'zone'
+                ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
+                : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            <LayoutGrid size={16} />
+            Zone View
+          </button>
+        </div>
+      </div>
+
+      {/* Error banner — analytics only */}
+      {activeTab === 'analytics' && error && !loading && (
         <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-xl px-4 py-3 text-xs font-semibold flex items-center gap-2">
           <AlertTriangle size={16} className="shrink-0" />
           <span>{error}</span>
         </div>
       )}
+
+      {/* ── Zone View tab ──────────────────────────────────────────────── */}
+      {activeTab === 'zone' && (
+        <div className="flex flex-col gap-5">
+          {/* Client selector */}
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold text-slate-500 shrink-0">Client</span>
+            <div className="relative">
+              <select
+                value={selectedClientId}
+                onChange={(e) => setSelectedClientId(e.target.value)}
+                className="appearance-none pl-3.5 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 cursor-pointer shadow-xs"
+              >
+                {clients.length === 0 && (
+                  <option value="">Loading clients…</option>
+                )}
+                {clients.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+              <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            </div>
+          </div>
+
+          {/* Zone view scoped to selected client */}
+          {selectedClientId
+            ? <ZoneQueryView key={selectedClientId} clientId={selectedClientId} />
+            : <p className="text-sm text-slate-400 text-center py-10">Select a client to view its zones.</p>
+          }
+        </div>
+      )}
+
+      {/* ── Analytics tab ──────────────────────────────────────────────── */}
+      {activeTab === 'analytics' && <>
 
       {/* KPI stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -204,6 +284,8 @@ export default function Overview() {
       <FacilityOverviewTable facilities={overview?.facilities} loading={loading} onNotify={showToast} />
 
       <RecentActivityFeed activities={overview?.recentActivity} loading={loading} />
+
+      </>} {/* end analytics tab */}
     </div>
   );
 }

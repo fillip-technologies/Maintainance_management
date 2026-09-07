@@ -54,12 +54,20 @@ function computeZoneData(allZones, allDevices, openIssues, childrenMap) {
     if (d.status === 'under_maintenance' || d.status === 'faulty') s.bad++;
   }
 
-  // Per-zone open issue counts (direct — from whichever zone the device lives in).
-  const zoneIssueCount = {};
+  // Per-zone: number of UNIQUE devices that have at least one open issue.
+  // Counting unique devices (not total issues) keeps this ≤ Total devices.
+  const zoneIssueDevices = {};
   for (const i of openIssues) {
     const zId = i.device?.zone?.id;
-    if (zId) zoneIssueCount[zId] = (zoneIssueCount[zId] ?? 0) + 1;
+    const dId = i.device?.id;
+    if (zId && dId) {
+      if (!zoneIssueDevices[zId]) zoneIssueDevices[zId] = new Set();
+      zoneIssueDevices[zId].add(dId);
+    }
   }
+  const zoneIssueCount = Object.fromEntries(
+    Object.entries(zoneIssueDevices).map(([zId, set]) => [zId, set.size]),
+  );
 
   // Zones that have at least one under_maintenance or faulty device right now.
   const badDeviceZoneIds = new Set(
@@ -85,7 +93,7 @@ function computeZoneData(allZones, allDevices, openIssues, childrenMap) {
   return { zoneFlags, deviceIssueIds, zoneDeviceStats, zoneIssueCount };
 }
 
-export default function ZoneQueryView() {
+export default function ZoneQueryView({ clientId } = {}) {
   const [childrenMap, setChildrenMap]         = useState({});
   const [zoneFlags, setZoneFlags]             = useState({});
   const [deviceIssueIds, setDeviceIssueIds]   = useState(new Set());
@@ -99,11 +107,14 @@ export default function ZoneQueryView() {
   const [error, setError]             = useState('');
 
   const bootstrap = useCallback(async () => {
+    setBreadcrumb([]);
+    setViewMode('zones');
+    setDevices([]);
     setLoading(true);
     setError('');
     try {
       const [zonesRes, devicesRes, issuesRes] = await Promise.all([
-        getZones({ limit: 100 }),
+        getZones({ limit: 100, ...(clientId ? { clientId } : {}) }),
         getDevices({ limit: 100 }),          // all in-scope devices — drives zone tile color
         getIssues({ limit: 100 }),           // open issues — drives device box color
       ]);
@@ -125,7 +136,7 @@ export default function ZoneQueryView() {
     }
   }, []);
 
-  useEffect(() => { bootstrap(); }, [bootstrap]);
+  useEffect(() => { bootstrap(); }, [bootstrap, clientId]);
 
   const currentKey   = breadcrumb.length ? breadcrumb.at(-1).id : '__root__';
   const currentZones = childrenMap[currentKey] ?? [];

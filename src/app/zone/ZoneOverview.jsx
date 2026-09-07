@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getDashboardSummary } from '../api/dashboardApi';
 import { socketClient } from '../api/socketClient';
-import { RefreshCw, Wifi, WifiOff, MapPinOff, Boxes, CheckCircle2, AlertTriangle, ClipboardList } from 'lucide-react';
+import ZoneQueryView from '../common/ZoneQueryView';
+import { RefreshCw, Wifi, WifiOff, MapPinOff, Boxes, CheckCircle2, AlertTriangle, ClipboardList, BarChart2, LayoutGrid } from 'lucide-react';
 
 /**
  * Zone Officer overview. Shows ONLY the officer's in-scope facility health,
@@ -28,6 +29,7 @@ export default function ZoneOverview() {
   const [loading, setLoading] = useState(!!zoneId);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLive, setIsLive] = useState(false);
+  const [activeTab, setActiveTab] = useState('analytics');
 
   const fetchStats = useCallback(async () => {
     if (!zoneId) return; // no assignment → nothing to fetch
@@ -127,6 +129,38 @@ export default function ZoneOverview() {
         </div>
       </div>
 
+      {/* Tab nav — centered segmented control */}
+      <div className="flex justify-center">
+        <div className="flex items-center bg-slate-100 rounded-2xl p-1.5 gap-1 shadow-inner">
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer
+              ${activeTab === 'analytics'
+                ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
+                : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            <BarChart2 size={16} />
+            Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab('zone')}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer
+              ${activeTab === 'zone'
+                ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
+                : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            <LayoutGrid size={16} />
+            Zone View
+          </button>
+        </div>
+      </div>
+
+      {/* Zone View tab — scoped to the incharge's own zone via backend auth */}
+      {activeTab === 'zone' && <ZoneQueryView />}
+
+      {/* Analytics tab */}
+      {activeTab === 'analytics' && <>
+
       {/* Stat Cards */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -162,6 +196,8 @@ export default function ZoneOverview() {
           {stats.missingLogs} device{stats.missingLogs === 1 ? '' : 's'} missing today&apos;s status log.
         </div>
       )}
+
+      </>} {/* end analytics tab */}
     </div>
   );
 }
