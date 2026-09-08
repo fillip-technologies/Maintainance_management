@@ -457,8 +457,11 @@ export default function ZoneQueryView({ clientId, initialCat } = {}) {
                             {/* Zone / Area */}
                             <td className="py-3.5 px-4">
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 shrink-0 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
-                                  <ZoneIcon size={18} />
+                                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 shrink-0 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors overflow-hidden">
+                                  {zone.logoUrl
+                                    ? <img src={zone.logoUrl} alt={zone.name} className="w-full h-full object-cover" />
+                                    : <ZoneIcon size={18} />
+                                  }
                                 </div>
                                 <div className="flex items-center gap-2 min-w-0">
                                   <span className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors truncate">

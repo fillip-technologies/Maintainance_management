@@ -9,7 +9,7 @@ export const USER_STORAGE_KEY = 'fixly_user_data';
 class ApiClient {
   constructor(baseUrl) {
     this.baseUrl = baseUrl;
-    this.isRefreshing = false;
+    this._refreshPromise = null; // shared in-flight refresh; null when idle
   }
 
   getAccessToken() {
@@ -58,11 +58,9 @@ class ApiClient {
 
       // Handle 401 — try token refresh first, then give up and force login
       if (response.status === 401 && !options._retry) {
-        options._retry = true;
         const newAccessToken = await this.handleTokenRefresh();
         if (newAccessToken) {
-          headers.Authorization = `Bearer ${newAccessToken}`;
-          return this.request(endpoint, { ...options, headers });
+          return this.request(endpoint, { ...options, _retry: true });
         }
         // Refresh failed or no refresh token — session is dead, kick to login
         this.clearAuth();
@@ -85,33 +83,38 @@ class ApiClient {
     }
   }
 
-  async handleTokenRefresh() {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      return null;
-    }
+  handleTokenRefresh() {
+    // If a refresh is already in flight, reuse the same promise so concurrent
+    // 401s don't each fire a separate refresh and burn the refresh token.
+    if (this._refreshPromise) return this._refreshPromise;
 
-    try {
-      const res = await fetch(`${this.baseUrl}/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken })
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success && data.data) {
-        this.setTokens(data.data.accessToken, data.data.refreshToken);
-        return data.data.accessToken;
-      } else if (res.status === 401 && data.code === 'REFRESH_INVALID') {
-        // Only clear auth if the server explicitly rejected the refresh token as invalid/revoked
-        this.clearAuth();
+    this._refreshPromise = (async () => {
+      const refreshToken = this.getRefreshToken();
+      if (!refreshToken) return null;
+      try {
+        const res = await fetch(`${this.baseUrl}/auth/refresh`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success && data.data) {
+          this.setTokens(data.data.accessToken, data.data.refreshToken);
+          return data.data.accessToken;
+        }
+        if (res.status === 401 && data.code === 'REFRESH_INVALID') {
+          this.clearAuth();
+        }
+        return null;
+      } catch {
+        // Network error — preserve existing tokens
         return null;
       }
-    } catch (e) {
-      // Network error or backend offline — preserve existing tokens
-      return null;
-    }
-    return null;
+    })().finally(() => {
+      this._refreshPromise = null;
+    });
+
+    return this._refreshPromise;
   }
 
   // Auth endpoints

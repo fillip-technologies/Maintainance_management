@@ -61,8 +61,11 @@ export default function ZoneSidebar({
       {/* Brand Header */}
       <div className="h-[70px] px-4 flex items-center justify-between border-b border-slate-200 gap-3">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-[38px] h-[38px] min-w-[38px] rounded-xl flex items-center justify-center text-white relative shadow-md bg-gradient-to-br from-amber-600 to-orange-500 shadow-amber-100">
-            <Wrench size={20} className="-rotate-12 hover:rotate-45 transition-transform duration-300" />
+          <div className="w-[38px] h-[38px] min-w-[38px] rounded-xl flex items-center justify-center text-white relative shadow-md bg-gradient-to-br from-amber-600 to-orange-500 shadow-amber-100 overflow-hidden">
+            {currentUser?.zoneLogoUrl
+              ? <img src={currentUser.zoneLogoUrl} alt="zone logo" className="w-full h-full object-cover" />
+              : <Wrench size={20} className="-rotate-12 hover:rotate-45 transition-transform duration-300" />
+            }
             <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ring-2 ring-white bg-amber-300"></span>
           </div>
 

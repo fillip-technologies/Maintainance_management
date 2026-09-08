@@ -48,10 +48,13 @@ export default function ZoneCard({ zone, stats = {}, index = 0, basePath = '/cli
       {/* Top */}
       <div className="p-6 pb-3 flex items-start justify-between gap-3">
         <div
-          className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white shrink-0 shadow-md group-hover:scale-105 transition-transform duration-300 cursor-pointer`}
+          className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white shrink-0 shadow-md group-hover:scale-105 transition-transform duration-300 cursor-pointer overflow-hidden`}
           onClick={() => navigate(`${basePath}/zones/${zone.id}`)}
         >
-          <MapPin size={20} />
+          {zone.logoUrl
+            ? <img src={zone.logoUrl} alt={zone.name} className="w-full h-full object-cover" />
+            : <MapPin size={20} />
+          }
         </div>
 
         <div className="flex flex-col items-end gap-1.5">
