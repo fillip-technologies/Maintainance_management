@@ -4,87 +4,90 @@ import React from 'react';
 // Realistic SVG Illustrations for Equipment Details (matching dashboard design)
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Dome Camera (Fixed Cameras) */
-export function FixedCamerasSvg({ className = 'w-14 h-14' }) {
+/** Turret / Dome Camera (Camera) */
+export function FixedCamerasSvg({ className = 'w-12 h-12' }) {
   return (
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      {/* Outer base mount */}
-      <ellipse cx="32" cy="18" rx="26" ry="6" fill="#1e293b" />
-      <ellipse cx="32" cy="16" rx="26" ry="6" fill="#cbd5e1" />
-      <path d="M6 16v4c0 3.3 11.6 6 26 6s26-2.7 26-6v-4C58 19.3 46.4 22 32 22S6 19.3 6 16z" fill="#94a3b8" />
-      {/* Inner dark bubble / dome */}
-      <path d="M12 20C12 33 21 44 32 44s20-11 20-24c0-1.5-.5-3-1.5-4.2C44.5 20 38.5 21 32 21s-12.5-1-18.5-5.2C12.5 17 12 18.5 12 20z" fill="url(#domeGrad)" />
-      {/* Camera gimbal / lens module */}
-      <circle cx="32" cy="31" r="10" fill="#0f172a" stroke="#334155" strokeWidth="1.5" />
-      <circle cx="32" cy="31" r="6" fill="#020617" />
-      <circle cx="32" cy="31" r="3.5" fill="#1e3a8a" />
-      {/* Lens reflection / glare */}
-      <ellipse cx="30" cy="29" rx="1.5" ry="1" fill="#93c5fd" opacity="0.85" />
-      <path d="M16 23c2 8 8 15 16 15" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.35" />
+      {/* Base ring mount */}
+      <ellipse cx="32" cy="46" rx="22" ry="7" fill="#cbd5e1" />
+      <ellipse cx="32" cy="44" rx="20" ry="6" fill="#f1f5f9" />
+      {/* Eyeball / sphere housing angled */}
+      <circle cx="32" cy="30" r="18" fill="url(#camGrad)" stroke="#cbd5e1" strokeWidth="1" />
+      {/* Front bezel ring */}
+      <ellipse cx="28" cy="32" rx="11" ry="11" fill="#0f172a" stroke="#334155" strokeWidth="1.5" />
+      {/* Lens element */}
+      <circle cx="28" cy="32" r="7" fill="#020617" />
+      <circle cx="28" cy="32" r="4.5" fill="#1e3a8a" />
+      {/* Sapphire lens flare / reflection */}
+      <ellipse cx="26" cy="30" rx="2" ry="1.2" fill="#60a5fa" opacity="0.9" />
+      <circle cx="31" cy="34" r="0.8" fill="#93c5fd" opacity="0.7" />
+      {/* Status LED */}
+      <circle cx="20" cy="24" r="1.2" fill="#ef4444" opacity="0.85" />
       <defs>
-        <radialGradient id="domeGrad" cx="32" cy="22" r="22" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#475569" />
-          <stop offset="0.6" stopColor="#1e293b" />
-          <stop offset="1" stopColor="#090d16" />
-        </radialGradient>
-      </defs>
-    </svg>
-  );
-}
-
-/** PTZ Camera */
-export function PtzCamerasSvg({ className = 'w-14 h-14' }) {
-  return (
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      {/* Top mounting plate */}
-      <rect x="22" y="6" width="20" height="4" rx="2" fill="#cbd5e1" />
-      <path d="M28 10h8v4h-8z" fill="#94a3b8" />
-      {/* PTZ Neck / yoke */}
-      <path d="M26 14h12c3 0 5 2 5 5v3H21v-3c0-3 2-5 5-5z" fill="#e2e8f0" />
-      {/* Rotating sphere */}
-      <circle cx="32" cy="34" r="16" fill="url(#ptzGrad)" stroke="#cbd5e1" strokeWidth="1.5" />
-      {/* Lower optical lens area */}
-      <ellipse cx="32" cy="36" rx="8" ry="8" fill="#020617" stroke="#334155" strokeWidth="1" />
-      <circle cx="32" cy="36" r="4.5" fill="#1e3a8a" />
-      <circle cx="32" cy="36" r="2.5" fill="#0f172a" />
-      <circle cx="30.5" cy="34.5" r="1" fill="#60a5fa" />
-      {/* PTZ IR LEDs */}
-      <circle cx="27" cy="29" r="1" fill="#ef4444" opacity="0.8" />
-      <circle cx="37" cy="29" r="1" fill="#ef4444" opacity="0.8" />
-      <defs>
-        <radialGradient id="ptzGrad" cx="28" cy="28" r="16" gradientUnits="userSpaceOnUse">
+        <radialGradient id="camGrad" cx="30" cy="24" r="18" gradientUnits="userSpaceOnUse">
           <stop stopColor="#ffffff" />
-          <stop offset="0.7" stopColor="#cbd5e1" />
-          <stop offset="1" stopColor="#64748b" />
+          <stop offset="0.65" stopColor="#e2e8f0" />
+          <stop offset="1" stopColor="#94a3b8" />
         </radialGradient>
       </defs>
     </svg>
   );
 }
 
-/** Bullet Camera (ANPR / Thermal / LPR) */
-export function BulletCamerasSvg({ className = 'w-14 h-14' }) {
+/** PTZ Speed Dome Camera (ptz) */
+export function PtzCamerasSvg({ className = 'w-12 h-12' }) {
   return (
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      {/* Wall / pole mount bracket on right */}
+      {/* Top ceiling mount plate */}
+      <rect x="22" y="6" width="20" height="4" rx="2" fill="#cbd5e1" />
+      <path d="M27 10h10v5h-10z" fill="#94a3b8" />
+      {/* PTZ upper casing */}
+      <path d="M21 17c0-1.5 1.5-2.5 3-2.5h16c1.5 0 3 1 3 2.5v7H21v-7z" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="1" />
+      {/* Rotating sphere body */}
+      <circle cx="32" cy="36" r="16" fill="url(#ptzSphereGrad)" stroke="#cbd5e1" strokeWidth="1" />
+      {/* Center optical lens dark circle */}
+      <circle cx="32" cy="38" r="9" fill="#090d16" stroke="#334155" strokeWidth="1.2" />
+      <circle cx="32" cy="38" r="5.5" fill="#1e3a8a" />
+      <circle cx="32" cy="38" r="3" fill="#020617" />
+      {/* Lens reflection */}
+      <ellipse cx="30.5" cy="36" rx="1.5" ry="0.9" fill="#93c5fd" opacity="0.9" />
+      {/* IR dots */}
+      <circle cx="26" cy="32" r="1" fill="#ef4444" opacity="0.75" />
+      <circle cx="38" cy="32" r="1" fill="#ef4444" opacity="0.75" />
+      <defs>
+        <radialGradient id="ptzSphereGrad" cx="28" cy="30" r="16" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#ffffff" />
+          <stop offset="0.7" stopColor="#e2e8f0" />
+          <stop offset="1" stopColor="#94a3b8" />
+        </radialGradient>
+      </defs>
+    </svg>
+  );
+}
+
+/** Bullet Camera (LPR CAMERA / ANPR) */
+export function BulletCamerasSvg({ className = 'w-12 h-12' }) {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      {/* Wall mount on right */}
       <rect x="52" y="24" width="4" height="18" rx="2" fill="#94a3b8" />
       <path d="M52 33h-8v4h8z" fill="#cbd5e1" />
       <circle cx="44" cy="35" r="3" fill="#64748b" />
-      {/* Connecting arm */}
-      <path d="M44 35l-10-6" stroke="#cbd5e1" strokeWidth="4" strokeLinecap="round" />
-      {/* Sunshield / top hood */}
-      <path d="M8 22l30-4c1.5-.2 3 .8 3.2 2.3l.5 3.7L10 27z" fill="#e2e8f0" />
-      {/* Main bullet camera body */}
-      <path d="M11 25h28c2.2 0 4 1.8 4 4v9c0 2.2-1.8 4-4 4H11c-2.2 0-4-1.8-4-4v-9c0-2.2 1.8-4 4-4z" fill="url(#bulletGrad)" stroke="#cbd5e1" strokeWidth="1" />
-      {/* Front lens ring & glass */}
-      <ellipse cx="11" cy="31.5" rx="3" ry="8.5" fill="#0f172a" stroke="#334155" strokeWidth="1.2" />
-      <ellipse cx="11" cy="31.5" rx="1.5" ry="4.5" fill="#1e3a8a" />
-      <ellipse cx="10" cy="30" rx="0.7" ry="1.5" fill="#93c5fd" opacity="0.9" />
+      {/* Bracket arm pointing to body */}
+      <path d="M44 35l-10-5" stroke="#cbd5e1" strokeWidth="4" strokeLinecap="round" />
+      {/* Top sunshield / visor extended over front */}
+      <path d="M6 23l32-4c1.5-.2 2.8.8 3 2.2l.6 4.8L8 28z" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="0.8" />
+      {/* Main bullet camera cylindrical body */}
+      <rect x="9" y="26" width="30" height="15" rx="3" fill="url(#bulletGrad)" stroke="#cbd5e1" strokeWidth="1" />
+      {/* Front dark lens glass facing left */}
+      <ellipse cx="9" cy="33.5" rx="3" ry="7.5" fill="#0f172a" stroke="#334155" strokeWidth="1.2" />
+      <ellipse cx="9" cy="33.5" rx="1.5" ry="4" fill="#1e3a8a" />
+      <ellipse cx="8.5" cy="32" rx="0.8" ry="1.5" fill="#93c5fd" opacity="0.9" />
       <defs>
-        <linearGradient id="bulletGrad" x1="10" y1="25" x2="42" y2="42" gradientUnits="userSpaceOnUse">
+        <linearGradient id="bulletGrad" x1="10" y1="26" x2="39" y2="41" gradientUnits="userSpaceOnUse">
           <stop stopColor="#ffffff" />
-          <stop offset="0.5" stopColor="#e2e8f0" />
-          <stop offset="1" stopColor="#94a3b8" />
+          <stop offset="0.6" stopColor="#f1f5f9" />
+          <stop offset="1" stopColor="#cbd5e1" />
         </linearGradient>
       </defs>
     </svg>
@@ -92,19 +95,15 @@ export function BulletCamerasSvg({ className = 'w-14 h-14' }) {
 }
 
 /** NVR / DVR */
-export function NvrDvrSvg({ className = 'w-14 h-14' }) {
+export function NvrDvrSvg({ className = 'w-12 h-12' }) {
   return (
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      {/* Chassis Body */}
       <rect x="6" y="22" width="52" height="22" rx="3" fill="#0f172a" stroke="#334155" strokeWidth="1.5" />
-      {/* Front bezel edge */}
       <rect x="8" y="24" width="48" height="18" rx="2" fill="#1e293b" />
-      {/* Left indicator ring / display */}
       <circle cx="16" cy="33" r="4.5" fill="#020617" stroke="#475569" strokeWidth="1" />
       <circle cx="16" cy="33" r="2.5" fill="#06b6d4" opacity="0.8" />
       <circle cx="26" cy="33" r="1.5" fill="#10b981" />
       <circle cx="31" cy="33" r="1.5" fill="#3b82f6" />
-      {/* Right side USB ports & drive bays */}
       <rect x="40" y="30" width="10" height="3" rx="0.5" fill="#020617" stroke="#64748b" strokeWidth="0.8" />
       <rect x="40" y="35" width="10" height="1.5" rx="0.5" fill="#475569" />
     </svg>
@@ -112,20 +111,17 @@ export function NvrDvrSvg({ className = 'w-14 h-14' }) {
 }
 
 /** Network Switches */
-export function NetworkSwitchSvg({ className = 'w-14 h-14' }) {
+export function NetworkSwitchSvg({ className = 'w-12 h-12' }) {
   return (
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      {/* Switch body */}
       <rect x="6" y="20" width="52" height="24" rx="4" fill="#312e81" stroke="#4338ca" strokeWidth="1.5" />
       <rect x="8" y="22" width="48" height="20" rx="3" fill="#1e1b4b" />
-      {/* Port row 1 */}
       {[12, 18, 24, 30, 36, 42, 48].map((x, i) => (
         <g key={`p1-${i}`}>
           <rect x={x} y="25" width="4" height="4" rx="0.8" fill="#818cf8" />
           <circle cx={x + 2} cy="24" r="0.8" fill={i % 2 === 0 ? '#34d399' : '#38bdf8'} />
         </g>
       ))}
-      {/* Port row 2 */}
       {[12, 18, 24, 30, 36, 42, 48].map((x, i) => (
         <g key={`p2-${i}`}>
           <rect x={x} y="33" width="4" height="4" rx="0.8" fill="#818cf8" />
@@ -137,44 +133,53 @@ export function NetworkSwitchSvg({ className = 'w-14 h-14' }) {
 }
 
 /** Routers */
-export function RouterSvg({ className = 'w-14 h-14' }) {
+export function RouterSvg({ className = 'w-12 h-12' }) {
   return (
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
       {/* Two Antennas */}
-      <line x1="18" y1="32" x2="14" y2="12" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round" />
-      <line x1="46" y1="32" x2="50" y2="12" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round" />
-      {/* Router chassis */}
-      <rect x="10" y="30" width="44" height="14" rx="3" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1.5" />
-      <rect x="12" y="32" width="40" height="10" rx="2" fill="#e2e8f0" />
-      {/* LED indicators */}
-      <circle cx="18" cy="37" r="1.5" fill="#10b981" />
-      <circle cx="24" cy="37" r="1.5" fill="#10b981" />
-      <circle cx="30" cy="37" r="1.5" fill="#10b981" />
-      <circle cx="36" cy="37" r="1.5" fill="#3b82f6" />
-      <circle cx="42" cy="37" r="1.5" fill="#10b981" />
+      <line x1="20" y1="32" x2="16" y2="14" stroke="#475569" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="44" y1="32" x2="48" y2="14" stroke="#475569" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="16" cy="14" r="1.5" fill="#334155" />
+      <circle cx="48" cy="14" r="1.5" fill="#334155" />
+      {/* Router chassis body */}
+      <rect x="8" y="30" width="48" height="16" rx="4" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1.5" />
+      {/* Front dark strip with LED lights */}
+      <rect x="12" y="34" width="40" height="8" rx="2" fill="#1e293b" />
+      <circle cx="18" cy="38" r="1.2" fill="#10b981" />
+      <circle cx="23" cy="38" r="1.2" fill="#10b981" />
+      <circle cx="28" cy="38" r="1.2" fill="#10b981" />
+      <circle cx="33" cy="38" r="1.2" fill="#10b981" />
+      <circle cx="38" cy="38" r="1.2" fill="#06b6d4" />
+      <circle cx="43" cy="38" r="1.2" fill="#3b82f6" />
     </svg>
   );
 }
 
-/** Fiber Links */
-export function FiberLinkSvg({ className = 'w-14 h-14' }) {
+/** Fiber Links (Optical Fibre) */
+export function FiberLinkSvg({ className = 'w-12 h-12' }) {
   return (
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      {/* Ferrule / jacket base angled */}
-      <path d="M14 46l8 8c1.5 1.5 4 1.5 5.5 0l4-4-13.5-13.5-4 4c-1.5 1.5-1.5 4 0 5.5z" fill="#334155" stroke="#475569" strokeWidth="1.2" />
-      <path d="M22 36l10 10" stroke="#0ea5e9" strokeWidth="3" strokeLinecap="round" />
-      {/* Glowing fiber strands fanning out */}
-      <path d="M28 40C34 38 42 28 46 16" stroke="#38bdf8" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M26 38C33 34 39 23 41 12" stroke="#38bdf8" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M25 36C30 30 34 18 34 10" stroke="#38bdf8" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M30 42C38 42 46 34 52 22" stroke="#38bdf8" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M32 44C42 46 50 40 56 30" stroke="#38bdf8" strokeWidth="1.8" strokeLinecap="round" />
-      {/* Bright glowing dots at fiber tips */}
-      <circle cx="46" cy="16" r="2" fill="#ffffff" />
-      <circle cx="41" cy="12" r="2" fill="#ffffff" />
-      <circle cx="34" cy="10" r="2" fill="#ffffff" />
-      <circle cx="52" cy="22" r="2" fill="#ffffff" />
-      <circle cx="56" cy="30" r="2" fill="#ffffff" />
+      {/* Connector sleeve on bottom left */}
+      <path d="M12 48l9 9c1.5 1.5 4 1.5 5.5 0l4.5-4.5L16.5 38l-4.5 4.5c-1.5 1.5-1.5 4 0 5.5z" fill="#1e293b" stroke="#334155" strokeWidth="1.2" />
+      <path d="M19 41l10 10" stroke="#0284c7" strokeWidth="3.5" strokeLinecap="round" />
+      <rect x="23" y="37" width="4" height="6" rx="1" transform="rotate(-45 23 37)" fill="#0ea5e9" />
+      {/* Glowing fiber strands fanning up and to the right */}
+      <path d="M26 40C32 38 41 27 45 15" stroke="#0284c7" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M25 38C32 33 38 22 40 11" stroke="#0ea5e9" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M24 36C28 29 32 17 33 9" stroke="#38bdf8" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M28 42C37 42 46 34 52 21" stroke="#0284c7" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M30 44C41 45 49 39 55 29" stroke="#38bdf8" strokeWidth="2.2" strokeLinecap="round" />
+      {/* Glowing bright points at strand tips */}
+      <circle cx="45" cy="15" r="2.2" fill="#7dd3fc" />
+      <circle cx="45" cy="15" r="1.2" fill="#ffffff" />
+      <circle cx="40" cy="11" r="2.2" fill="#7dd3fc" />
+      <circle cx="40" cy="11" r="1.2" fill="#ffffff" />
+      <circle cx="33" cy="9" r="2.2" fill="#7dd3fc" />
+      <circle cx="33" cy="9" r="1.2" fill="#ffffff" />
+      <circle cx="52" cy="21" r="2.2" fill="#7dd3fc" />
+      <circle cx="52" cy="21" r="1.2" fill="#ffffff" />
+      <circle cx="55" cy="29" r="2.2" fill="#7dd3fc" />
+      <circle cx="55" cy="29" r="1.2" fill="#ffffff" />
     </svg>
   );
 }
@@ -209,6 +214,24 @@ export function AccessControlSvg({ className = 'w-14 h-14' }) {
       <circle cx="32" cy="34" r="1.5" fill="#0f172a" />
       {/* Floor access threshold */}
       <line x1="10" y1="56" x2="54" y2="56" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** LED TV / Monitor Display */
+export function LedTvSvg({ className = 'w-14 h-14' }) {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      {/* Screen Frame */}
+      <rect x="8" y="14" width="48" height="32" rx="3" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+      {/* Inner Screen Display (Blue Glow) */}
+      <rect x="11" y="17" width="42" height="26" rx="2" fill="#0f172a" />
+      <circle cx="32" cy="30" r="7" fill="#0284c7" opacity="0.3" />
+      <circle cx="32" cy="30" r="5" stroke="#38bdf8" strokeWidth="1.5" strokeDasharray="20 10" />
+      <circle cx="32" cy="30" r="2" fill="#38bdf8" />
+      {/* TV Stand / Base */}
+      <path d="M28 46h8v4h-8z" fill="#64748b" />
+      <rect x="22" y="50" width="20" height="3" rx="1.5" fill="#475569" />
     </svg>
   );
 }
@@ -261,6 +284,9 @@ export function getEquipmentVisual(name = '') {
   }
   if (n.includes('fiber') || n.includes('optical') || n.includes('link') || n.includes('cable')) {
     return { Component: FiberLinkSvg, label: 'Fiber Links', isLink: true };
+  }
+  if (n.includes('tv') || n.includes('led') || n.includes('display') || n.includes('monitor') || n.includes('screen')) {
+    return { Component: LedTvSvg, label: 'LED TV', isLink: false };
   }
   if (n.includes('ups') || n.includes('power') || n.includes('battery')) {
     return { Component: UpsPowerSvg, label: 'UPS / Power', isLink: false };

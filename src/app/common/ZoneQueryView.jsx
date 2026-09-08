@@ -1,25 +1,43 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   ChevronRight, CheckCircle2, AlertCircle,
-  Loader2, Package, MapPin, ChevronLeft,
-  Camera, Monitor, Network, Router, Flame, Wind, Zap, Speaker, ShieldCheck, Cpu,
+  Loader2, Package, MapPin, ChevronLeft, Wrench,
+  Building2, Users, Car, Cross, Compass, Shield, DoorOpen,
 } from 'lucide-react';
 import { getZones } from '../api/zonesApi';
 import { getDevices } from '../api/devicesApi';
 import { getIssues } from '../api/issuesApi';
+import { getEquipmentVisual } from '../clientadmin/overview/components/equipmentIcons';
 
 const OPEN_STATUSES = new Set(['open', 'assigned', 'in_progress', 'on_hold', 'reopened']);
 
-const PALETTES = [
-  { grad: 'from-indigo-500 to-sky-400',    light: 'bg-indigo-50',   border: 'border-indigo-100',  text: 'text-indigo-600'   },
-  { grad: 'from-violet-500 to-purple-400', light: 'bg-violet-50',   border: 'border-violet-100',  text: 'text-violet-600'   },
-  { grad: 'from-emerald-500 to-teal-400',  light: 'bg-emerald-50',  border: 'border-emerald-100', text: 'text-emerald-600'  },
-  { grad: 'from-rose-500 to-pink-400',     light: 'bg-rose-50',     border: 'border-rose-100',    text: 'text-rose-600'     },
-  { grad: 'from-amber-500 to-orange-400',  light: 'bg-amber-50',    border: 'border-amber-100',   text: 'text-amber-600'    },
-  { grad: 'from-cyan-500 to-blue-400',     light: 'bg-cyan-50',     border: 'border-cyan-100',    text: 'text-cyan-600'     },
-];
-
 // ── Helpers ───────────────────────────────────────────────────────────────
+
+function getZoneIcon(name = '') {
+  const n = (name || '').toLowerCase();
+  if (n.includes('entry') || n.includes('exit') || n.includes('gate') || n.includes('door')) {
+    return DoorOpen;
+  }
+  if (n.includes('visitor') || n.includes('people') || n.includes('public')) {
+    return Users;
+  }
+  if (n.includes('admin') || n.includes('office') || n.includes('building') || n.includes('block')) {
+    return Building2;
+  }
+  if (n.includes('park') || n.includes('car') || n.includes('vehicle')) {
+    return Car;
+  }
+  if (n.includes('hospital') || n.includes('clinic') || n.includes('health') || n.includes('vet')) {
+    return Cross;
+  }
+  if (n.includes('north') || n.includes('south') || n.includes('east') || n.includes('west')) {
+    return Compass;
+  }
+  if (n.includes('safari') || n.includes('tiger') || n.includes('lion') || n.includes('animal') || n.includes('zoo') || n.includes('bear')) {
+    return Shield;
+  }
+  return MapPin;
+}
 
 function buildChildrenMap(zones) {
   const inScope = new Set(zones.map((z) => z.id));
@@ -71,7 +89,6 @@ function computeZoneData(allZones, filteredDevices, openIssues, childrenMap) {
 
   const deviceIssueIds = new Set(openIssues.map((i) => i.device?.id).filter(Boolean));
 
-  // zoneFlags kept for backward compat (used nowhere in the new design but kept for safety)
   const badDeviceZoneIds = new Set(
     filteredDevices
       .filter((d) => d.status === 'under_maintenance' || d.status === 'faulty')
@@ -83,22 +100,6 @@ function computeZoneData(allZones, filteredDevices, openIssues, childrenMap) {
     zoneFlags[z.id] = badDeviceZoneIds.has(z.id) || descendants.some((id) => badDeviceZoneIds.has(id));
   }
   return { zoneFlags, deviceIssueIds, zoneDeviceStats, zoneIssueCount };
-}
-
-/** Map category name keywords to a Lucide icon component. */
-function categoryIcon(name = '') {
-  const n = name.toLowerCase();
-  if (n.includes('camera') || n.includes('cctv'))            return Camera;
-  if (n.includes('nvr') || n.includes('dvr') || n.includes('recorder')) return Monitor;
-  if (n.includes('switch') || n.includes('network'))         return Network;
-  if (n.includes('router'))                                   return Router;
-  if (n.includes('fire') || n.includes('alarm'))             return Flame;
-  if (n.includes('hvac') || n.includes('air') || n.includes('ac')) return Wind;
-  if (n.includes('ups') || n.includes('power'))              return Zap;
-  if (n.includes('speaker') || n.includes('pa ') || n.includes('audio')) return Speaker;
-  if (n.includes('access') || n.includes('door'))            return ShieldCheck;
-  if (n.includes('sensor'))                                   return Cpu;
-  return Package;
 }
 
 /** Group all fetched devices into product category summary cards. */
@@ -123,50 +124,69 @@ function buildProductCategories(allDevices) {
   return Object.values(catMap).sort((a, b) => b.total - a.total);
 }
 
-// ── Product card — matches the reference dashboard style ─────────────────
-function ProductCard({ cat, index, onClick }) {
-  const p = PALETTES[index % PALETTES.length];
-  const Icon = categoryIcon(cat.name);
-  const hasAlert = (cat.faulty + cat.underMaintenance) > 0;
+// ── Product card — matching the clean enterprise equipment design ─────────
+function ProductCard({ cat, onClick }) {
+  const { Component: SvgVisual, isLink } = getEquipmentVisual(cat.name);
+  const total = cat.total ?? 0;
+  const working = cat.working ?? 0;
+  const faulty = cat.faulty ?? 0;
+  const maintenance = cat.underMaintenance ?? 0;
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group flex items-center gap-4 bg-white border border-slate-200 rounded-2xl px-5 py-4 hover:border-indigo-300 hover:shadow-lg hover:shadow-indigo-500/5 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer text-left w-full focus:outline-none"
+      className="group flex flex-col justify-between bg-white hover:bg-slate-50/60 border border-slate-200/90 hover:border-slate-300 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer text-left w-full focus:outline-none focus:ring-2 focus:ring-blue-500/30"
     >
-      {/* Coloured circle — logo image if available, otherwise Lucide icon */}
-      <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${p.grad} flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform duration-200 overflow-hidden`}>
-        {cat.imageUrl
-          ? <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover rounded-full" />
-          : <Icon size={26} className="text-white" />}
-      </div>
+      {/* Top section: Icon on left, Name directly adjacent, Big number on far right */}
+      <div className="flex items-center justify-between gap-2 w-full">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="shrink-0 flex items-center justify-center">
+            {cat.imageUrl ? (
+              <img
+                src={cat.imageUrl}
+                alt={cat.name}
+                className="w-12 h-12 object-contain"
+              />
+            ) : (
+              <SvgVisual className="w-12 h-12" />
+            )}
+          </div>
 
-      {/* Total + name */}
-      <div className="flex-1 min-w-0">
-        <p className="text-3xl font-black text-slate-900 leading-none">{cat.total}</p>
-        <p className="text-sm font-semibold text-slate-500 mt-1 truncate">{cat.name}</p>
-      </div>
-
-      {/* Status dot rows */}
-      <div className="flex flex-col gap-2 shrink-0">
-        <div className="flex items-center gap-2.5">
-          <span className="relative flex shrink-0">
-            <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 block" />
-            <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-60" />
+          <span className="text-xs sm:text-sm font-semibold text-slate-700 truncate" title={cat.name}>
+            {cat.name}
           </span>
-          <span className="text-sm font-black text-emerald-700 w-6 leading-none">{cat.working}</span>
-          <span className="text-xs font-semibold text-slate-500">Online</span>
         </div>
-        <div className="flex items-center gap-2.5">
-          <span className={`w-3.5 h-3.5 rounded-full shrink-0 ${cat.faulty > 0 ? 'bg-rose-500' : 'bg-rose-200'}`} />
-          <span className={`text-sm font-black w-6 leading-none ${cat.faulty > 0 ? 'text-rose-600' : 'text-slate-400'}`}>{cat.faulty}</span>
-          <span className="text-xs font-semibold text-slate-500">Offline</span>
+
+        <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-none shrink-0">
+          {total}
+        </span>
+      </div>
+
+      {/* Bottom section: Online / Offline / Maintenance Status Rows */}
+      <div className="mt-5 flex flex-col gap-2 w-full">
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+            <span className="text-slate-600 font-medium">{isLink ? 'Active' : 'Online'}</span>
+          </div>
+          <span className="font-bold text-slate-900">{working}</span>
         </div>
-        <div className="flex items-center gap-2.5">
-          <span className={`w-3.5 h-3.5 rounded-full shrink-0 ${cat.underMaintenance > 0 ? 'bg-amber-400' : 'bg-amber-200'}`} />
-          <span className={`text-sm font-black w-6 leading-none ${cat.underMaintenance > 0 ? 'text-amber-600' : 'text-slate-400'}`}>{cat.underMaintenance}</span>
-          <span className="text-xs font-semibold text-slate-500">Maintenance</span>
+
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
+            <span className="text-slate-600 font-medium">{isLink ? 'Down' : 'Offline'}</span>
+          </div>
+          <span className="font-bold text-slate-900">{faulty}</span>
+        </div>
+
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0" />
+            <span className="text-slate-600 font-medium">Maintenance</span>
+          </div>
+          <span className="font-bold text-slate-900">{maintenance}</span>
         </div>
       </div>
     </button>
@@ -306,16 +326,16 @@ export default function ZoneQueryView({ clientId, initialCat } = {}) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16 gap-2 text-slate-500">
-        <Loader2 size={18} className="animate-spin text-indigo-400" />
-        <span className="text-sm">Loading…</span>
+      <div className="flex items-center justify-center py-16 gap-3 text-slate-400 bg-[#080e1e] rounded-3xl border border-[#16223e] p-8">
+        <Loader2 size={20} className="animate-spin text-blue-400" />
+        <span className="text-sm font-medium">Loading zone analytics…</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs font-medium text-rose-800">
+      <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-800/60 text-xs font-semibold text-rose-300">
         {error}
       </div>
     );
@@ -324,14 +344,14 @@ export default function ZoneQueryView({ clientId, initialCat } = {}) {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 text-slate-900">
 
       {/* ── Products view ─────────────────────────────────────────────────── */}
       {viewMode === 'products' && (
         <>
           {productCategories.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-14 gap-2 text-slate-400">
-              <Package size={28} className="opacity-40" />
+            <div className="flex flex-col items-center justify-center py-16 gap-2 text-slate-400 bg-white rounded-3xl border border-slate-200/90 shadow-xs">
+              <Package size={30} className="opacity-40" />
               <p className="text-sm font-medium">No products deployed yet</p>
             </div>
           ) : (
@@ -340,7 +360,6 @@ export default function ZoneQueryView({ clientId, initialCat } = {}) {
                 <ProductCard
                   key={cat.categoryId ?? i}
                   cat={cat}
-                  index={i}
                   onClick={() => handleSelectCategory(cat)}
                 />
               ))}
@@ -352,25 +371,25 @@ export default function ZoneQueryView({ clientId, initialCat } = {}) {
       {/* ── Zones / devices view ──────────────────────────────────────────── */}
       {(viewMode === 'zones' || viewMode === 'devices') && (
         <>
-          {/* Breadcrumb */}
-          <nav className="flex items-center gap-1 flex-wrap text-xs">
+          {/* Breadcrumb Navigation — Light enterprise pill style */}
+          <nav className="flex items-center gap-2 flex-wrap text-xs bg-white border border-slate-200/90 rounded-2xl p-2.5 sm:p-3 shadow-xs">
             {/* Back to products */}
             <button
               onClick={handleBackToProducts}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-bold text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
             >
-              <ChevronLeft size={12} /> Products
+              <ChevronLeft size={14} /> Products
             </button>
 
-            <ChevronRight size={12} className="text-slate-300 shrink-0" />
+            <ChevronRight size={14} className="text-slate-400 shrink-0" />
 
             {/* Category label */}
             <button
               onClick={() => { setBreadcrumb([]); setViewMode('zones'); setDevices([]); }}
-              className={`px-2.5 py-1.5 rounded-lg font-bold transition-colors cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
                 breadcrumb.length === 0
-                  ? 'bg-indigo-100 text-indigo-700'
-                  : 'text-slate-400 hover:text-indigo-600 hover:bg-slate-100'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-700 bg-slate-100 hover:bg-slate-200'
               }`}
             >
               {selectedCat?.name ?? 'All'}
@@ -379,13 +398,13 @@ export default function ZoneQueryView({ clientId, initialCat } = {}) {
             {/* Zone breadcrumb */}
             {breadcrumb.map((crumb, i) => (
               <React.Fragment key={crumb.id}>
-                <ChevronRight size={12} className="text-slate-300 shrink-0" />
+                <ChevronRight size={14} className="text-slate-400 shrink-0" />
                 <button
                   onClick={() => goToBreadcrumb(i)}
-                  className={`px-2.5 py-1.5 rounded-lg font-bold transition-colors cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
                     i === breadcrumb.length - 1
-                      ? 'bg-indigo-100 text-indigo-700'
-                      : 'text-slate-400 hover:text-indigo-600 hover:bg-slate-100'
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'text-slate-700 bg-slate-100 hover:bg-slate-200'
                   }`}
                 >
                   {crumb.name}
@@ -394,70 +413,100 @@ export default function ZoneQueryView({ clientId, initialCat } = {}) {
             ))}
           </nav>
 
-          {/* ── Zone tiles ─────────────────────────────────────────────────── */}
+          {/* ── Zone Table View matching reference Image 2 ──────────────────── */}
           {viewMode === 'zones' && (
             currentZones.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-14 gap-2 text-slate-400">
-                <Package size={28} className="opacity-40" />
+              <div className="flex flex-col items-center justify-center py-16 gap-2 text-slate-400 bg-white rounded-3xl border border-slate-200/90 shadow-xs">
+                <Package size={30} className="opacity-40" />
                 <p className="text-sm font-medium">No zones found</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {currentZones.map((zone) => {
-                  const childCount = (childrenMap[zone.id] ?? []).length;
-                  const stats = zoneDeviceStats[zone.id] ?? { working: 0, faulty: 0, underMaintenance: 0 };
-                  const hasOffline = stats.faulty > 0;
-                  const hasMaint   = stats.underMaintenance > 0;
+              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-[#f8fafc] border-b border-slate-200/80 text-xs font-bold text-slate-700">
+                        <th className="py-3.5 px-4 w-12 text-slate-400 font-semibold text-center">#</th>
+                        <th className="py-3.5 px-4">Zone / Area</th>
+                        <th className="py-3.5 px-4 text-center w-28">
+                          {selectedCat?.name ?? 'Cameras'}
+                        </th>
+                        <th className="py-3.5 px-4 text-center w-24">Online</th>
+                        <th className="py-3.5 px-4 text-center w-24">Offline</th>
+                        <th className="py-3.5 px-4 text-center w-24">Maint.</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {currentZones.map((zone, idx) => {
+                        const childCount = (childrenMap[zone.id] ?? []).length;
+                        const stats = zoneDeviceStats[zone.id] ?? { working: 0, faulty: 0, underMaintenance: 0 };
+                        const totalCount = stats.working + stats.faulty + stats.underMaintenance;
+                        const ZoneIcon = getZoneIcon(zone.name);
 
-                  return (
-                    <button
-                      key={zone.id}
-                      onClick={() => enterZone(zone)}
-                      className="group flex items-center gap-4 bg-white border border-dashed border-slate-300 rounded-2xl px-5 py-4 text-left w-full hover:border-indigo-300 hover:shadow-lg hover:shadow-indigo-500/5 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer focus:outline-none"
-                    >
-                      {/* Zone icon */}
-                      <div className="w-11 h-11 rounded-xl bg-slate-100 group-hover:bg-indigo-50 flex items-center justify-center shrink-0 transition-colors">
-                        <MapPin size={18} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
-                      </div>
+                        return (
+                          <tr
+                            key={zone.id}
+                            onClick={() => enterZone(zone)}
+                            className="hover:bg-slate-50/80 transition-colors cursor-pointer group text-sm"
+                          >
+                            {/* # */}
+                            <td className="py-3.5 px-4 text-xs font-semibold text-slate-500 text-center">
+                              {idx + 1}
+                            </td>
 
-                      {/* Name */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-extrabold text-slate-800 group-hover:text-indigo-700 truncate transition-colors leading-tight">
-                          {zone.name}
-                        </p>
-                        {childCount > 0 && (
-                          <p className="text-[10px] text-slate-400 font-medium mt-0.5">
-                            {childCount} sub-zone{childCount !== 1 ? 's' : ''}
-                          </p>
-                        )}
-                      </div>
+                            {/* Zone / Area */}
+                            <td className="py-3.5 px-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 shrink-0 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                                  <ZoneIcon size={18} />
+                                </div>
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors truncate">
+                                    {zone.name}
+                                  </span>
+                                  {childCount > 0 && (
+                                    <span className="text-xs text-slate-400 font-normal shrink-0">
+                                      ({childCount} sub-zone{childCount !== 1 ? 's' : ''})
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
 
-                      {/* Dot status rows — same convention as product cards */}
-                      <div className="flex flex-col gap-1.5 shrink-0">
-                        <div className="flex items-center gap-2">
-                          <span className="relative flex shrink-0">
-                            <span className="w-3 h-3 rounded-full bg-emerald-500 block" />
-                            <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-50" />
-                          </span>
-                          <span className="text-xs font-black text-emerald-700 w-5 leading-none">{stats.working}</span>
-                          <span className="text-[11px] font-medium text-slate-400">Online</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`w-3 h-3 rounded-full shrink-0 ${hasOffline ? 'bg-rose-500' : 'bg-rose-200'}`} />
-                          <span className={`text-xs font-black w-5 leading-none ${hasOffline ? 'text-rose-600' : 'text-slate-400'}`}>{stats.faulty}</span>
-                          <span className="text-[11px] font-medium text-slate-400">Offline</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`w-3 h-3 rounded-full shrink-0 ${hasMaint ? 'bg-amber-400' : 'bg-amber-200'}`} />
-                          <span className={`text-xs font-black w-5 leading-none ${hasMaint ? 'text-amber-600' : 'text-slate-400'}`}>{stats.underMaintenance}</span>
-                          <span className="text-[11px] font-medium text-slate-400">Maint.</span>
-                        </div>
-                      </div>
+                            {/* Total Equipment Count */}
+                            <td className="py-3.5 px-4 text-center font-bold text-slate-800">
+                              {totalCount}
+                            </td>
 
-                      <ChevronRight size={15} className="text-slate-300 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all shrink-0" />
-                    </button>
-                  );
-                })}
+                            {/* Online */}
+                            <td className="py-3.5 px-4 text-center">
+                              <span className="inline-flex items-center justify-center gap-1.5 font-bold text-slate-800">
+                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+                                <span>{stats.working}</span>
+                              </span>
+                            </td>
+
+                            {/* Offline */}
+                            <td className="py-3.5 px-4 text-center">
+                              <span className="inline-flex items-center justify-center gap-1.5 font-bold text-slate-800">
+                                <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${stats.faulty > 0 ? 'bg-rose-500' : 'bg-rose-300'}`} />
+                                <span>{stats.faulty}</span>
+                              </span>
+                            </td>
+
+                            {/* Maint. */}
+                            <td className="py-3.5 px-4 text-center">
+                              <span className="inline-flex items-center justify-center gap-1.5 font-bold text-slate-800">
+                                <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${stats.underMaintenance > 0 ? 'bg-amber-400' : 'bg-amber-300'}`} />
+                                <span>{stats.underMaintenance}</span>
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )
           )}
@@ -465,52 +514,97 @@ export default function ZoneQueryView({ clientId, initialCat } = {}) {
           {/* ── Device boxes ───────────────────────────────────────────────── */}
           {viewMode === 'devices' && (
             devLoading ? (
-              <div className="flex items-center justify-center py-12 gap-2 text-slate-500">
-                <Loader2 size={18} className="animate-spin text-indigo-400" />
-                <span className="text-sm">Loading devices…</span>
+              <div className="flex items-center justify-center py-16 gap-3 text-slate-400 bg-white rounded-3xl border border-slate-200/90 shadow-xs">
+                <Loader2 size={20} className="animate-spin text-blue-600" />
+                <span className="text-sm font-medium">Loading devices…</span>
               </div>
             ) : devices.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-14 gap-2 text-slate-400">
-                <Package size={28} className="opacity-40" />
+              <div className="flex flex-col items-center justify-center py-16 gap-2 text-slate-400 bg-white rounded-3xl border border-slate-200/90 shadow-xs">
+                <Package size={30} className="opacity-40" />
                 <p className="text-sm font-medium">No {selectedCat?.name ?? 'devices'} in this zone</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
                 {devices.map((device) => {
-                  const isBad  = deviceIssueIds.has(device.id);
-                  const isGood = !isBad && device.status === 'active';
+                  const isFaulty = device.status === 'faulty' || deviceIssueIds.has(device.id);
+                  const isMaint = device.status === 'under_maintenance';
+                  const isActive = !isFaulty && !isMaint && (device.status === 'active' || device.status === 'operational');
+
+                  let statusInfo;
+                  if (isActive) {
+                    statusInfo = {
+                      cardBorder: 'border-emerald-200 hover:border-emerald-400',
+                      accentLine: 'bg-emerald-500',
+                      iconBox: 'bg-emerald-50 text-emerald-600 border border-emerald-200',
+                      Icon: CheckCircle2,
+                      badge: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+                      dot: 'bg-emerald-500',
+                      label: 'Active',
+                    };
+                  } else if (isMaint) {
+                    statusInfo = {
+                      cardBorder: 'border-amber-200 hover:border-amber-400',
+                      accentLine: 'bg-amber-400',
+                      iconBox: 'bg-amber-50 text-amber-700 border border-amber-200',
+                      Icon: Wrench,
+                      badge: 'bg-amber-50 text-amber-700 border border-amber-200',
+                      dot: 'bg-amber-400',
+                      label: 'Under Maintenance',
+                    };
+                  } else if (isFaulty) {
+                    statusInfo = {
+                      cardBorder: 'border-rose-200 hover:border-rose-400',
+                      accentLine: 'bg-rose-500',
+                      iconBox: 'bg-rose-50 text-rose-600 border border-rose-200',
+                      Icon: AlertCircle,
+                      badge: 'bg-rose-50 text-rose-700 border border-rose-200',
+                      dot: 'bg-rose-500',
+                      label: 'Faulty',
+                    };
+                  } else {
+                    statusInfo = {
+                      cardBorder: 'border-slate-200 hover:border-slate-300',
+                      accentLine: 'bg-slate-300',
+                      iconBox: 'bg-slate-100 text-slate-600 border border-slate-200',
+                      Icon: Package,
+                      badge: 'bg-slate-100 text-slate-600 border border-slate-200',
+                      dot: 'bg-slate-400',
+                      label: (device.status || 'Unknown').replace(/_/g, ' '),
+                    };
+                  }
+
+                  const StatusIcon = statusInfo.Icon;
+
                   return (
                     <div
                       key={device.id}
-                      title={`${device.name} — ${device.status.replace(/_/g, ' ')}`}
-                      className={`flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl border-2 text-center min-h-[110px]
-                        ${isBad
-                          ? 'bg-rose-100    border-rose-300    text-rose-900'
-                          : isGood
-                          ? 'bg-emerald-100 border-emerald-300 text-emerald-900'
-                          : 'bg-slate-100   border-slate-300   text-slate-600'}`}
+                      title={`${device.name} — ${statusInfo.label}`}
+                      className={`bg-white hover:bg-slate-50/60 rounded-2xl p-4 sm:p-5 border shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between text-center min-h-[140px] relative overflow-hidden group hover:-translate-y-0.5 ${statusInfo.cardBorder}`}
                     >
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center
-                        ${isBad ? 'bg-rose-200' : isGood ? 'bg-emerald-200' : 'bg-slate-200'}`}>
-                        {isBad
-                          ? <AlertCircle  size={18} className="text-rose-700"    />
-                          : isGood
-                          ? <CheckCircle2 size={18} className="text-emerald-700" />
-                          : <Package      size={18} className="text-slate-500"   />}
+                      {/* Top 3px accent indicator line */}
+                      <div className={`absolute top-0 left-0 right-0 h-[3px] ${statusInfo.accentLine}`} />
+
+                      {/* Icon */}
+                      <div className="flex items-center justify-center pt-1">
+                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${statusInfo.iconBox} shadow-xs group-hover:scale-105 transition-transform`}>
+                          <StatusIcon size={22} />
+                        </div>
                       </div>
 
-                      <p className="text-[11px] font-bold leading-tight line-clamp-2">
-                        {device.name}
-                      </p>
+                      {/* Device Name */}
+                      <div className="my-2.5">
+                        <p className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight leading-tight line-clamp-2" title={device.name}>
+                          {device.name}
+                        </p>
+                      </div>
 
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full
-                        ${isBad
-                          ? 'bg-rose-200    text-rose-800'
-                          : isGood
-                          ? 'bg-emerald-200 text-emerald-800'
-                          : 'bg-slate-200   text-slate-600'}`}>
-                        {device.status.replace(/_/g, ' ')}
-                      </span>
+                      {/* Status Badge Pill */}
+                      <div className="flex items-center justify-center">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${statusInfo.badge}`}>
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${statusInfo.dot}`} />
+                          <span>{statusInfo.label}</span>
+                        </span>
+                      </div>
                     </div>
                   );
                 })}

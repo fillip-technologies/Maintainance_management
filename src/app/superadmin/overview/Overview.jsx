@@ -111,18 +111,39 @@ export default function Overview() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-1">
-        <div className="flex flex-col gap-1">
+      {/* Header — Title, Tab switcher moved upward, and Live status */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-1">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6">
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
             Dashboard
           </h1>
-          <p className="text-xs md:text-sm text-slate-500 max-w-2xl">
-            Platform-wide command center for assets, work orders, technicians, and client facilities.
-          </p>
+
+          {/* Tab nav — moved upward */}
+          <div className="flex items-center bg-slate-100 rounded-2xl p-1.5 gap-1 shadow-inner">
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer
+                ${activeTab === 'analytics'
+                  ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
+                  : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              <BarChart2 size={16} />
+              Analytics
+            </button>
+            <button
+              onClick={() => setActiveTab('zone')}
+              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer
+                ${activeTab === 'zone'
+                  ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
+                  : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              <LayoutGrid size={16} />
+              Zone View
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3 text-xs">
+        <div className="flex items-center gap-3 text-xs shrink-0">
           <span
             className={`inline-flex items-center gap-1.5 font-semibold px-2.5 py-1 rounded-full border ${
               isLive
@@ -130,11 +151,11 @@ export default function Overview() {
                 : 'bg-slate-100 text-slate-500 border-slate-200'
             }`}
           >
-            {isLive ? <Wifi size={13} /> : <WifiOff size={13} />}
+            {isLive ? <Wifi size={13} className="animate-pulse" /> : <WifiOff size={13} />}
             {isLive ? 'Live' : 'Offline'}
           </span>
           {lastUpdated && (
-            <span className="text-slate-400">
+            <span className="text-slate-400 hidden sm:block">
               Updated {lastUpdated.toLocaleTimeString()}
             </span>
           )}
@@ -144,32 +165,6 @@ export default function Overview() {
           >
             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
             Refresh
-          </button>
-        </div>
-      </div>
-
-      {/* Tab nav — centered segmented control */}
-      <div className="flex justify-center">
-        <div className="flex items-center bg-slate-100 rounded-2xl p-1.5 gap-1 shadow-inner">
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer
-              ${activeTab === 'analytics'
-                ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
-                : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            <BarChart2 size={16} />
-            Analytics
-          </button>
-          <button
-            onClick={() => setActiveTab('zone')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer
-              ${activeTab === 'zone'
-                ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
-                : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            <LayoutGrid size={16} />
-            Zone View
           </button>
         </div>
       </div>
