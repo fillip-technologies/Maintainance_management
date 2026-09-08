@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { X, Settings, UserCheck, Loader2, AlertTriangle, UserMinus, UserPlus } from 'lucide-react';
-import { updateZone, setZoneStatus, getZoneAssignments, assignUserToZone, removeUserFromZone } from '../../../api/zonesApi';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { X, Settings, UserCheck, Loader2, AlertTriangle, UserMinus, UserPlus, Upload, Image } from 'lucide-react';
+import { updateZone, setZoneStatus, getZoneAssignments, assignUserToZone, removeUserFromZone, uploadZoneLogo } from '../../../api/zonesApi';
 import { getUsers } from '../../../api/usersApi';
 
 const STATUS_ACTIONS = {
@@ -167,6 +167,34 @@ export default function ManageZoneModal({ zone: initialZone, clientId, onClose, 
   const [savingName, setSavingName] = useState(false);
   const [togglingStatus, setTogglingStatus] = useState(false);
   const [detailsError, setDetailsError] = useState(null);
+  const [logoFile, setLogoFile]   = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const logoInputRef = useRef(null);
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
+
+  const handleUploadLogo = async () => {
+    if (!logoFile) return;
+    setUploadingLogo(true);
+    setDetailsError(null);
+    try {
+      const updated = await uploadZoneLogo(zone.id, logoFile);
+      setZone((z) => ({ ...z, logoUrl: updated.logoUrl }));
+      onUpdated?.(updated);
+      setLogoFile(null);
+      setLogoPreview(null);
+    } catch (err) {
+      setDetailsError(err.message || 'Failed to upload logo.');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
 
   const statusAction = STATUS_ACTIONS[zone.status];
 
@@ -289,6 +317,52 @@ export default function ManageZoneModal({ zone: initialZone, clientId, onClose, 
                   </button>
                 </div>
               </form>
+
+              {/* Logo */}
+              <div className="flex flex-col gap-2 pt-2 border-t border-slate-100">
+                <p className="text-xs font-bold text-slate-700">Zone Logo</p>
+                <div className="flex items-center gap-3">
+                  <div
+                    onClick={() => logoInputRef.current?.click()}
+                    className="w-16 h-16 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors shrink-0 overflow-hidden"
+                  >
+                    {logoPreview ? (
+                      <img src={logoPreview} alt="logo preview" className="w-full h-full object-cover" />
+                    ) : zone.logoUrl ? (
+                      <img src={zone.logoUrl} alt="zone logo" className="w-full h-full object-cover" />
+                    ) : (
+                      <Image size={24} className="text-slate-300" />
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => logoInputRef.current?.click()}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      <Upload size={13} /> {zone.logoUrl ? 'Change logo' : 'Upload logo'}
+                    </button>
+                    {logoFile && (
+                      <button
+                        type="button"
+                        onClick={handleUploadLogo}
+                        disabled={uploadingLogo}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        {uploadingLogo ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+                        {uploadingLogo ? 'Uploading…' : 'Save logo'}
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleLogoChange}
+                  />
+                </div>
+              </div>
 
               {/* Status */}
               <div className="flex flex-col gap-2 pt-2 border-t border-slate-100">

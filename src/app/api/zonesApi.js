@@ -80,6 +80,13 @@ export async function setZoneStatus(id, status) {
   });
 }
 
+export async function uploadZoneLogo(id, file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  const res = await apiClient.request(`/zones/${id}/logo`, { method: 'POST', body: fd, _multipart: true });
+  return res?.data ?? null;
+}
+
 export async function getZoneActivity(zoneId, { page = 1, limit = 30, from, to } = {}) {
   const params = new URLSearchParams({ page, limit });
   if (from) params.set('from', from);

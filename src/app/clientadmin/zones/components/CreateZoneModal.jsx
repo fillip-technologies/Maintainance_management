@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { X, MapPin } from 'lucide-react';
-import { createZone, getZones } from '../../../api/zonesApi';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, MapPin, Upload, Image } from 'lucide-react';
+import { createZone, getZones, uploadZoneLogo } from '../../../api/zonesApi';
 
 export default function CreateZoneModal({ isOpen, clientId, initialParentZoneId, onClose, onCreated }) {
   const [name, setName] = useState('');
@@ -9,12 +9,17 @@ export default function CreateZoneModal({ isOpen, clientId, initialParentZoneId,
   const [loadingZones, setLoadingZones] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (!isOpen || !clientId) return;
     setName('');
     setParentZoneId(initialParentZoneId ?? '');
     setErrorMsg(null);
+    setLogoFile(null);
+    setLogoPreview(null);
     let cancelled = false;
     setLoadingZones(true);
     getZones({ clientId, limit: 100 })
@@ -26,6 +31,13 @@ export default function CreateZoneModal({ isOpen, clientId, initialParentZoneId,
 
   if (!isOpen) return null;
 
+  const handleLogoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) return;
@@ -34,7 +46,10 @@ export default function CreateZoneModal({ isOpen, clientId, initialParentZoneId,
     try {
       const payload = { name: name.trim(), clientId };
       if (parentZoneId) payload.parentZoneId = parentZoneId;
-      const newZone = await createZone(payload);
+      let newZone = await createZone(payload);
+      if (logoFile) {
+        newZone = await uploadZoneLogo(newZone.id, logoFile);
+      }
       onCreated(newZone);
       onClose();
     } catch (err) {
@@ -99,6 +114,44 @@ export default function CreateZoneModal({ isOpen, clientId, initialParentZoneId,
               onChange={(e) => setName(e.target.value)}
               className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
+          </div>
+
+          {/* Logo Upload */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-slate-700">
+              Zone Logo <span className="text-slate-400 font-normal">(optional)</span>
+            </label>
+            <div className="flex items-center gap-3">
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="w-16 h-16 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors shrink-0 overflow-hidden"
+              >
+                {logoPreview ? (
+                  <img src={logoPreview} alt="logo preview" className="w-full h-full object-cover" />
+                ) : (
+                  <Image size={24} className="text-slate-300" />
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  <Upload size={13} /> {logoPreview ? 'Change logo' : 'Upload logo'}
+                </button>
+                {logoFile && (
+                  <p className="text-[11px] text-slate-400 truncate max-w-[180px]">{logoFile.name}</p>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleLogoChange}
+              />
+            </div>
           </div>
 
           {/* Parent Zone — hidden when locked */}
