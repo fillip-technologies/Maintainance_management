@@ -430,7 +430,7 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
       )}
       <CreateZoneModal
         isOpen={createSubzoneModal}
-        clientId={clientId}
+        clientId={zone?.clientId ?? clientId}
         initialParentZoneId={zoneId}
         onClose={() => setCreateSubzoneModal(false)}
         onCreated={() => { setCreateSubzoneModal(false); load(); }}
