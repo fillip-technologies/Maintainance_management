@@ -1,74 +1,50 @@
 import React, { useState } from 'react';
-import { CheckCircle2, XCircle, Wrench, Box } from 'lucide-react';
+import { Activity, ShieldCheck, AlertCircle, Wrench, Package } from 'lucide-react';
 
-const SEGMENTS = [
+const HEALTH_SEGMENTS = [
   {
     key: 'working',
-    label: 'Working',
-    sub: 'Active & operational',
-    strokeColor: '#10b981',
-    strokeHoverColor: '#34d399',
-    bar: 'bg-emerald-500',
-    ring: 'ring-emerald-300',
-    border: 'border-emerald-400',
-    bg: 'bg-emerald-50',
-    hoverBg: 'hover:bg-emerald-50 hover:border-emerald-300',
-    badge: 'bg-emerald-100 text-emerald-800',
-    icon: CheckCircle2,
-    iconCls: 'text-emerald-600',
-    dot: 'bg-emerald-500',
-    unit: 'units online',
-  },
-  {
-    key: 'underMaintenance',
-    label: 'Under Maintenance',
-    sub: 'Has an active service request',
-    strokeColor: '#8b5cf6',
-    strokeHoverColor: '#a78bfa',
-    bar: 'bg-violet-500',
-    ring: 'ring-violet-300',
-    border: 'border-violet-400',
-    bg: 'bg-violet-50',
-    hoverBg: 'hover:bg-violet-50 hover:border-violet-300',
-    badge: 'bg-violet-100 text-violet-800',
-    icon: Wrench,
-    iconCls: 'text-violet-600',
-    dot: 'bg-violet-500',
-    unit: 'in service',
+    label: 'Active',
+    subLabel: 'Online & operational',
+    color: '#22c55e',      // Vibrant green matching screenshot
+    hoverColor: '#34d399',
+    dotClass: 'bg-[#22c55e] shadow-[0_0_10px_rgba(34,197,94,0.6)]',
+    textClass: 'text-emerald-400',
+    borderClass: 'border-emerald-500/30',
+    bgClass: 'bg-emerald-500/10',
   },
   {
     key: 'faulty',
-    label: 'Faulty',
-    sub: 'Flagged by daily logs',
-    strokeColor: '#f43f5e',
-    strokeHoverColor: '#fb7185',
-    bar: 'bg-rose-500',
-    ring: 'ring-rose-300',
-    border: 'border-rose-400',
-    bg: 'bg-rose-50',
-    hoverBg: 'hover:bg-rose-50 hover:border-rose-300',
-    badge: 'bg-rose-100 text-rose-800',
-    icon: XCircle,
-    iconCls: 'text-rose-600',
-    dot: 'bg-rose-500',
-    unit: 'need attention',
+    label: 'Down',
+    subLabel: 'Offline or reporting faults',
+    color: '#ef4444',      // Vibrant red matching screenshot
+    hoverColor: '#f87171',
+    dotClass: 'bg-[#ef4444] shadow-[0_0_10px_rgba(239,68,68,0.6)]',
+    textClass: 'text-rose-400',
+    borderClass: 'border-rose-500/30',
+    bgClass: 'bg-rose-500/10',
+  },
+  {
+    key: 'underMaintenance',
+    label: 'Maintenance',
+    subLabel: 'Under active repair / servicing',
+    color: '#f59e0b',      // Vibrant amber/yellow matching screenshot
+    hoverColor: '#fbbf24',
+    dotClass: 'bg-[#f59e0b] shadow-[0_0_10px_rgba(245,158,11,0.6)]',
+    textClass: 'text-amber-400',
+    borderClass: 'border-amber-500/30',
+    bgClass: 'bg-amber-500/10',
   },
   {
     key: 'provisioned',
-    label: 'Provisioned',
-    sub: 'Added, not yet deployed',
-    strokeColor: '#0ea5e9',
-    strokeHoverColor: '#38bdf8',
-    bar: 'bg-sky-500',
-    ring: 'ring-sky-300',
-    border: 'border-sky-400',
-    bg: 'bg-sky-50',
-    hoverBg: 'hover:bg-sky-50 hover:border-sky-300',
-    badge: 'bg-sky-100 text-sky-800',
-    icon: Box,
-    iconCls: 'text-sky-600',
-    dot: 'bg-sky-500',
-    unit: 'in stock',
+    label: 'In Stock',
+    subLabel: 'Provisioned / awaiting zone deploy',
+    color: '#0ea5e9',      // Sky blue
+    hoverColor: '#38bdf8',
+    dotClass: 'bg-[#0ea5e9] shadow-[0_0_10px_rgba(14,165,233,0.5)]',
+    textClass: 'text-sky-400',
+    borderClass: 'border-sky-500/30',
+    bgClass: 'bg-sky-500/10',
   },
 ];
 
@@ -77,150 +53,198 @@ export default function ClientProductCircleGraph({ stats }) {
 
   const totalDevices = stats?.totalDevices      ?? 0;
   const working      = stats?.workingDevices     ?? 0;
-  const maintenance  = stats?.underMaintenance   ?? 0;
   const faulty       = stats?.faultyDevices      ?? 0;
+  const maintenance  = stats?.underMaintenance   ?? 0;
   const provisioned  = stats?.provisionedDevices ?? 0;
 
-  const counts = { working, underMaintenance: maintenance, faulty, provisioned };
+  const counts = {
+    working,
+    faulty,
+    underMaintenance: maintenance,
+    provisioned,
+  };
 
-  // Use totalDevices as the denominator so percentages always reference the same base.
-  const grandTotal = totalDevices || (working + maintenance + faulty + provisioned);
+  const grandTotal = totalDevices || (working + faulty + maintenance + provisioned);
+  const healthRate = grandTotal > 0 ? Math.round((working / grandTotal) * 100) : 100;
 
-  const pct = (n) => (grandTotal > 0 ? Math.round((n / grandTotal) * 100) : 0);
+  // Donut geometry
+  const radius = 62;
+  const strokeWidth = 14;
+  const hoverStrokeWidth = 18;
+  const circumference = 2 * Math.PI * radius; // ~389.56
 
-  // ── Donut geometry ───────────────────────────────────────────────────────
-  const radius        = 68;
-  const circumference = 2 * Math.PI * radius;
-  const gap           = grandTotal > 1 ? 4 : 0;
-  const activeCount   = SEGMENTS.filter((s) => counts[s.key] > 0).length;
-  const usable        = Math.max(10, circumference - activeCount * gap);
-
-  let offset = 0;
-  const arcs = SEGMENTS.map((seg) => {
-    const count  = counts[seg.key] ?? 0;
-    const stroke = count > 0 ? (count / grandTotal) * usable : 0;
-    const off    = -offset;
-    if (stroke > 0) offset += stroke + gap;
-    return { ...seg, count, stroke, arcOffset: off, pct: pct(count) };
+  // Prepare segment arcs
+  let currentOffset = 0;
+  const arcs = HEALTH_SEGMENTS.map((seg) => {
+    const count = counts[seg.key] ?? 0;
+    const stroke = grandTotal > 0 ? (count / grandTotal) * circumference : 0;
+    const arcOffset = -currentOffset;
+    if (stroke > 0) {
+      currentOffset += stroke;
+    }
+    const pct = grandTotal > 0 ? Math.round((count / grandTotal) * 100) : 0;
+    return {
+      ...seg,
+      count,
+      stroke,
+      arcOffset,
+      pct,
+    };
   });
 
-  const active = hovered ? arcs.find((a) => a.key === hovered) : null;
+  const activeArc = hovered ? arcs.find((a) => a.key === hovered) : null;
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-xs flex flex-col gap-6">
-
+    <div className="bg-[#080e1e] rounded-3xl p-5 sm:p-6 border border-[#16223e] shadow-xl flex flex-col gap-5 text-white">
       {/* Header */}
-      <div className="flex flex-col gap-1 pb-4 border-b border-slate-100">
-        <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
-          Products Status &amp; Health Distribution
-        </h2>
-        <p className="text-xs text-slate-500">
-          Full breakdown of device fleet and active service queries
-        </p>
+      <div className="flex items-center justify-between gap-4 flex-wrap pb-3 border-b border-[#16223e]">
+        <div>
+          <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+            Product Health
+          </h2>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Real-time operational distribution and equipment readiness
+          </p>
+        </div>
+
+        {/* Operational Health Badge */}
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>{healthRate}% Operational</span>
+        </div>
       </div>
 
-      {/* Chart + Legend */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+      {/* Main Content Area */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+        {/* Left / Center: Exact Donut Chart + Legend Matching User Screenshot */}
+        <div className="lg:col-span-8 bg-[#0c162b] border border-[#1a2847] rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-14">
+          
+          {/* Donut Ring Chart */}
+          <div className="relative w-44 h-44 sm:w-48 sm:h-48 shrink-0 flex items-center justify-center">
+            <svg
+              viewBox="0 0 160 160"
+              className="w-full h-full -rotate-90 transform overflow-visible"
+            >
+              {/* Background ring track */}
+              <circle
+                cx="80"
+                cy="80"
+                r={radius}
+                stroke="#17233f"
+                strokeWidth={strokeWidth}
+                fill="transparent"
+              />
 
-        {/* Donut */}
-        <div className="lg:col-span-5 flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-50/70 border border-slate-200/80">
-          <div className="relative w-56 h-56 flex items-center justify-center">
-            <svg viewBox="0 0 180 180" className="w-full h-full -rotate-90">
-              {/* Track */}
-              <circle cx="90" cy="90" r={radius} stroke="#e2e8f0" strokeWidth="14" fill="transparent" />
-              {/* Segments */}
-              {arcs.map((arc) =>
-                arc.stroke > 0 ? (
-                  <circle
-                    key={arc.key}
-                    cx="90" cy="90" r={radius}
-                    stroke={hovered === arc.key ? arc.strokeHoverColor : arc.strokeColor}
-                    strokeWidth={hovered === arc.key ? 20 : 14}
-                    strokeDasharray={`${arc.stroke} ${circumference}`}
-                    strokeDashoffset={arc.arcOffset}
-                    strokeLinecap="butt"
-                    fill="transparent"
-                    style={{ transition: 'stroke 0.2s, stroke-width 0.2s' }}
-                    className="cursor-pointer"
-                    onMouseEnter={() => setHovered(arc.key)}
-                    onMouseLeave={() => setHovered(null)}
-                  />
-                ) : null
-              )}
+              {/* Data Arcs */}
+              {grandTotal > 0 &&
+                arcs.map((arc) =>
+                  arc.stroke > 0 ? (
+                    <circle
+                      key={arc.key}
+                      cx="80"
+                      cy="80"
+                      r={radius}
+                      stroke={hovered === arc.key ? arc.hoverColor : arc.color}
+                      strokeWidth={hovered === arc.key ? hoverStrokeWidth : strokeWidth}
+                      strokeDasharray={`${arc.stroke} ${circumference - arc.stroke}`}
+                      strokeDashoffset={arc.arcOffset}
+                      strokeLinecap="butt"
+                      fill="transparent"
+                      className="cursor-pointer transition-all duration-200"
+                      onMouseEnter={() => setHovered(arc.key)}
+                      onMouseLeave={() => setHovered(null)}
+                    />
+                  ) : null
+                )}
             </svg>
 
-            {/* Center label */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-              <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-none">
-                {active ? active.count : totalDevices}
+            {/* Center Label (24 Total Links / Total Devices) */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none select-none">
+              <span className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none">
+                {activeArc ? activeArc.count : grandTotal}
               </span>
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1.5">
-                {active ? active.label : 'Total Devices'}
-              </span>
-              <span className="text-[10px] font-extrabold text-indigo-600 mt-0.5">
-                {active ? `${active.pct}% of all` : `${pct(working)}% Active`}
+              <span className="text-xs font-semibold text-slate-400 mt-1">
+                {activeArc ? `${activeArc.label} (${activeArc.pct}%)` : 'Total Devices'}
               </span>
             </div>
           </div>
 
-          {/* Colour legend below donut */}
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 mt-4">
-            {arcs.map((arc) => (
-              <span
-                key={arc.key}
-                className="flex items-center gap-1 text-[10px] font-semibold text-slate-600 cursor-pointer"
-                onMouseEnter={() => setHovered(arc.key)}
-                onMouseLeave={() => setHovered(null)}
-              >
-                <span className={`w-2 h-2 rounded-full ${arc.dot}`} />
-                {arc.label}
-              </span>
-            ))}
+          {/* Legend: 22 Active, 1 Down, 1 Maintenance */}
+          <div className="flex flex-col gap-3.5 sm:gap-4 min-w-[160px]">
+            {arcs
+              .filter((arc) => arc.key !== 'provisioned' || arc.count > 0)
+              .map((arc) => {
+                const isHovered = hovered === arc.key;
+                return (
+                  <div
+                    key={arc.key}
+                    onMouseEnter={() => setHovered(arc.key)}
+                    onMouseLeave={() => setHovered(null)}
+                    className={`flex items-center gap-3 cursor-pointer py-1 px-2.5 -mx-2.5 rounded-xl transition-all ${
+                      isHovered ? 'bg-[#152342]' : 'hover:bg-[#111e38]'
+                    }`}
+                  >
+                    {/* Vibrant solid indicator dot */}
+                    <span className={`w-4 h-4 rounded-full shrink-0 ${arc.dotClass}`} />
+
+                    {/* Count */}
+                    <span className="text-base sm:text-lg font-extrabold text-white min-w-[28px]">
+                      {arc.count}
+                    </span>
+
+                    {/* Label */}
+                    <span className="text-sm font-medium text-slate-300">
+                      {arc.label}
+                    </span>
+                  </div>
+                );
+              })}
           </div>
         </div>
 
-        {/* Right: 5 metric cards in a 2+3 layout */}
-        <div className="lg:col-span-7 grid grid-cols-2 gap-3">
-          {arcs.map((arc) => {
-            const Icon = arc.icon;
-            const isHovered = hovered === arc.key;
-            return (
+        {/* Right Side: Quick Summary Highlights */}
+        <div className="lg:col-span-4 flex flex-col gap-3">
+          {/* Active / Online card */}
+          <div className="bg-[#0c162b] border border-[#1a2847] hover:border-emerald-500/40 rounded-2xl p-4 transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-400 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                Fleet Availability
+              </span>
+              <span className="text-xs font-bold text-emerald-400">
+                {healthRate}%
+              </span>
+            </div>
+            <div className="mt-2 text-xl font-extrabold text-white">
+              {working} of {grandTotal} Active
+            </div>
+            <div className="mt-2.5 h-1.5 w-full bg-[#17233f] rounded-full overflow-hidden">
               <div
-                key={arc.key}
-                onMouseEnter={() => setHovered(arc.key)}
-                onMouseLeave={() => setHovered(null)}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer ${
-                  isHovered
-                    ? `${arc.bg} ${arc.border} shadow-sm ring-2 ${arc.ring}`
-                    : `bg-white border-slate-200/90 ${arc.hoverBg}`
-                }`}
-              >
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-[11px] font-bold text-slate-700 flex items-center gap-1.5 truncate">
-                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${arc.dot}`} />
-                    <Icon size={12} className={`${arc.iconCls} shrink-0`} />
-                    <span className="truncate">{arc.label}</span>
-                  </span>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${arc.badge}`}>
-                    {arc.pct}%
-                  </span>
-                </div>
-                <div className="mt-2 flex items-baseline gap-1.5">
-                  <span className="text-2xl font-black text-slate-900">{arc.count}</span>
-                  <span className="text-xs text-slate-500 font-medium">{arc.unit}</span>
-                </div>
-                <div className="mt-2 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    style={{ width: `${arc.pct}%` }}
-                    className={`h-full ${arc.bar} rounded-full transition-all duration-500`}
-                  />
-                </div>
-                <p className="text-[10px] text-slate-400 mt-1.5 font-medium">{arc.sub}</p>
-              </div>
-            );
-          })}
-        </div>
+                style={{ width: `${healthRate}%` }}
+                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+              />
+            </div>
+          </div>
 
+          {/* Attention needed card */}
+          <div className="bg-[#0c162b] border border-[#1a2847] hover:border-rose-500/40 rounded-2xl p-4 transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-400 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-rose-500" />
+                Attention Needed
+              </span>
+              <span className="text-xs font-bold text-rose-400">
+                {faulty + maintenance} units
+              </span>
+            </div>
+            <div className="mt-2 text-xl font-extrabold text-white">
+              {faulty} Down · {maintenance} Maintenance
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1.5">
+              Service requests are tracked in active work orders
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

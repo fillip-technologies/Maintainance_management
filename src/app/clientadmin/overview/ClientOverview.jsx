@@ -70,6 +70,7 @@ export default function ClientOverview() {
       });
 
       setLastUpdated(new Date());
+      window.dispatchEvent(new CustomEvent('fixly:refreshed', { detail: { time: new Date() } }));
     } catch (err) {
       console.error('[ClientOverview] Dashboard fetch error:', err.message);
     } finally {
@@ -88,11 +89,13 @@ export default function ClientOverview() {
     window.addEventListener('focus', handleFocusOrStorage);
     window.addEventListener('storage', handleFocusOrStorage);
     window.addEventListener('fixly:users_changed', handleFocusOrStorage);
+    window.addEventListener('fixly:trigger_refresh', fetchStats);
 
     return () => {
       window.removeEventListener('focus', handleFocusOrStorage);
       window.removeEventListener('storage', handleFocusOrStorage);
       window.removeEventListener('fixly:users_changed', handleFocusOrStorage);
+      window.removeEventListener('fixly:trigger_refresh', fetchStats);
     };
   }, [fetchStats]);
 
@@ -129,10 +132,8 @@ export default function ClientOverview() {
 
   return (
     <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200">
-      {/* Status bar + Tab nav — single row */}
+      {/* Tab switcher */}
       <div className="flex items-center justify-between gap-4">
-
-        {/* Tab switcher */}
         <div className="flex items-center bg-slate-100 rounded-2xl p-1.5 gap-1 shadow-inner">
           <button
             onClick={() => setActiveTab('analytics')}
@@ -153,31 +154,6 @@ export default function ClientOverview() {
           >
             <LayoutGrid size={16} />
             Zone View
-          </button>
-        </div>
-
-        {/* Live status + refresh */}
-        <div className="flex items-center gap-3 shrink-0">
-          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
-            isLive
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-              : 'bg-slate-100 text-slate-500 border-slate-200'
-          }`}>
-            {isLive ? <Wifi size={13} className="animate-pulse" /> : <WifiOff size={13} />}
-            <span>{isLive ? 'Live Sync Active' : 'Offline'}</span>
-          </div>
-          {lastUpdated && (
-            <span className="text-[11px] text-slate-400 hidden sm:block">
-              Updated {lastUpdated.toLocaleTimeString()}
-            </span>
-          )}
-          <button
-            onClick={fetchStats}
-            disabled={loading}
-            className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-300 transition-all cursor-pointer disabled:opacity-40"
-            title="Refresh"
-          >
-            <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
           </button>
         </div>
       </div>
