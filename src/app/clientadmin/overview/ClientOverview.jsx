@@ -177,8 +177,11 @@ export default function ClientOverview() {
             refreshTick={lastUpdated}
             onCategoryClick={(cat) => { setZoneInitialCat(cat); setActiveTab('zone'); }}
           />
-          <ClientProductCircleGraph stats={stats} />
-          <ClientTeamCards teamStats={teamStats} onCardClick={setDrawer} />
+          <ClientProductCircleGraph
+            stats={stats}
+            teamStats={teamStats}
+            onCardClick={setDrawer}
+          />
           {drawer && (
             <ClientDetailDrawer type={drawer} onClose={() => setDrawer(null)} />
           )}

@@ -413,7 +413,7 @@ export default function ZoneQueryView({ clientId, initialCat } = {}) {
             ))}
           </nav>
 
-          {/* ── Zone Table View matching reference Image 2 ──────────────────── */}
+          {/* ── Zone Square Grid View ──────────────────────────────────────── */}
           {viewMode === 'zones' && (
             currentZones.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-2 text-slate-400 bg-white rounded-3xl border border-slate-200/90 shadow-xs">
@@ -421,95 +421,92 @@ export default function ZoneQueryView({ clientId, initialCat } = {}) {
                 <p className="text-sm font-medium">No zones found</p>
               </div>
             ) : (
-              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-[#f8fafc] border-b border-slate-200/80 text-xs font-bold text-slate-700">
-                        <th className="py-3.5 px-4 w-12 text-slate-400 font-semibold text-center">#</th>
-                        <th className="py-3.5 px-4">Zone / Area</th>
-                        <th className="py-3.5 px-4 text-center w-28">
-                          {selectedCat?.name ?? 'Cameras'}
-                        </th>
-                        <th className="py-3.5 px-4 text-center w-24">Online</th>
-                        <th className="py-3.5 px-4 text-center w-24">Offline</th>
-                        <th className="py-3.5 px-4 text-center w-24">Maint.</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {currentZones.map((zone, idx) => {
-                        const childCount = (childrenMap[zone.id] ?? []).length;
-                        const stats = zoneDeviceStats[zone.id] ?? { working: 0, faulty: 0, underMaintenance: 0 };
-                        const totalCount = stats.working + stats.faulty + stats.underMaintenance;
-                        const ZoneIcon = getZoneIcon(zone.name);
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+                {currentZones.map((zone) => {
+                  const childCount = (childrenMap[zone.id] ?? []).length;
+                  const stats = zoneDeviceStats[zone.id] ?? { working: 0, faulty: 0, underMaintenance: 0 };
+                  const totalCount = stats.working + stats.faulty + stats.underMaintenance;
+                  const ZoneIcon = getZoneIcon(zone.name);
+                  const hasOffline = stats.faulty > 0;
+                  const hasMaint   = stats.underMaintenance > 0;
 
-                        return (
-                          <tr
-                            key={zone.id}
-                            onClick={() => enterZone(zone)}
-                            className="hover:bg-slate-50/80 transition-colors cursor-pointer group text-sm"
-                          >
-                            {/* # */}
-                            <td className="py-3.5 px-4 text-xs font-semibold text-slate-500 text-center">
-                              {idx + 1}
-                            </td>
+                  return (
+                    <button
+                      key={zone.id}
+                      type="button"
+                      onClick={() => enterZone(zone)}
+                      className="bg-white hover:bg-slate-50/50 border border-slate-200/90 hover:border-blue-400/80 rounded-2xl p-4 sm:p-5 transition-all duration-200 cursor-pointer text-left group shadow-xs hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    >
+                      {/* Top section: Avatar on left, Zone Name in middle, Big number on far right */}
+                      <div className="flex items-center justify-between gap-2 w-full">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-700 shrink-0 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors overflow-hidden p-1">
+                            {zone.logoUrl || zone.imageUrl ? (
+                              <img
+                                src={zone.logoUrl || zone.imageUrl}
+                                alt={zone.name}
+                                className="w-full h-full object-contain"
+                              />
+                            ) : (
+                              <ZoneIcon size={22} />
+                            )}
+                          </div>
 
-                            {/* Zone / Area */}
-                            <td className="py-3.5 px-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 shrink-0 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors overflow-hidden">
-                                  {zone.logoUrl
-                                    ? <img src={zone.logoUrl} alt={zone.name} className="w-full h-full object-cover" />
-                                    : <ZoneIcon size={18} />
-                                  }
-                                </div>
-                                <div className="flex items-center gap-2 min-w-0">
-                                  <span className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors truncate">
-                                    {zone.name}
-                                  </span>
-                                  {childCount > 0 && (
-                                    <span className="text-xs text-slate-400 font-normal shrink-0">
-                                      ({childCount} sub-zone{childCount !== 1 ? 's' : ''})
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
-
-                            {/* Total Equipment Count */}
-                            <td className="py-3.5 px-4 text-center font-bold text-slate-800">
-                              {totalCount}
-                            </td>
-
-                            {/* Online */}
-                            <td className="py-3.5 px-4 text-center">
-                              <span className="inline-flex items-center justify-center gap-1.5 font-bold text-slate-800">
-                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
-                                <span>{stats.working}</span>
+                          <div className="min-w-0">
+                            <span className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-blue-600 truncate transition-colors block" title={zone.name}>
+                              {zone.name}
+                            </span>
+                            {childCount > 0 && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-semibold inline-block mt-0.5">
+                                {childCount} sub-zone{childCount !== 1 ? 's' : ''}
                               </span>
-                            </td>
+                            )}
+                          </div>
+                        </div>
 
-                            {/* Offline */}
-                            <td className="py-3.5 px-4 text-center">
-                              <span className="inline-flex items-center justify-center gap-1.5 font-bold text-slate-800">
-                                <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${stats.faulty > 0 ? 'bg-rose-500' : 'bg-rose-300'}`} />
-                                <span>{stats.faulty}</span>
-                              </span>
-                            </td>
+                        <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-none shrink-0" title={`Total ${selectedCat?.name ?? 'Devices'}`}>
+                          {totalCount}
+                        </span>
+                      </div>
 
-                            {/* Maint. */}
-                            <td className="py-3.5 px-4 text-center">
-                              <span className="inline-flex items-center justify-center gap-1.5 font-bold text-slate-800">
-                                <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${stats.underMaintenance > 0 ? 'bg-amber-400' : 'bg-amber-300'}`} />
-                                <span>{stats.underMaintenance}</span>
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                      {/* Bottom section: Online / Offline / Maintenance Status Rows */}
+                      <div className="mt-5 flex flex-col gap-2 w-full">
+                        {/* Active / Online */}
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+                            <span className="text-slate-600 font-medium">Online</span>
+                          </div>
+                          <span className="font-bold text-slate-900">
+                            {stats.working}
+                          </span>
+                        </div>
+
+                        {/* Down / Offline */}
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${hasOffline ? 'bg-rose-500' : 'bg-slate-300'}`} />
+                            <span className="text-slate-600 font-medium">Offline</span>
+                          </div>
+                          <span className={`font-bold ${hasOffline ? 'text-rose-600' : 'text-slate-900'}`}>
+                            {stats.faulty}
+                          </span>
+                        </div>
+
+                        {/* Maintenance */}
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${hasMaint ? 'bg-amber-400' : 'bg-slate-300'}`} />
+                            <span className="text-slate-600 font-medium">Maintenance</span>
+                          </div>
+                          <span className={`font-bold ${hasMaint ? 'text-amber-700' : 'text-slate-900'}`}>
+                            {stats.underMaintenance}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             )
           )}
