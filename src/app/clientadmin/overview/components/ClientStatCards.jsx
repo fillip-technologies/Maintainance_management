@@ -25,9 +25,12 @@ function CategoryCard({ cat, onClick }) {
       onClick={onClick}
       className="bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] hover:border-[var(--border-hover)] rounded-2xl p-4 sm:p-5 transition-all duration-200 cursor-pointer text-left group shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-between gap-3 sm:gap-4 focus:outline-none focus:ring-2 focus:ring-blue-500/40 w-full"
     >
-      {/* Left: Round colored icon */}
-      <div className={`w-12 h-12 sm:w-13 sm:h-13 rounded-full flex items-center justify-center shrink-0 shadow-lg ${badgeConfig.bgClass} text-white`}>
-        <BadgeIcon className="w-6 h-6 sm:w-6.5 sm:h-6.5 text-white" />
+      {/* Left: Uploaded logo OR colored badge icon */}
+      <div className={`w-12 h-12 sm:w-13 sm:h-13 rounded-full shrink-0 shadow-lg overflow-hidden flex items-center justify-center ${cat.imageUrl ? '' : `${badgeConfig.bgClass} text-white`}`}>
+        {cat.imageUrl
+          ? <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover object-center block" style={{ borderRadius: '50%' }} />
+          : <BadgeIcon className="w-6 h-6 sm:w-6.5 sm:h-6.5 text-white" />
+        }
       </div>
 
       {/* Middle: Big count + Category title */}
