@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   Boxes, Plus, Search, RefreshCw, CheckCircle2, X, Package,
   FileSpreadsheet, MapPin, AlertTriangle,
-  Zap, Archive, Clock, ShieldAlert
+  Zap, Archive, Clock, ShieldAlert, Loader2, ImageIcon,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { getProducts, createProduct, deployProduct, retireProduct, getCategories } from '../../api/productsApi';
+import { getProducts, createProduct, deployProduct, retireProduct, getCategories, uploadDeviceImage } from '../../api/productsApi';
 import { getZones } from '../../api/zonesApi';
 import { getIssues } from '../../api/issuesApi';
 import { socketClient } from '../../api/socketClient';
@@ -279,6 +279,8 @@ export default function ClientInventoryPage() {
   const [raiseTarget, setRaiseTarget] = useState(null);   // unit to pre-fill in RaiseQueryModal
 
   const [toast, setToast] = useState(null);
+  const [uploadingImageId, setUploadingImageId] = useState(null);
+  const imageInputRefs = useRef({});
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3500); };
 
@@ -371,6 +373,22 @@ export default function ClientInventoryPage() {
     await retireProduct(id);
     showToast('Unit retired from inventory.');
     fetchProducts();
+  };
+
+  const handleUploadImage = async (unit, file) => {
+    setUploadingImageId(unit.id);
+    try {
+      const updated = await uploadDeviceImage(unit.id, file);
+      if (updated) {
+        setProducts((prev) => prev.map((p) => (p.id === unit.id ? { ...p, imageUrl: updated.imageUrl } : p)));
+      }
+      showToast(`Image updated for "${unit.name}".`);
+    } catch (err) {
+      showToast(err.message || 'Image upload failed.');
+    } finally {
+      setUploadingImageId(null);
+      if (imageInputRefs.current[unit.id]) imageInputRefs.current[unit.id].value = '';
+    }
   };
 
   const companyId = currentUser?.companyId;
@@ -495,9 +513,27 @@ export default function ClientInventoryPage() {
                       <td className="py-3.5 px-4 font-mono font-bold text-indigo-600 whitespace-nowrap">{p.code}</td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
-                            <Package size={14} className="text-slate-400" />
-                          </div>
+                          <label
+                            className="w-8 h-8 rounded-lg border shrink-0 flex items-center justify-center cursor-pointer overflow-hidden transition-all group/img
+                              border-slate-200 hover:border-indigo-400 bg-slate-50 hover:bg-indigo-50"
+                            title="Click to upload image"
+                          >
+                            {uploadingImageId === p.id ? (
+                              <Loader2 size={13} className="animate-spin text-indigo-500" />
+                            ) : p.imageUrl ? (
+                              <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover group-hover/img:opacity-70 transition-opacity" />
+                            ) : (
+                              <ImageIcon size={13} className="text-slate-400 group-hover/img:text-indigo-500 transition-colors" />
+                            )}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={uploadingImageId === p.id}
+                              ref={(el) => { imageInputRefs.current[p.id] = el; }}
+                              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUploadImage(p, f); }}
+                            />
+                          </label>
                           <span className="font-bold text-slate-900">{p.name}</span>
                         </div>
                       </td>

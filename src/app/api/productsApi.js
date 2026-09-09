@@ -103,6 +103,20 @@ export async function deleteCategory(id) {
   return apiClient.request(`/product-categories/${id}`, { method: 'DELETE' });
 }
 
+export async function uploadDeviceImage(id, file) {
+  const form = new FormData();
+  form.append('file', file);
+  const token = apiClient.getAccessToken();
+  const res = await fetch(`${apiClient.baseUrl}/devices/${id}/image`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.message || 'Image upload failed');
+  return json.data ? toUnit({ ...json.data, categoryName: json.data.category?.name, companyName: json.data.company?.name, zoneName: json.data.zone?.name }) : null;
+}
+
 export async function uploadCategoryLogo(id, file) {
   const form = new FormData();
   form.append('file', file);
