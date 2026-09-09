@@ -5,7 +5,7 @@ import {
   Zap, Archive, Clock, ShieldAlert, Loader2, ImageIcon,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { getProducts, createProduct, deployProduct, retireProduct, getCategories, uploadDeviceImage } from '../../api/productsApi';
+import { getProducts, createProduct, deployProduct, retireProduct, getCategories, uploadDeviceImage, getProductTypes, createProductType, uploadProductTypeLogo } from '../../api/productsApi';
 import { getZones } from '../../api/zonesApi';
 import { getIssues } from '../../api/issuesApi';
 import { socketClient } from '../../api/socketClient';
@@ -145,31 +145,86 @@ function RetireModal({ unit, onRetire, onClose }) {
   );
 }
 
-// ─── Add Unit modal ───────────────────────────────────────────────────────────
-function AddUnitModal({ categories, zones, loadingZones, onAdd, onClose }) {
-  const [form, setForm] = useState({ name: '', categoryId: '', zoneId: '', price: '', purchaseDate: '' });
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+// ─── Add Product modal ────────────────────────────────────────────────────────
+function AddProductModal({ categories, zones, loadingZones, onAdd, onClose }) {
+  const [form, setForm] = useState({ productTypeId: '', categoryId: '', zoneId: '', price: '', purchaseDate: '' });
+  const [submitting, setSubmitting]   = useState(false);
+  const [error, setError]             = useState('');
+
+  // Product-type selector state
+  const [productTypes, setProductTypes]   = useState([]);
+  const [ptLoading, setPtLoading]         = useState(false);
+  const [showNewTypeForm, setShowNewTypeForm] = useState(false);
+  const [newTypeName, setNewTypeName]     = useState('');
+  const [newTypeFile, setNewTypeFile]     = useState(null);
+  const [newTypePreview, setNewTypePreview] = useState(null);
+  const [savingType, setSavingType]       = useState(false);
+  const newTypeFileRef = useRef(null);
+
+  // Fetch product types whenever category changes
+  useEffect(() => {
+    if (!form.categoryId) { setProductTypes([]); setShowNewTypeForm(false); return; }
+    setPtLoading(true);
+    getProductTypes(form.categoryId)
+      .then(setProductTypes)
+      .catch(() => setProductTypes([]))
+      .finally(() => setPtLoading(false));
+  }, [form.categoryId]);
+
+  const handleCategoryChange = (catId) => {
+    setForm((f) => ({ ...f, categoryId: catId, productTypeId: '' }));
+    setShowNewTypeForm(false);
+    setNewTypeName(''); setNewTypeFile(null); setNewTypePreview(null);
+  };
+
+  const handleProductTypeChange = (val) => {
+    if (val === '__new__') {
+      setShowNewTypeForm(true);
+      setForm((f) => ({ ...f, productTypeId: '' }));
+    } else {
+      setShowNewTypeForm(false);
+      setForm((f) => ({ ...f, productTypeId: val }));
+    }
+  };
+
+  const handleSaveNewType = async () => {
+    if (!newTypeName.trim()) return;
+    setSavingType(true);
+    try {
+      let pt = await createProductType({ categoryId: form.categoryId, name: newTypeName.trim() });
+      if (newTypeFile) {
+        try { pt = await uploadProductTypeLogo(pt.id, newTypeFile); } catch { /* logo optional */ }
+      }
+      setProductTypes((prev) => [...prev, pt].sort((a, b) => a.name.localeCompare(b.name)));
+      setForm((f) => ({ ...f, productTypeId: pt.id }));
+      setShowNewTypeForm(false);
+      setNewTypeName(''); setNewTypeFile(null); setNewTypePreview(null);
+      if (newTypeFileRef.current) newTypeFileRef.current.value = '';
+    } catch (err) {
+      setError(err.message || 'Failed to save product type.');
+    } finally { setSavingType(false); }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.categoryId) { setError('Please choose a category.'); return; }
+    if (!form.productTypeId) { setError('Please choose or create a product type.'); return; }
     setError(''); setSubmitting(true);
     try {
       await onAdd({
-        name: form.name.trim(),
         categoryId: form.categoryId,
+        productTypeId: form.productTypeId,
         zoneId: form.zoneId || undefined,
         unitPrice: form.price ? Number(form.price) : undefined,
         purchaseDate: form.purchaseDate || undefined,
       });
       onClose();
     } catch (err) {
-      setError(err.message || 'Failed to add unit.');
-    } finally {
-      setSubmitting(false);
-    }
+      setError(err.message || 'Failed to add product.');
+    } finally { setSubmitting(false); }
   };
+
+  const selectedType = productTypes.find((t) => t.id === form.productTypeId);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
@@ -178,7 +233,7 @@ function AddUnitModal({ categories, zones, loadingZones, onAdd, onClose }) {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30"><Boxes size={20} /></div>
             <div>
-              <h2 className="text-base font-bold">Add Unit to Inventory</h2>
+              <h2 className="text-base font-bold">Add Product to Inventory</h2>
               <p className="text-xs text-slate-400">A unique code is auto-generated. Optionally deploy to a zone now.</p>
             </div>
           </div>
@@ -193,23 +248,88 @@ function AddUnitModal({ categories, zones, loadingZones, onAdd, onClose }) {
             </div>
           )}
 
-          {/* Name */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Unit Name <span className="text-rose-500">*</span></label>
-            <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="e.g., 4K Dome Camera"
-              className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 text-slate-900 bg-white placeholder:text-slate-400" />
-          </div>
-
           {/* Category */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Category <span className="text-rose-500">*</span></label>
-            <select required value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+            <select required value={form.categoryId} onChange={(e) => handleCategoryChange(e.target.value)}
               className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 cursor-pointer text-slate-900">
               <option value="" disabled>Select a category…</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
             </select>
             <p className="text-[11px] text-slate-400">Unique code (e.g. {categories[0]?.code || 'CAM'}-000123) is generated automatically.</p>
+          </div>
+
+          {/* Product Type */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-slate-700">Product Type <span className="text-rose-500">*</span></label>
+            {!form.categoryId ? (
+              <div className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-400">
+                Select a category first
+              </div>
+            ) : ptLoading ? (
+              <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-400">
+                <Loader2 size={12} className="animate-spin" /> Loading types…
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  {selectedType?.imageUrl && (
+                    <img src={selectedType.imageUrl} alt={selectedType.name} className="w-8 h-8 rounded-lg object-contain border border-slate-200 shrink-0" />
+                  )}
+                  <select
+                    value={showNewTypeForm ? '__new__' : form.productTypeId}
+                    onChange={(e) => handleProductTypeChange(e.target.value)}
+                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 cursor-pointer text-slate-900"
+                  >
+                    <option value="" disabled>Select a product type…</option>
+                    {productTypes.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                    <option value="__new__">＋ Add new product type…</option>
+                  </select>
+                </div>
+
+                {/* Inline new type form */}
+                {showNewTypeForm && (
+                  <div className="mt-1 p-3 rounded-xl border border-emerald-200 bg-emerald-50 flex flex-col gap-2">
+                    <p className="text-[11px] font-bold text-emerald-700">New Product Type</p>
+                    <input
+                      type="text"
+                      placeholder="e.g. LPR Camera"
+                      value={newTypeName}
+                      onChange={(e) => setNewTypeName(e.target.value)}
+                      autoFocus
+                      className="px-3 py-2 rounded-lg border border-emerald-200 text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 bg-white text-slate-900"
+                    />
+                    <div className="flex items-center gap-2">
+                      <label className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer flex-1">
+                        {newTypePreview
+                          ? <img src={newTypePreview} alt="preview" className="w-4 h-4 rounded object-cover" />
+                          : <ImageIcon size={12} className="text-slate-400" />}
+                        {newTypeFile ? 'Logo selected' : 'Add logo (optional)'}
+                        <input ref={newTypeFileRef} type="file" accept="image/*" className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (!f) return;
+                            setNewTypeFile(f);
+                            setNewTypePreview(URL.createObjectURL(f));
+                          }} />
+                      </label>
+                      <button type="button" onClick={handleSaveNewType}
+                        disabled={!newTypeName.trim() || savingType}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold cursor-pointer disabled:opacity-50 whitespace-nowrap">
+                        {savingType ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
+                        Save Type
+                      </button>
+                      <button type="button" onClick={() => { setShowNewTypeForm(false); setNewTypeName(''); setNewTypeFile(null); setNewTypePreview(null); }}
+                        className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600 cursor-pointer">
+                        <X size={13} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           {/* Deploy to Zone (optional) */}
@@ -226,7 +346,7 @@ function AddUnitModal({ categories, zones, loadingZones, onAdd, onClose }) {
               {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
             </select>
             {!loadingZones && zones.length === 0 && (
-              <p className="text-[11px] text-slate-400">No zones set up — unit will be added to stock.</p>
+              <p className="text-[11px] text-slate-400">No zones set up — product will be added to stock.</p>
             )}
           </div>
 
@@ -247,9 +367,9 @@ function AddUnitModal({ categories, zones, loadingZones, onAdd, onClose }) {
 
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 mt-2">
             <button type="button" onClick={onClose} className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold cursor-pointer">Cancel</button>
-            <button type="submit" disabled={submitting || !form.name.trim()}
+            <button type="submit" disabled={submitting || !form.productTypeId}
               className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-200 disabled:opacity-50 cursor-pointer transition-all">
-              {submitting ? 'Adding…' : 'Add Unit'}
+              {submitting ? 'Adding…' : 'Add Product'}
             </button>
           </div>
         </form>
@@ -359,7 +479,7 @@ export default function ClientInventoryPage() {
   // ── actions ──
   const handleAdd = async (payload) => {
     await createProduct(payload);
-    showToast(`Unit added${payload.zoneId ? ' and deployed' : ' to stock'}.`);
+    showToast(`Product added${payload.zoneId ? ' and deployed' : ' to stock'}.`);
     fetchProducts();
   };
 
@@ -408,7 +528,7 @@ export default function ClientInventoryPage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 py-1">
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Inventory</h1>
-          <p className="text-xs text-slate-400">Hardware units for your organization — add, deploy, track status, raise defects.</p>
+          <p className="text-xs text-slate-400">Hardware products for your organization — add, deploy, track status, raise defects.</p>
         </div>
         <div className="flex items-center gap-2.5 flex-wrap">
           <button onClick={fetchProducts} disabled={loading}
@@ -421,7 +541,7 @@ export default function ClientInventoryPage() {
           </button>
           <button onClick={() => setIsAddOpen(true)}
             className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-emerald-200 transition-all cursor-pointer">
-            <Plus size={16} /><span>Add Unit</span>
+            <Plus size={16} /><span>Add Product</span>
           </button>
         </div>
       </div>
@@ -500,7 +620,7 @@ export default function ClientInventoryPage() {
                 <tr><td colSpan="9" className="text-center py-14 text-slate-400">Loading inventory…</td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan="9" className="text-center py-14 text-slate-400">
-                  {products.length === 0 ? 'No units yet. Add one or bulk import.' : 'No units matching the selected filter.'}
+                  {products.length === 0 ? 'No products yet. Add one or bulk import.' : 'No products matching the selected filter.'}
                 </td></tr>
               ) : (
                 filtered.map((p) => {
@@ -608,7 +728,7 @@ export default function ClientInventoryPage() {
 
       {/* ── Modals ── */}
       {isAddOpen && (
-        <AddUnitModal
+        <AddProductModal
           categories={categories}
           zones={zones}
           loadingZones={loadingZones}
@@ -653,7 +773,7 @@ export default function ClientInventoryPage() {
         onClose={() => setIsImportOpen(false)}
         companyId={companyId}
         onImported={(res) => {
-          showToast(`Imported ${res.created} unit(s)${res.skipped ? `, ${res.skipped} skipped` : ''}.`);
+          showToast(`Imported ${res.created} product(s)${res.skipped ? `, ${res.skipped} skipped` : ''}.`);
           fetchProducts();
         }}
       />

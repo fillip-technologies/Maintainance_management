@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  Tag, Plus, Trash2, RefreshCw, AlertTriangle, CheckCircle2, X, Upload, ImageIcon, Loader2
+  Tag, Plus, Trash2, RefreshCw, AlertTriangle, CheckCircle2, X, Upload, ImageIcon, Loader2,
+  ChevronDown, ChevronRight, Boxes,
 } from 'lucide-react';
-import { getCategories, createCategory, deleteCategory, uploadCategoryLogo } from '../../api/productsApi';
+import {
+  getCategories, createCategory, deleteCategory, uploadCategoryLogo,
+  getProductTypes, createProductType, uploadProductTypeLogo, deleteProductType,
+} from '../../api/productsApi';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
@@ -19,6 +23,19 @@ export default function CategoriesPage() {
   const logoInputRef = useRef(null);
   const rowLogoRefs  = useRef({});
 
+  // ── Product Types state ──────────────────────────────────────────────────────
+  const [expandedCatId, setExpandedCatId]       = useState(null);
+  const [productTypesByCat, setProductTypesByCat] = useState({}); // catId → ProductType[]
+  const [ptLoading, setPtLoading]               = useState(null); // catId currently loading
+  const [ptSaving, setPtSaving]                 = useState(null); // catId currently saving a new type
+  const [ptUploadingId, setPtUploadingId]       = useState(null); // productTypeId uploading logo
+  const [ptDeletingId, setPtDeletingId]         = useState(null); // productTypeId deleting
+  const [newTypeName, setNewTypeName]           = useState('');
+  const [newTypeFile, setNewTypeFile]           = useState(null);
+  const [newTypePreview, setNewTypePreview]     = useState(null);
+  const newTypeFileRefs = useRef({});
+  const ptLogoRefs      = useRef({});
+
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3500); };
 
   const fetch_ = useCallback(async () => {
@@ -34,6 +51,74 @@ export default function CategoriesPage() {
   }, []);
 
   useEffect(() => { fetch_(); }, [fetch_]);
+
+  const toggleExpand = async (catId) => {
+    if (expandedCatId === catId) { setExpandedCatId(null); return; }
+    setExpandedCatId(catId);
+    setNewTypeName(''); setNewTypeFile(null); setNewTypePreview(null);
+    if (!productTypesByCat[catId]) {
+      setPtLoading(catId);
+      try {
+        const types = await getProductTypes(catId);
+        setProductTypesByCat((prev) => ({ ...prev, [catId]: types }));
+      } catch { /* ignore */ } finally { setPtLoading(null); }
+    }
+  };
+
+  const handleAddProductType = async (catId) => {
+    if (!newTypeName.trim()) return;
+    setPtSaving(catId);
+    try {
+      let pt = await createProductType({ categoryId: catId, name: newTypeName.trim() });
+      if (newTypeFile) {
+        try { pt = await uploadProductTypeLogo(pt.id, newTypeFile); } catch { /* logo optional */ }
+      }
+      setProductTypesByCat((prev) => ({
+        ...prev,
+        [catId]: [...(prev[catId] ?? []), pt].sort((a, b) => a.name.localeCompare(b.name)),
+      }));
+      setNewTypeName(''); setNewTypeFile(null); setNewTypePreview(null);
+      if (newTypeFileRefs.current[catId]) newTypeFileRefs.current[catId].value = '';
+      showToast(`Product type "${pt.name}" added.`);
+    } catch (err) {
+      showToast(err.message || 'Failed to add product type.');
+    } finally { setPtSaving(null); }
+  };
+
+  const handlePtUploadLogo = async (pt) => {
+    // triggered via ref file input
+  };
+
+  const handlePtLogoChange = async (pt, file) => {
+    setPtUploadingId(pt.id);
+    try {
+      const updated = await uploadProductTypeLogo(pt.id, file);
+      setProductTypesByCat((prev) => ({
+        ...prev,
+        [pt.categoryId]: (prev[pt.categoryId] ?? []).map((t) => (t.id === pt.id ? updated : t)),
+      }));
+      showToast(`Logo updated for "${pt.name}".`);
+    } catch (err) {
+      showToast(err.message || 'Logo upload failed.');
+    } finally {
+      setPtUploadingId(null);
+      if (ptLogoRefs.current[pt.id]) ptLogoRefs.current[pt.id].value = '';
+    }
+  };
+
+  const handleDeleteProductType = async (pt) => {
+    setPtDeletingId(pt.id);
+    try {
+      await deleteProductType(pt.id);
+      setProductTypesByCat((prev) => ({
+        ...prev,
+        [pt.categoryId]: (prev[pt.categoryId] ?? []).filter((t) => t.id !== pt.id),
+      }));
+      showToast(`Product type "${pt.name}" deleted.`);
+    } catch (err) {
+      showToast(err.message || 'Failed to delete product type.');
+    } finally { setPtDeletingId(null); }
+  };
 
   const handleLogoFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -260,7 +345,8 @@ export default function CategoriesPage() {
                   const unitCount = cat._count?.devices ?? 0;
                   const canDelete = unitCount === 0;
                   return (
-                    <tr key={cat.id} className="hover:bg-slate-50/60 transition-colors">
+                    <React.Fragment key={cat.id}>
+                    <tr className="hover:bg-slate-50/60 transition-colors">
                       {/* Logo cell */}
                       <td className="py-4 px-5">
                         <label className="flex items-center gap-2 cursor-pointer group w-fit" title="Click to upload logo">
@@ -277,9 +363,7 @@ export default function CategoriesPage() {
                           </span>
                           <input
                             ref={(el) => { rowLogoRefs.current[cat.id] = el; }}
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
+                            type="file" accept="image/*" className="hidden"
                             disabled={uploadingLogoId === cat.id}
                             onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUploadLogo(cat, f); }}
                           />
@@ -294,7 +378,7 @@ export default function CategoriesPage() {
                       <td className="py-4 px-5">
                         {unitCount > 0 ? (
                           <span className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-md text-[11px] font-bold">
-                            {unitCount} unit{unitCount !== 1 ? 's' : ''}
+                            {unitCount} product{unitCount !== 1 ? 's' : ''}
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-0.5 rounded-md text-[11px] font-semibold">
@@ -306,24 +390,136 @@ export default function CategoriesPage() {
                         {cat.code}-000001
                       </td>
                       <td className="py-4 px-5 text-right">
-                        <button
-                          onClick={() => handleDelete(cat)}
-                          disabled={!canDelete || deletingId === cat.id}
-                          title={
-                            canDelete
-                              ? `Delete "${cat.name}"`
-                              : `Cannot delete — ${unitCount} unit(s) use this category`
-                          }
-                          className={`p-2 rounded-xl border transition-colors ${
-                            canDelete
-                              ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 border-slate-200 cursor-pointer'
-                              : 'text-slate-200 border-slate-100 cursor-not-allowed'
-                          }`}
-                        >
-                          <Trash2 size={15} />
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          {/* Expand product types */}
+                          <button
+                            onClick={() => toggleExpand(cat.id)}
+                            title="Manage product types"
+                            className="p-2 rounded-xl border border-slate-200 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 cursor-pointer transition-colors"
+                          >
+                            {expandedCatId === cat.id
+                              ? <ChevronDown size={15} />
+                              : <ChevronRight size={15} />}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(cat)}
+                            disabled={!canDelete || deletingId === cat.id}
+                            title={canDelete ? `Delete "${cat.name}"` : `Cannot delete — ${unitCount} product(s) use this category`}
+                            className={`p-2 rounded-xl border transition-colors ${
+                              canDelete
+                                ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 border-slate-200 cursor-pointer'
+                                : 'text-slate-200 border-slate-100 cursor-not-allowed'
+                            }`}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
+
+                    {/* ── Expandable Product Types Panel ── */}
+                    {expandedCatId === cat.id && (
+                      <tr>
+                        <td colSpan="6" className="bg-slate-50/70 border-b border-slate-200 px-6 py-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Boxes size={14} className="text-indigo-500" />
+                            <span className="text-xs font-bold text-slate-700">Product Types in "{cat.name}"</span>
+                          </div>
+
+                          {ptLoading === cat.id ? (
+                            <div className="flex items-center gap-2 py-2 text-slate-400 text-xs">
+                              <Loader2 size={13} className="animate-spin" /> Loading…
+                            </div>
+                          ) : (
+                            <>
+                              {/* List of existing product types */}
+                              {(productTypesByCat[cat.id] ?? []).length === 0 ? (
+                                <p className="text-[11px] text-slate-400 mb-3">No product types yet. Add one below.</p>
+                              ) : (
+                                <div className="flex flex-col divide-y divide-slate-200 mb-3 rounded-xl border border-slate-200 bg-white overflow-hidden">
+                                  {(productTypesByCat[cat.id] ?? []).map((pt) => (
+                                    <div key={pt.id} className="flex items-center gap-3 px-4 py-2.5">
+                                      {/* Logo upload */}
+                                      <label className="cursor-pointer group/ptlogo shrink-0" title="Click to upload logo">
+                                        {ptUploadingId === pt.id ? (
+                                          <div className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center bg-slate-50">
+                                            <Loader2 size={12} className="animate-spin text-indigo-500" />
+                                          </div>
+                                        ) : pt.imageUrl ? (
+                                          <img src={pt.imageUrl} alt={pt.name} className="w-8 h-8 rounded-lg object-cover border border-slate-200 group-hover/ptlogo:opacity-70 transition-opacity" />
+                                        ) : (
+                                          <div className="w-8 h-8 rounded-lg border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center group-hover/ptlogo:border-indigo-400 group-hover/ptlogo:bg-indigo-50 transition-colors">
+                                            <ImageIcon size={12} className="text-slate-400 group-hover/ptlogo:text-indigo-500" />
+                                          </div>
+                                        )}
+                                        <input
+                                          ref={(el) => { ptLogoRefs.current[pt.id] = el; }}
+                                          type="file" accept="image/*" className="hidden"
+                                          disabled={ptUploadingId === pt.id}
+                                          onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePtLogoChange(pt, f); }}
+                                        />
+                                      </label>
+                                      <span className="flex-1 text-xs font-semibold text-slate-800">{pt.name}</span>
+                                      <span className="text-[10px] text-slate-400">{pt._count?.devices ?? 0} product{(pt._count?.devices ?? 0) !== 1 ? 's' : ''}</span>
+                                      <button
+                                        onClick={() => handleDeleteProductType(pt)}
+                                        disabled={ptDeletingId === pt.id || (pt._count?.devices ?? 0) > 0}
+                                        title={(pt._count?.devices ?? 0) > 0 ? 'Cannot delete — products reference this type' : `Delete "${pt.name}"`}
+                                        className={`p-1.5 rounded-lg border transition-colors ${
+                                          (pt._count?.devices ?? 0) > 0
+                                            ? 'text-slate-200 border-slate-100 cursor-not-allowed'
+                                            : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 border-slate-200 cursor-pointer'
+                                        }`}
+                                      >
+                                        {ptDeletingId === pt.id ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Add new product type */}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <input
+                                  type="text"
+                                  placeholder="New type name (e.g. LPR Camera)"
+                                  value={newTypeName}
+                                  onChange={(e) => setNewTypeName(e.target.value)}
+                                  onKeyDown={(e) => { if (e.key === 'Enter') handleAddProductType(cat.id); }}
+                                  className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 flex-1 min-w-[180px]"
+                                />
+                                {/* Logo for new type */}
+                                <label className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer whitespace-nowrap">
+                                  {newTypePreview
+                                    ? <img src={newTypePreview} alt="preview" className="w-4 h-4 rounded object-cover" />
+                                    : <ImageIcon size={12} />}
+                                  {newTypeFile ? 'Logo selected' : 'Add logo'}
+                                  <input
+                                    ref={(el) => { newTypeFileRefs.current[cat.id] = el; }}
+                                    type="file" accept="image/*" className="hidden"
+                                    onChange={(e) => {
+                                      const f = e.target.files?.[0];
+                                      if (!f) return;
+                                      setNewTypeFile(f);
+                                      setNewTypePreview(URL.createObjectURL(f));
+                                    }}
+                                  />
+                                </label>
+                                <button
+                                  onClick={() => handleAddProductType(cat.id)}
+                                  disabled={!newTypeName.trim() || ptSaving === cat.id}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer disabled:opacity-50 transition-colors whitespace-nowrap"
+                                >
+                                  {ptSaving === cat.id ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
+                                  Add Type
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                    </React.Fragment>
                   );
                 })
               )}

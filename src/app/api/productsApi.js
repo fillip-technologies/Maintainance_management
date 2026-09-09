@@ -103,6 +103,40 @@ export async function deleteCategory(id) {
   return apiClient.request(`/product-categories/${id}`, { method: 'DELETE' });
 }
 
+// ── Product Types (named types within a category, each with a logo) ──
+export async function getProductTypes(categoryId) {
+  const params = new URLSearchParams();
+  if (categoryId) params.set('categoryId', categoryId);
+  const res = await apiClient.request(`/product-types?${params}`, { method: 'GET' });
+  return res?.data ?? [];
+}
+
+export async function createProductType({ categoryId, name }) {
+  const res = await apiClient.request('/product-types', {
+    method: 'POST',
+    body: JSON.stringify({ categoryId, name }),
+  });
+  return res?.data ?? null;
+}
+
+export async function uploadProductTypeLogo(id, file) {
+  const form = new FormData();
+  form.append('file', file);
+  const token = apiClient.getAccessToken();
+  const res = await fetch(`${apiClient.baseUrl}/product-types/${id}/logo`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.message || 'Logo upload failed');
+  return json.data ?? null;
+}
+
+export async function deleteProductType(id) {
+  return apiClient.request(`/product-types/${id}`, { method: 'DELETE' });
+}
+
 export async function uploadDeviceImage(id, file) {
   const form = new FormData();
   form.append('file', file);

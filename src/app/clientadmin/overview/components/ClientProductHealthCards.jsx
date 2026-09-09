@@ -18,10 +18,12 @@ function ProductCard({ product }) {
 
   return (
     <div className="bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] hover:border-blue-500/50 rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between group">
-      {/* Top: Realistic SVG Illustration on left, Total count + Name on right */}
+      {/* Top: Logo/SVG on left, Total count + Name on right */}
       <div className="flex items-center gap-3">
         <div className="shrink-0 flex items-center justify-center">
-          <SvgVisual className="w-11 h-11 sm:w-12 sm:h-12" />
+          {product.imageUrl
+            ? <img src={product.imageUrl} alt={product.name} className="w-11 h-11 sm:w-12 sm:h-12 object-contain rounded-xl" />
+            : <SvgVisual className="w-11 h-11 sm:w-12 sm:h-12" />}
         </div>
         <div className="flex flex-col min-w-0">
           <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-none">
@@ -67,8 +69,10 @@ function ProductListRow({ product }) {
     <tr className="border-b border-[var(--border-color)]/60 hover:bg-[var(--bg-card-hover)]/50 text-slate-200 transition-colors">
       <td className="py-3.5 px-4">
         <div className="flex items-center gap-3">
-          <div className="shrink-0 w-10 h-10 rounded-xl bg-[var(--bg-sidebar)] border border-[var(--border-color)] flex items-center justify-center p-1 shadow-inner">
-            <SvgVisual className="w-8 h-8" />
+          <div className="shrink-0 w-10 h-10 rounded-xl bg-[var(--bg-sidebar)] border border-[var(--border-color)] flex items-center justify-center p-1 shadow-inner overflow-hidden">
+            {product.imageUrl
+              ? <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain" />
+              : <SvgVisual className="w-8 h-8" />}
           </div>
           <span className="font-bold text-white text-sm">{product.name}</span>
         </div>
