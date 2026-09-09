@@ -2,11 +2,13 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Boxes, Plus, Search, RefreshCw, X, Package, FileSpreadsheet,
   MapPin, AlertTriangle, Zap, Archive, Clock, ShieldAlert,
-  Building2, CheckCircle2, UserCheck, Calendar, ClipboardList
+  Building2, CheckCircle2, UserCheck, Calendar, ClipboardList,
+  Loader2, ImageIcon,
 } from 'lucide-react';
 import {
   getProducts, createProduct, deployProduct, retireProduct,
-  getCategories, createCategory
+  getCategories, createCategory,
+  getProductTypes, createProductType, uploadProductTypeLogo,
 } from '../../api/productsApi';
 import { getCompanies } from '../../api/companiesApi';
 import { getClients } from '../../api/clientsApi';
@@ -49,34 +51,35 @@ function Toast({ msg, onDismiss }) {
   );
 }
 
-// ─── Add Unit modal ───────────────────────────────────────────────────────────
+// ─── Add Product modal (superadmin) ──────────────────────────────────────────
 function AddUnitModal({ companies, categories, onClose, onAdded, onCategoryCreated }) {
-  const [step, setStep] = useState(1); // 1 = pick org, 2 = fill form
-  const [companyId, setCompanyId] = useState('');
-  const [clients, setClients] = useState([]);
-  const [zones, setZones] = useState([]);
+  const [step, setStep]             = useState(1);
+  const [companyId, setCompanyId]   = useState('');
+  const [zones, setZones]           = useState([]);
   const [loadingZones, setLoadingZones] = useState(false);
-  const [form, setForm] = useState({ name:'', categoryId:'', zoneId:'', price:'', purchaseDate:'', quantity:1 });
+  const [form, setForm]             = useState({ productTypeId:'', categoryId:'', zoneId:'', price:'', purchaseDate:'', quantity:1 });
   const [submitting, setSubmitting] = useState(false);
   const [submitProgress, setSubmitProgress] = useState('');
-  const [error, setError] = useState('');
-  // Inline new-category creation
-  const [showNewCat, setShowNewCat] = useState(false);
-  const [newCatName, setNewCatName] = useState('');
-  const [newCatCode, setNewCatCode] = useState('');
-  const [savingCat, setSavingCat] = useState(false);
-  const [catError, setCatError] = useState('');
+  const [error, setError]           = useState('');
 
-  // When org changes, load its client + zones
+  // Product type state
+  const [productTypes, setProductTypes]       = useState([]);
+  const [ptLoading, setPtLoading]             = useState(false);
+  const [showNewTypeForm, setShowNewTypeForm] = useState(false);
+  const [newTypeName, setNewTypeName]         = useState('');
+  const [newTypeFile, setNewTypeFile]         = useState(null);
+  const [newTypePreview, setNewTypePreview]   = useState(null);
+  const [savingType, setSavingType]           = useState(false);
+  const newTypeFileRef = React.useRef(null);
+
+  // Load zones when org selected
   useEffect(() => {
     if (!companyId) return;
-    setLoadingZones(true);
-    setZones([]);
+    setLoadingZones(true); setZones([]);
     getClients({ companyId, limit: 10 })
       .then(async (res) => {
         const client = res?.items?.[0];
         if (!client) return;
-        setClients([client]);
         const z = await getZones({ clientId: client.id, limit: 100 });
         setZones(z?.items ?? []);
       })
@@ -84,61 +87,83 @@ function AddUnitModal({ companies, categories, onClose, onAdded, onCategoryCreat
       .finally(() => setLoadingZones(false));
   }, [companyId]);
 
-  const handleCreateCat = async () => {
-    if (!newCatName.trim() || !newCatCode.trim()) { setCatError('Both name and code are required.'); return; }
-    setSavingCat(true); setCatError('');
+  // Load product types when category selected
+  useEffect(() => {
+    if (!form.categoryId) { setProductTypes([]); return; }
+    setPtLoading(true);
+    getProductTypes(form.categoryId)
+      .then(setProductTypes)
+      .catch(() => setProductTypes([]))
+      .finally(() => setPtLoading(false));
+  }, [form.categoryId]);
+
+  const handleCategoryChange = (catId) => {
+    setForm((f) => ({ ...f, categoryId: catId, productTypeId: '' }));
+    setShowNewTypeForm(false);
+    setNewTypeName(''); setNewTypeFile(null); setNewTypePreview(null);
+  };
+
+  const handleProductTypeChange = (val) => {
+    if (val === '__new__') { setShowNewTypeForm(true); setForm((f) => ({ ...f, productTypeId: '' })); }
+    else { setShowNewTypeForm(false); setForm((f) => ({ ...f, productTypeId: val })); }
+  };
+
+  const handleSaveNewType = async () => {
+    if (!newTypeName.trim()) return;
+    setSavingType(true);
     try {
-      const created = await createCategory({ name: newCatName.trim(), code: newCatCode.trim() });
-      onCategoryCreated(created);           // add to parent list
-      setForm((f) => ({ ...f, categoryId: created.id }));
-      setShowNewCat(false); setNewCatName(''); setNewCatCode('');
+      let pt = await createProductType({ categoryId: form.categoryId, name: newTypeName.trim() });
+      if (newTypeFile) {
+        try { pt = await uploadProductTypeLogo(pt.id, newTypeFile); } catch { /* logo optional */ }
+      }
+      setProductTypes((prev) => [...prev, pt].sort((a, b) => a.name.localeCompare(b.name)));
+      setForm((f) => ({ ...f, productTypeId: pt.id }));
+      setShowNewTypeForm(false);
+      setNewTypeName(''); setNewTypeFile(null); setNewTypePreview(null);
+      if (newTypeFileRef.current) newTypeFileRef.current.value = '';
     } catch (err) {
-      setCatError(err.message || 'Failed to create category.');
-    } finally {
-      setSavingCat(false);
-    }
+      setError(err.message || 'Failed to save product type.');
+    } finally { setSavingType(false); }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.categoryId) { setError('Select a category.'); return; }
+    if (!form.categoryId)   { setError('Select a category.'); return; }
+    if (!form.productTypeId){ setError('Select or create a product type.'); return; }
     const qty = Math.max(1, Math.min(50, Number(form.quantity) || 1));
     setError(''); setSubmitting(true);
     try {
       const payload = {
         companyId,
-        name: form.name.trim(),
         categoryId: form.categoryId,
+        productTypeId: form.productTypeId,
         zoneId: form.zoneId || undefined,
         unitPrice: form.price ? Number(form.price) : undefined,
         purchaseDate: form.purchaseDate || undefined,
       };
-      // Create units one at a time so each gets its own unique code.
       for (let i = 0; i < qty; i++) {
-        setSubmitProgress(`Adding unit ${i + 1} of ${qty}…`);
+        setSubmitProgress(`Adding product ${i + 1} of ${qty}…`);
         await createProduct(payload);
       }
       onAdded(qty);
       onClose();
     } catch (err) {
-      setError(err.message || 'Failed to add units.');
-    } finally {
-      setSubmitting(false);
-      setSubmitProgress('');
-    }
+      setError(err.message || 'Failed to add products.');
+    } finally { setSubmitting(false); setSubmitProgress(''); }
   };
+
+  const selectedType = productTypes.find((t) => t.id === form.productTypeId);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
         <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center border border-indigo-500/30"><Boxes size={20} /></div>
             <div>
-              <h2 className="text-base font-bold">Add Unit to Inventory</h2>
+              <h2 className="text-base font-bold">Add Product to Inventory</h2>
               <p className="text-xs text-slate-400">
-                {step === 1 ? 'Step 1 — Select an organization' : `Step 2 — Unit details for ${companies.find(c=>c.id===companyId)?.name}`}
+                {step === 1 ? 'Step 1 — Select an organization' : `Step 2 — Product details for ${companies.find(c=>c.id===companyId)?.name}`}
               </p>
             </div>
           </div>
@@ -156,7 +181,7 @@ function AddUnitModal({ companies, categories, onClose, onAdded, onCategoryCreat
           {/* Step 1: org picker */}
           {step === 1 && (
             <div className="flex flex-col gap-3">
-              <p className="text-xs text-slate-600">Which organization should receive this unit?</p>
+              <p className="text-xs text-slate-600">Which organization should receive this product?</p>
               <div className="flex flex-col gap-2">
                 {companies.map((c) => (
                   <button key={c.id} type="button"
@@ -171,59 +196,63 @@ function AddUnitModal({ companies, categories, onClose, onAdded, onCategoryCreat
             </div>
           )}
 
-          {/* Step 2: unit details */}
+          {/* Step 2: product details */}
           {step === 2 && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              {/* Name */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700">Unit Name <span className="text-rose-500">*</span></label>
-                <input type="text" required placeholder="e.g., 4K Dome Camera"
-                  value={form.name} onChange={(e) => setForm({...form, name:e.target.value})}
-                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 text-slate-900 bg-white placeholder:text-slate-400" />
-              </div>
-
               {/* Category */}
               <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-700">Category <span className="text-rose-500">*</span></label>
-                  <button type="button" onClick={() => { setShowNewCat((v) => !v); setCatError(''); }}
-                    className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer">
-                    {showNewCat ? '← Pick existing' : '+ Create new category'}
-                  </button>
-                </div>
+                <label className="text-xs font-bold text-slate-700">Category <span className="text-rose-500">*</span></label>
+                <select required value={form.categoryId} onChange={(e) => handleCategoryChange(e.target.value)}
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer text-slate-900">
+                  <option value="" disabled>Select a category…</option>
+                  {categories.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
+                </select>
+                <p className="text-[11px] text-slate-400">A unique code (e.g. CAM-000123) is auto-generated from the category prefix.</p>
+              </div>
 
-                {!showNewCat ? (
-                  <>
-                    <select required value={form.categoryId} onChange={(e) => setForm({...form, categoryId:e.target.value})}
-                      className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer text-slate-900">
-                      <option value="" disabled>Select a category…</option>
-                      {categories.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.code}) — {c._count?.devices ?? 0} units</option>)}
-                    </select>
-                    <p className="text-[11px] text-slate-400">A unique code (e.g. CAM-000123) is auto-generated from the category prefix.</p>
-                  </>
-                ) : (
-                  <div className="flex flex-col gap-2 p-3.5 rounded-xl border border-indigo-200 bg-indigo-50/40">
-                    {catError && <p className="text-[11px] text-rose-600 font-semibold">{catError}</p>}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="flex flex-col gap-1">
-                        <label className="text-[11px] font-bold text-slate-600">Name <span className="text-rose-500">*</span></label>
-                        <input type="text" placeholder="e.g. CCTV Cameras" value={newCatName}
-                          onChange={(e) => setNewCatName(e.target.value)}
-                          className="px-2.5 py-2 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 text-slate-900 bg-white placeholder:text-slate-400" />
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <label className="text-[11px] font-bold text-slate-600">Code prefix <span className="text-rose-500">*</span></label>
-                        <input type="text" placeholder="e.g. CAM" value={newCatCode} maxLength={12}
-                          onChange={(e) => setNewCatCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
-                          className="px-2.5 py-2 rounded-lg border border-slate-200 text-xs font-bold font-mono outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 text-slate-900 bg-white placeholder:text-slate-400" />
-                      </div>
-                    </div>
-                    <p className="text-[11px] text-slate-500">Units in this category will be coded {newCatCode || 'XXX'}-000001, {newCatCode || 'XXX'}-000002…</p>
-                    <button type="button" onClick={handleCreateCat} disabled={savingCat || !newCatName.trim() || !newCatCode.trim()}
-                      className="self-start px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold cursor-pointer disabled:opacity-50 transition-colors">
-                      {savingCat ? 'Creating…' : 'Create & Select'}
-                    </button>
+              {/* Product Type */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-700">Product Type <span className="text-rose-500">*</span></label>
+                {!form.categoryId ? (
+                  <div className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-400">Select a category first</div>
+                ) : ptLoading ? (
+                  <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-400">
+                    <Loader2 size={12} className="animate-spin" /> Loading types…
                   </div>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2">
+                      {selectedType?.imageUrl && <img src={selectedType.imageUrl} alt={selectedType.name} className="w-8 h-8 rounded-lg object-contain border border-slate-200 shrink-0" />}
+                      <select value={showNewTypeForm ? '__new__' : form.productTypeId} onChange={(e) => handleProductTypeChange(e.target.value)}
+                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer text-slate-900">
+                        <option value="" disabled>Select a product type…</option>
+                        {productTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                        <option value="__new__">＋ Add new product type…</option>
+                      </select>
+                    </div>
+                    {showNewTypeForm && (
+                      <div className="mt-1 p-3 rounded-xl border border-indigo-200 bg-indigo-50 flex flex-col gap-2">
+                        <p className="text-[11px] font-bold text-indigo-700">New Product Type</p>
+                        <input type="text" placeholder="e.g. LPR Camera" value={newTypeName}
+                          onChange={(e) => setNewTypeName(e.target.value)} autoFocus
+                          className="px-3 py-2 rounded-lg border border-indigo-200 text-xs font-medium outline-none focus:border-indigo-500 bg-white text-slate-900" />
+                        <div className="flex items-center gap-2">
+                          <label className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer flex-1">
+                            {newTypePreview ? <img src={newTypePreview} alt="preview" className="w-4 h-4 rounded object-cover" /> : <ImageIcon size={12} className="text-slate-400" />}
+                            {newTypeFile ? 'Logo selected' : 'Add logo (optional)'}
+                            <input ref={newTypeFileRef} type="file" accept="image/*" className="hidden"
+                              onChange={(e) => { const f = e.target.files?.[0]; if (!f) return; setNewTypeFile(f); setNewTypePreview(URL.createObjectURL(f)); }} />
+                          </label>
+                          <button type="button" onClick={handleSaveNewType} disabled={!newTypeName.trim() || savingType}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer disabled:opacity-50 whitespace-nowrap">
+                            {savingType ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />} Save Type
+                          </button>
+                          <button type="button" onClick={() => { setShowNewTypeForm(false); setNewTypeName(''); setNewTypeFile(null); setNewTypePreview(null); }}
+                            className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600 cursor-pointer"><X size={13} /></button>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -231,36 +260,25 @@ function AddUnitModal({ companies, categories, onClose, onAdded, onCategoryCreat
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <MapPin size={12} className="text-indigo-500" />
-                  Deploy to Zone
-                  <span className="text-slate-400 font-normal">(optional — blank = in stock)</span>
+                  Deploy to Zone <span className="text-slate-400 font-normal">(optional — blank = in stock)</span>
                 </label>
-                <select value={form.zoneId} onChange={(e) => setForm({...form, zoneId:e.target.value})}
-                  disabled={loadingZones}
+                <select value={form.zoneId} onChange={(e) => setForm({...form, zoneId:e.target.value})} disabled={loadingZones}
                   className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer disabled:opacity-60 text-slate-900">
                   <option value="">In stock (no zone)</option>
                   {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
                 </select>
-                {!loadingZones && zones.length === 0 && (
-                  <p className="text-[11px] text-slate-400">No zones for this org yet — unit will be added to stock.</p>
-                )}
+                {!loadingZones && zones.length === 0 && <p className="text-[11px] text-slate-400">No zones for this org yet — product will be added to stock.</p>}
               </div>
 
               {/* Quantity */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700">
-                  Number of Units <span className="text-slate-400 font-normal">(max 50)</span>
-                </label>
-                <input
-                  type="number" min="1" max="50" step="1"
-                  value={form.quantity}
+                <label className="text-xs font-bold text-slate-700">Quantity <span className="text-slate-400 font-normal">(max 50)</span></label>
+                <input type="number" min="1" max="50" step="1" value={form.quantity}
                   onChange={(e) => setForm({ ...form, quantity: e.target.value })}
                   onBlur={(e) => setForm({ ...form, quantity: Math.max(1, Math.min(50, Number(e.target.value) || 1)) })}
-                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 w-28 text-slate-900 bg-white"
-                />
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 w-28 text-slate-900 bg-white" />
                 {Number(form.quantity) > 1 && (
-                  <p className="text-[11px] text-indigo-600 font-semibold">
-                    {Number(form.quantity)} units will be created — each gets a unique auto-generated code (e.g. CAM-000001, CAM-000002…).
-                  </p>
+                  <p className="text-[11px] text-indigo-600 font-semibold">{Number(form.quantity)} products will be created, each with a unique auto-generated code.</p>
                 )}
               </div>
 
@@ -268,8 +286,8 @@ function AddUnitModal({ companies, categories, onClose, onAdded, onCategoryCreat
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-bold text-slate-700">Price (₹) per unit</label>
-                  <input type="number" min="0" step="1" placeholder="optional"
-                    value={form.price} onChange={(e) => setForm({...form, price:e.target.value})}
+                  <input type="number" min="0" step="1" placeholder="optional" value={form.price}
+                    onChange={(e) => setForm({...form, price:e.target.value})}
                     className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 text-slate-900 bg-white placeholder:text-slate-400" />
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -280,13 +298,12 @@ function AddUnitModal({ companies, categories, onClose, onAdded, onCategoryCreat
               </div>
 
               <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                <button type="button" onClick={() => { setStep(1); setError(''); }}
-                  className="text-xs font-bold text-slate-500 hover:text-indigo-600 cursor-pointer">← Change org</button>
+                <button type="button" onClick={() => { setStep(1); setError(''); }} className="text-xs font-bold text-slate-500 hover:text-indigo-600 cursor-pointer">← Change org</button>
                 <div className="flex items-center gap-2">
                   <button type="button" onClick={onClose} className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold cursor-pointer hover:bg-slate-50">Cancel</button>
-                  <button type="submit" disabled={submitting || !form.name.trim()}
+                  <button type="submit" disabled={submitting || !form.productTypeId}
                     className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-200 disabled:opacity-50 cursor-pointer transition-all min-w-[120px] text-center">
-                    {submitting ? (submitProgress || 'Adding…') : `Add ${Number(form.quantity) > 1 ? `${form.quantity} Units` : 'Unit'}`}
+                    {submitting ? (submitProgress || 'Adding…') : `Add ${Number(form.quantity) > 1 ? `${form.quantity} Products` : 'Product'}`}
                   </button>
                 </div>
               </div>
@@ -490,7 +507,7 @@ export default function ProductsList() {
           </button>
           <button onClick={() => setIsAddOpen(true)}
             className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-indigo-200 transition-all cursor-pointer">
-            <Plus size={16} /><span>Add Unit</span>
+            <Plus size={16} /><span>Add Product</span>
           </button>
         </div>
       </div>
