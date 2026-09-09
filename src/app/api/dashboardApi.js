@@ -65,7 +65,10 @@ export async function getProductBreakdown({ scope = 'client', id } = {}) {
   const params = new URLSearchParams({ scope });
   if (id) params.set('id', id);
   const res = await apiClient.request(`/dashboard/product-breakdown?${params}`, { method: 'GET' });
-  return res?.data?.categories ?? [];
+  return {
+    categories: res?.data?.categories ?? [],
+    products:   res?.data?.products   ?? [],
+  };
 }
 
 export async function getPlatformOverview() {
