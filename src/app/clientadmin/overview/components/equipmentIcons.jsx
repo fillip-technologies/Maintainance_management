@@ -296,3 +296,180 @@ export function getEquipmentVisual(name = '') {
   }
   return { Component: DefaultHardwareSvg, label: name || 'Equipment', isLink: false };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Category Badge Icons (Crisp white vector icons for circular summary cards)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function CameraBadgeIcon({ className = 'w-6 h-6' }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M2 13.5V10c0-1.1.9-2 2-2h9l5-3v14l-5-3H4c-1.1 0-2-.9-2-2v-2.5z" fill="currentColor" fillOpacity="0.18" />
+      <circle cx="8" cy="12" r="2.5" strokeWidth="2" />
+      <path d="M7 17l-3 3" />
+      <path d="M2 20h6" />
+    </svg>
+  );
+}
+
+export function NvrBadgeIcon({ className = 'w-6 h-6' }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="2" y="4" width="20" height="7" rx="2" fill="currentColor" fillOpacity="0.18" />
+      <rect x="2" y="13" width="20" height="7" rx="2" fill="currentColor" fillOpacity="0.18" />
+      <circle cx="6" cy="7.5" r="1" fill="currentColor" />
+      <circle cx="6" cy="16.5" r="1" fill="currentColor" />
+      <line x1="10" y1="7.5" x2="18" y2="7.5" strokeWidth="2" strokeLinecap="round" />
+      <line x1="10" y1="16.5" x2="18" y2="16.5" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function SwitchBadgeIcon({ className = 'w-6 h-6' }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="2" y="6" width="20" height="12" rx="2.5" fill="currentColor" fillOpacity="0.18" />
+      <circle cx="6" cy="12" r="1.2" fill="currentColor" />
+      <circle cx="9" cy="12" r="1.2" fill="currentColor" />
+      <circle cx="12" cy="12" r="1.2" fill="currentColor" />
+      <circle cx="15" cy="12" r="1.2" fill="currentColor" />
+      <circle cx="18" cy="12" r="1.2" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function RouterBadgeIcon({ className = 'w-6 h-6' }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <line x1="7" y1="13" x2="7" y2="4" strokeWidth="2" strokeLinecap="round" />
+      <line x1="17" y1="13" x2="17" y2="4" strokeWidth="2" strokeLinecap="round" />
+      <rect x="3" y="12" width="18" height="8" rx="2.5" fill="currentColor" fillOpacity="0.18" />
+      <circle cx="7.5" cy="16" r="1" fill="currentColor" />
+      <circle cx="12" cy="16" r="1" fill="currentColor" />
+      <circle cx="16.5" cy="16" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function FiberBadgeIcon({ className = 'w-6 h-6' }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M4 20l5-5" strokeWidth="3" />
+      <path d="M8 16c4-1 8-6 10-12" strokeWidth="2" />
+      <path d="M9 15c4 0 7-3 11-7" strokeWidth="2" />
+      <path d="M10 14c5 1 8 0 11-2" strokeWidth="2" />
+      <circle cx="18" cy="4" r="1.2" fill="currentColor" />
+      <circle cx="20" cy="8" r="1.2" fill="currentColor" />
+      <circle cx="21" cy="12" r="1.2" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function UpsBadgeIcon({ className = 'w-6 h-6' }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="5" y="4" width="14" height="16" rx="2.5" fill="currentColor" fillOpacity="0.18" />
+      <path d="M13 8l-3 4h3l-2 4 5-5h-3l2-3z" fill="currentColor" stroke="currentColor" strokeWidth="0.6" />
+    </svg>
+  );
+}
+
+export function AccessBadgeIcon({ className = 'w-6 h-6' }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M4 21V4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v17" />
+      <path d="M9 5l7 2v12l-7 2V5z" fill="currentColor" fillOpacity="0.25" />
+      <circle cx="11.5" cy="13" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function DefaultBadgeIcon({ className = 'w-6 h-6' }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="4" y="4" width="16" height="16" rx="3" fill="currentColor" fillOpacity="0.18" />
+      <circle cx="12" cy="12" r="3" />
+      <line x1="12" y1="2" x2="12" y2="4" />
+      <line x1="12" y1="20" x2="12" y2="22" />
+      <line x1="2" y1="12" x2="4" y2="12" />
+      <line x1="20" y1="12" x2="22" y2="12" />
+    </svg>
+  );
+}
+
+/**
+ * Maps category name to colored round badge styles & icons
+ */
+export function getCategoryBadgeConfig(name = '') {
+  const n = (name || '').toLowerCase();
+  if (n.includes('camera') || n.includes('cctv')) {
+    return {
+      bgClass: 'bg-emerald-500',
+      color: '#10b981',
+      Icon: CameraBadgeIcon,
+      defaultLabel: 'Total Cameras',
+      isLink: false,
+    };
+  }
+  if (n.includes('nvr') || n.includes('dvr') || n.includes('recorder') || n.includes('storage')) {
+    return {
+      bgClass: 'bg-blue-600',
+      color: '#2563eb',
+      Icon: NvrBadgeIcon,
+      defaultLabel: 'NVR / DVR',
+      isLink: false,
+    };
+  }
+  if (n.includes('switch') || n.includes('lan')) {
+    return {
+      bgClass: 'bg-purple-600',
+      color: '#8b5cf6',
+      Icon: SwitchBadgeIcon,
+      defaultLabel: 'Network Switches',
+      isLink: false,
+    };
+  }
+  if (n.includes('router') || n.includes('wifi') || n.includes('gateway')) {
+    return {
+      bgClass: 'bg-teal-500',
+      color: '#06b6d4',
+      Icon: RouterBadgeIcon,
+      defaultLabel: 'Routers',
+      isLink: false,
+    };
+  }
+  if (n.includes('fiber') || n.includes('optical') || n.includes('link') || n.includes('cable')) {
+    return {
+      bgClass: 'bg-amber-500',
+      color: '#f59e0b',
+      Icon: FiberBadgeIcon,
+      defaultLabel: 'Fiber Links',
+      isLink: true,
+    };
+  }
+  if (n.includes('ups') || n.includes('power') || n.includes('battery')) {
+    return {
+      bgClass: 'bg-rose-500',
+      color: '#ef4444',
+      Icon: UpsBadgeIcon,
+      defaultLabel: 'UPS / Power',
+      isLink: false,
+    };
+  }
+  if (n.includes('access') || n.includes('door') || n.includes('entry') || n.includes('gate')) {
+    return {
+      bgClass: 'bg-indigo-600',
+      color: '#6366f1',
+      Icon: AccessBadgeIcon,
+      defaultLabel: 'Access Control',
+      isLink: false,
+    };
+  }
+  return {
+    bgClass: 'bg-blue-600',
+    color: '#3b82f6',
+    Icon: DefaultBadgeIcon,
+    defaultLabel: name || 'Equipment',
+    isLink: false,
+  };
+}

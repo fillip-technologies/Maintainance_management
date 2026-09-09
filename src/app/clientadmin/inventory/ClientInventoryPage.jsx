@@ -185,7 +185,7 @@ function AddUnitModal({ categories, zones, loadingZones, onAdd, onClose }) {
           <button onClick={onClose} className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"><X size={16} /></button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4 overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4 overflow-y-auto text-slate-900">
           {error && (
             <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2">
               <AlertTriangle size={14} className="text-rose-600 shrink-0 mt-0.5" />
@@ -198,14 +198,14 @@ function AddUnitModal({ categories, zones, loadingZones, onAdd, onClose }) {
             <label className="text-xs font-bold text-slate-700">Unit Name <span className="text-rose-500">*</span></label>
             <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="e.g., 4K Dome Camera"
-              className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" />
+              className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 text-slate-900 bg-white placeholder:text-slate-400" />
           </div>
 
           {/* Category */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Category <span className="text-rose-500">*</span></label>
             <select required value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-              className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 cursor-pointer">
+              className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 cursor-pointer text-slate-900">
               <option value="" disabled>Select a category…</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
             </select>
@@ -221,7 +221,7 @@ function AddUnitModal({ categories, zones, loadingZones, onAdd, onClose }) {
             </label>
             <select value={form.zoneId} onChange={(e) => setForm({ ...form, zoneId: e.target.value })}
               disabled={loadingZones}
-              className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 cursor-pointer disabled:opacity-60">
+              className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 cursor-pointer disabled:opacity-60 text-slate-900">
               <option value="">In stock (no zone)</option>
               {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
             </select>
@@ -236,12 +236,12 @@ function AddUnitModal({ categories, zones, loadingZones, onAdd, onClose }) {
               <label className="text-xs font-bold text-slate-700">Price (₹)</label>
               <input type="number" min="0" step="1" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })}
                 placeholder="optional"
-                className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" />
+                className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 text-slate-900 bg-white placeholder:text-slate-400" />
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-slate-700">Purchase Date</label>
               <input type="date" value={form.purchaseDate} onChange={(e) => setForm({ ...form, purchaseDate: e.target.value })}
-                className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100" />
+                className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 text-slate-900 bg-white" />
             </div>
           </div>
 

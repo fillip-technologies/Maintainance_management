@@ -20,7 +20,7 @@ export default function ZoneLayout() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-slate-50 relative">
+    <div className="flex min-h-screen w-full bg-[var(--bg-main)] relative">
       <ZoneSidebar
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
@@ -28,10 +28,10 @@ export default function ZoneLayout() {
         setIsMobileOpen={setIsMobileOpen}
       />
 
-      <div className="flex-1 flex flex-col min-w-0 bg-slate-50 w-full">
+      <div className="flex-1 flex flex-col min-w-0 bg-[var(--bg-main)] w-full">
         <Header onToggleMobileSidebar={() => setIsMobileOpen(!isMobileOpen)} />
 
-        <main className="flex-1 p-3.5 sm:p-6 md:p-8 max-w-[1600px] w-full mx-auto">
+        <main className="flex-1 p-3.5 sm:p-6 md:p-8 max-w-[1600px] w-full mx-auto bg-[var(--bg-main)]">
           <Outlet context={{ showToast }} />
         </main>
       </div>

@@ -54,35 +54,35 @@ export default function ZoneSidebar({
 
   const sidebarContent = (
     <aside
-      className={`h-full bg-white flex flex-col select-none ${
+      className={`h-full bg-[var(--bg-sidebar)] flex flex-col select-none ${
         isCollapsed ? 'md:w-[78px]' : 'w-[280px] md:w-[260px]'
       }`}
     >
       {/* Brand Header */}
-      <div className="h-[70px] px-4 flex items-center justify-between border-b border-slate-200 gap-3">
+      <div className="h-[70px] px-4 flex items-center justify-between border-b border-[var(--border-color)] gap-3">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-[38px] h-[38px] min-w-[38px] rounded-xl flex items-center justify-center text-white relative shadow-md bg-gradient-to-br from-amber-600 to-orange-500 shadow-amber-100 overflow-hidden">
+          <div className="w-[38px] h-[38px] min-w-[38px] rounded-xl flex items-center justify-center text-white relative shadow-md bg-gradient-to-br from-amber-600 to-orange-500 shadow-amber-950/40 overflow-hidden">
             {currentUser?.zoneLogoUrl
               ? <img src={currentUser.zoneLogoUrl} alt="zone logo" className="w-full h-full object-cover" />
               : <Wrench size={20} className="-rotate-12 hover:rotate-45 transition-transform duration-300" />
             }
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ring-2 ring-white bg-amber-300"></span>
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ring-2 ring-[var(--bg-sidebar)] bg-amber-400"></span>
           </div>
 
           <div className="flex flex-col whitespace-nowrap">
             <div className="flex items-center gap-1.5">
-              <span className="text-xl font-extrabold tracking-tight text-slate-900 lowercase">fixly</span>
-              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-amber-50 text-amber-700">
+              <span className="text-xl font-extrabold tracking-tight text-white lowercase">fixly</span>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-950/70 border border-amber-800/60 text-amber-400">
                 Zone
               </span>
             </div>
-            <span className="text-[11px] font-medium text-slate-500">Zone Operations</span>
+            <span className="text-[11px] font-medium text-slate-400">Zone Operations</span>
           </div>
         </div>
 
         {/* Desktop Collapse Button */}
         <button
-          className="hidden md:flex w-7 h-7 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 items-center justify-center transition-colors cursor-pointer"
+          className="hidden md:flex w-7 h-7 rounded-lg bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-slate-400 hover:text-white items-center justify-center transition-colors cursor-pointer"
           onClick={() => setIsCollapsed(!isCollapsed)}
           title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
@@ -92,7 +92,7 @@ export default function ZoneSidebar({
 
         {/* Mobile Close Drawer Button */}
         <button
-          className="md:hidden w-8 h-8 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer"
+          className="md:hidden w-8 h-8 rounded-xl bg-[var(--bg-card)] text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer border border-[var(--border-color)]"
           onClick={() => setIsMobileOpen && setIsMobileOpen(false)}
         >
           <X size={18} />
@@ -117,13 +117,13 @@ export default function ZoneSidebar({
                     className={({ isActive }) =>
                       `flex items-center justify-between px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all group relative ${
                         isActive
-                          ? 'bg-amber-50 text-amber-800 font-bold border-l-4 border-amber-600 shadow-xs'
-                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                          ? 'bg-[var(--bg-card)] text-white font-bold border-l-4 border-amber-500 shadow-sm'
+                          : 'text-slate-300 hover:bg-[var(--bg-card)] hover:text-white'
                       }`
                     }
                   >
                     <div className="flex items-center gap-3 whitespace-nowrap">
-                      <Icon size={19} className="text-amber-600 group-hover:text-amber-700 transition-colors" />
+                      <Icon size={19} className="text-amber-400 group-hover:text-amber-300 transition-colors" />
                       <span>{item.name}</span>
                     </div>
                   </NavLink>
@@ -135,20 +135,20 @@ export default function ZoneSidebar({
       </div>
 
       {/* User Profile Card */}
-      <div className="p-3 border-t border-slate-200 flex items-center justify-between bg-white gap-2">
+      <div className="p-3 border-t border-[var(--border-color)] flex items-center justify-between bg-[var(--bg-sidebar)] gap-2">
         <div className="flex items-center gap-2.5 overflow-hidden">
           <div className="relative w-9 h-9 min-w-9 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 flex items-center justify-center font-bold text-xs text-white shadow-sm">
             <span>{getInitials(displayName)}</span>
-            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[var(--bg-sidebar)]"></span>
           </div>
           <div className="flex flex-col whitespace-nowrap overflow-hidden">
-            <span className="text-xs font-bold text-slate-900 truncate">{displayName}</span>
-            <span className="text-[10px] text-slate-500 truncate">{roleLabel}</span>
+            <span className="text-xs font-bold text-white truncate">{displayName}</span>
+            <span className="text-[10px] text-slate-400 truncate">{roleLabel}</span>
           </div>
         </div>
 
         <button
-          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition-colors cursor-pointer"
           title="Sign Out"
           onClick={handleSignOut}
         >
@@ -162,7 +162,7 @@ export default function ZoneSidebar({
     <>
       {/* Desktop Sidebar */}
       <div
-        className={`hidden md:block h-screen sticky top-0 left-0 z-40 border-r border-slate-200 transition-all duration-300 ${
+        className={`hidden md:block h-screen sticky top-0 left-0 z-40 border-r border-[var(--border-color)] transition-all duration-300 bg-[var(--bg-sidebar)] ${
           isCollapsed ? 'w-[78px]' : 'w-[260px]'
         }`}
       >
@@ -173,10 +173,10 @@ export default function ZoneSidebar({
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex animate-in fade-in duration-200">
           <div
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs"
             onClick={() => setIsMobileOpen && setIsMobileOpen(false)}
           />
-          <div className="relative z-50 h-full w-[280px] bg-white shadow-2xl animate-in slide-in-from-left duration-250">
+          <div className="relative z-50 h-full w-[280px] bg-[var(--bg-sidebar)] border-r border-[var(--border-color)] shadow-2xl animate-in slide-in-from-left duration-250">
             {sidebarContent}
           </div>
         </div>

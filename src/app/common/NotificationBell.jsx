@@ -132,7 +132,7 @@ export default function NotificationBell() {
       <button
         ref={bellRef}
         onClick={togglePanel}
-        className="relative p-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 transition-all cursor-pointer"
+        className="relative p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[var(--bg-card)] border border-[var(--border-color)] transition-all cursor-pointer"
         aria-label="Notifications"
       >
         <Bell size={18} className={unreadCount > 0 ? 'animate-[wiggle_0.4s_ease-in-out]' : ''} />
@@ -147,15 +147,15 @@ export default function NotificationBell() {
       {open && (
         <div
           ref={panelRef}
-          className="absolute right-0 top-[calc(100%+8px)] w-[340px] sm:w-[380px] bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
+          className="absolute right-0 top-[calc(100%+8px)] w-[340px] sm:w-[380px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 text-white"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]">
             <div className="flex items-center gap-2">
-              <Bell size={15} className="text-indigo-500" />
-              <span className="text-sm font-bold text-slate-800">Notifications</span>
+              <Bell size={15} className="text-blue-400" />
+              <span className="text-sm font-bold text-white">Notifications</span>
               {unreadCount > 0 && (
-                <span className="text-[10px] font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold bg-rose-950/70 border border-rose-800 text-rose-300 px-1.5 py-0.5 rounded-full">
                   {unreadCount} new
                 </span>
               )}
@@ -165,13 +165,13 @@ export default function NotificationBell() {
                 <>
                   <button
                     onClick={markAllRead}
-                    className="text-[11px] text-slate-500 hover:text-indigo-600 font-medium px-2 py-1 rounded-lg hover:bg-indigo-50 transition-colors cursor-pointer"
+                    className="text-[11px] text-slate-400 hover:text-blue-400 font-medium px-2 py-1 rounded-lg hover:bg-[var(--bg-card-hover)] transition-colors cursor-pointer"
                   >
                     Mark all read
                   </button>
                   <button
                     onClick={clearAll}
-                    className="text-[11px] text-slate-400 hover:text-rose-500 font-medium px-2 py-1 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
+                    className="text-[11px] text-slate-400 hover:text-rose-400 font-medium px-2 py-1 rounded-lg hover:bg-rose-950/40 transition-colors cursor-pointer"
                     title="Clear all"
                   >
                     <X size={13} />
@@ -182,15 +182,15 @@ export default function NotificationBell() {
           </div>
 
           {/* List */}
-          <div className="max-h-[420px] overflow-y-auto divide-y divide-slate-50">
+          <div className="max-h-[420px] overflow-y-auto divide-y divide-[var(--border-color)]/60">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 py-12 px-6 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                  <Bell size={22} className="text-slate-400" />
+                <div className="w-12 h-12 rounded-2xl bg-[#081023] border border-[var(--border-color)] flex items-center justify-center">
+                  <Bell size={22} className="text-slate-500" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-600">No notifications yet</p>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-sm font-semibold text-slate-300">No notifications yet</p>
+                  <p className="text-xs text-slate-500 mt-0.5">
                     Issue updates and logs will appear here
                   </p>
                 </div>
@@ -200,23 +200,23 @@ export default function NotificationBell() {
                 <div
                   key={n.id}
                   className={`flex items-start gap-3 px-4 py-3 transition-colors ${
-                    n.read ? 'bg-white' : 'bg-indigo-50/40'
+                    n.read ? 'bg-[var(--bg-card)]' : 'bg-[#0f1f3d]/50'
                   }`}
                 >
                   <div className="mt-0.5">
                     <NotifIcon type={n.type} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-semibold truncate ${n.read ? 'text-slate-700' : 'text-slate-900'}`}>
+                    <p className={`text-xs font-semibold truncate ${n.read ? 'text-slate-300' : 'text-white'}`}>
                       {n.title}
                     </p>
-                    <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2 leading-relaxed">
+                    <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-2 leading-relaxed">
                       {n.body}
                     </p>
-                    <p className="text-[10px] text-slate-400 mt-1">{relativeTime(n.time)}</p>
+                    <p className="text-[10px] text-slate-500 mt-1">{relativeTime(n.time)}</p>
                   </div>
                   {!n.read && (
-                    <div className="w-2 h-2 rounded-full bg-indigo-500 shrink-0 mt-1.5" />
+                    <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1.5" />
                   )}
                 </div>
               ))

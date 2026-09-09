@@ -147,13 +147,13 @@ export default function Sidebar({
 
   const sidebarContent = (
     <aside
-      className={`h-full bg-white flex flex-col select-none transition-all duration-300 ${
+      className={`h-full bg-[var(--bg-sidebar)] flex flex-col select-none transition-all duration-300 ${
         isCollapsed ? 'w-[72px]' : 'w-[280px] md:w-[260px]'
       }`}
     >
       {/* Brand Header */}
       <div
-        className={`h-[70px] px-3.5 flex items-center border-b border-slate-200 gap-2 ${
+        className={`h-[70px] px-3.5 flex items-center border-b border-[var(--border-color)] gap-2 ${
           isCollapsed ? 'justify-center' : 'justify-between'
         }`}
       >
@@ -161,8 +161,8 @@ export default function Sidebar({
           <div
             className={`w-[38px] h-[38px] min-w-[38px] rounded-xl flex items-center justify-center text-white relative shadow-md shrink-0 ${
               isSuperAdmin
-                ? 'bg-gradient-to-br from-indigo-600 to-sky-500 shadow-indigo-100'
-                : 'bg-gradient-to-br from-emerald-600 to-teal-500 shadow-emerald-100'
+                ? 'bg-gradient-to-br from-indigo-600 to-sky-500 shadow-indigo-950/40'
+                : 'bg-gradient-to-br from-emerald-600 to-teal-500 shadow-emerald-950/40'
             }`}
           >
             <Wrench size={20} className="-rotate-12 hover:rotate-45 transition-transform duration-300" />
@@ -172,18 +172,18 @@ export default function Sidebar({
           {!isCollapsed && (
             <div className="flex flex-col whitespace-nowrap animate-in fade-in duration-150">
               <div className="flex items-center gap-1.5">
-                <span className="text-xl font-extrabold tracking-tight text-slate-900 lowercase">fixly</span>
+                <span className="text-xl font-extrabold tracking-tight text-white lowercase">fixly</span>
                 <span
-                  className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border ${
                     isSuperAdmin
-                      ? 'bg-indigo-50 text-indigo-700'
-                      : 'bg-emerald-50 text-emerald-700'
+                      ? 'bg-indigo-950/70 border-indigo-800/60 text-indigo-400'
+                      : 'bg-emerald-950/70 border-emerald-800/60 text-emerald-400'
                   }`}
                 >
                   {isSuperAdmin ? 'HQ' : 'Client'}
                 </span>
               </div>
-              <span className="text-[11px] font-medium text-slate-500">
+              <span className="text-[11px] font-medium text-slate-400">
                 {isSuperAdmin ? 'Enterprise Ops' : 'Facility Command'}
               </span>
             </div>
@@ -192,8 +192,8 @@ export default function Sidebar({
 
         {/* Desktop Collapse Button */}
         <button
-          className={`hidden md:flex w-7 h-7 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 items-center justify-center transition-colors cursor-pointer shrink-0 ${
-            isCollapsed ? 'absolute -right-3.5 top-5 z-50 shadow-md bg-white' : ''
+          className={`hidden md:flex w-7 h-7 rounded-lg bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-slate-400 hover:text-white items-center justify-center transition-colors cursor-pointer shrink-0 ${
+            isCollapsed ? 'absolute -right-3.5 top-5 z-50 shadow-md bg-[var(--bg-card)]' : ''
           }`}
           onClick={() => setIsCollapsed(!isCollapsed)}
           title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
@@ -204,7 +204,7 @@ export default function Sidebar({
 
         {/* Mobile Close Drawer Button */}
         <button
-          className="md:hidden w-8 h-8 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer"
+          className="md:hidden w-8 h-8 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
           onClick={() => setIsMobileOpen && setIsMobileOpen(false)}
         >
           <X size={18} />
@@ -221,7 +221,7 @@ export default function Sidebar({
                 {group.group}
               </span>
             ) : (
-              <div className="h-px bg-slate-100 my-1 mx-2" />
+              <div className="h-px bg-[var(--border-color)] my-1 mx-2" />
             )}
 
             <nav className="flex flex-col gap-1.5">
@@ -239,16 +239,16 @@ export default function Sidebar({
                           ? `w-11 h-11 mx-auto justify-center rounded-xl ${
                               isActive
                                 ? isSuperAdmin
-                                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 font-bold'
-                                  : 'bg-emerald-600 text-white shadow-md shadow-emerald-200 font-bold'
-                                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                  ? 'bg-indigo-600 text-white shadow-md font-bold'
+                                  : 'bg-emerald-600 text-white shadow-md font-bold'
+                                : 'text-slate-400 hover:bg-[var(--bg-card)] hover:text-white'
                             }`
                           : `justify-between px-3 py-2.5 rounded-xl text-[13px] font-medium ${
                               isActive
                                 ? isSuperAdmin
-                                  ? 'bg-indigo-50 text-indigo-700 font-bold border-l-4 border-indigo-600 shadow-xs'
-                                  : 'bg-emerald-50 text-emerald-800 font-bold border-l-4 border-emerald-600 shadow-xs'
-                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                  ? 'bg-[var(--bg-card)] text-white font-bold border-l-4 border-indigo-500 shadow-sm'
+                                  : 'bg-[var(--bg-card)] text-white font-bold border-l-4 border-emerald-500 shadow-sm'
+                                : 'text-slate-300 hover:bg-[var(--bg-card)] hover:text-white'
                             }`
                       }`
                     }
@@ -264,9 +264,11 @@ export default function Sidebar({
                           className={`${
                             isCollapsed && isActive
                               ? 'text-white'
-                              : isSuperAdmin
-                              ? 'text-indigo-600 group-hover:text-indigo-700'
-                              : 'text-emerald-600 group-hover:text-emerald-700'
+                              : isActive
+                              ? isSuperAdmin
+                                ? 'text-indigo-400'
+                                : 'text-emerald-400'
+                              : 'text-slate-400 group-hover:text-white'
                           } transition-colors shrink-0`}
                         />
                         {!isCollapsed && <span>{item.name}</span>}
@@ -282,7 +284,7 @@ export default function Sidebar({
 
       {/* User Profile Card at Bottom */}
       <div
-        className={`p-3 border-t border-slate-200 flex items-center bg-white gap-2 ${
+        className={`p-3 border-t border-[var(--border-color)] flex items-center bg-[var(--bg-sidebar)] gap-2 ${
           isCollapsed ? 'justify-center flex-col' : 'justify-between'
         }`}
       >
@@ -300,13 +302,13 @@ export default function Sidebar({
             } flex items-center justify-center font-bold text-xs text-white shadow-sm shrink-0`}
           >
             <span>{getInitials(displayName)}</span>
-            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[var(--bg-sidebar)]"></span>
           </div>
 
           {!isCollapsed && (
             <div className="flex flex-col whitespace-nowrap overflow-hidden animate-in fade-in duration-150">
-              <span className="text-xs font-bold text-slate-900 truncate">{displayName}</span>
-              <span className="text-[10px] text-slate-500 truncate">
+              <span className="text-xs font-bold text-white truncate">{displayName}</span>
+              <span className="text-[10px] text-slate-400 truncate">
                 {roleLabel} • {orgLabel.split(' ')[0]}
               </span>
             </div>
@@ -314,7 +316,7 @@ export default function Sidebar({
         </div>
 
         <button
-          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition-colors cursor-pointer"
           title="Sign Out"
           onClick={handleSignOut}
         >
@@ -328,7 +330,7 @@ export default function Sidebar({
     <>
       {/* 1. Desktop Sidebar */}
       <div
-        className={`hidden md:block h-screen sticky top-0 left-0 z-40 border-r border-slate-200 transition-all duration-300 ${
+        className={`hidden md:block h-screen sticky top-0 left-0 z-40 border-r border-[var(--border-color)] transition-all duration-300 bg-[var(--bg-sidebar)] ${
           isCollapsed ? 'w-[72px]' : 'w-[260px]'
         }`}
       >
@@ -339,10 +341,10 @@ export default function Sidebar({
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex animate-in fade-in duration-200">
           <div
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs"
             onClick={() => setIsMobileOpen && setIsMobileOpen(false)}
           />
-          <div className="relative z-50 h-full w-[280px] bg-white shadow-2xl animate-in slide-in-from-left duration-250">
+          <div className="relative z-50 h-full w-[280px] bg-[var(--bg-sidebar)] border-r border-[var(--border-color)] shadow-2xl animate-in slide-in-from-left duration-250">
             {sidebarContent}
           </div>
         </div>

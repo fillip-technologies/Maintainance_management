@@ -92,21 +92,21 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
   const techniciansCount  = teamStats?.technicians  ?? 0;
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm flex flex-col gap-6">
+    <div className="bg-[var(--bg-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-color)] shadow-lg flex flex-col gap-6 text-white">
       {/* Outer Header */}
-      <div className="flex items-center justify-between gap-4 flex-wrap pb-2 border-b border-slate-100">
+      <div className="flex items-center justify-between gap-4 flex-wrap pb-3 border-b border-[var(--border-color)]">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+          <h2 className="text-xl font-bold text-white tracking-tight">
             Product Health &amp; Operations
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-400 mt-0.5">
             Real-time equipment operational distribution and zone personnel breakdown
           </p>
         </div>
 
         {/* Operational Health Badge */}
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold shadow-xs">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 text-xs font-semibold shadow-xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span>{healthRate}% Operational</span>
         </div>
       </div>
@@ -115,12 +115,12 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
         {/* ── LEFT SIDE: Donut Graph & Legend (col-span-7) ── */}
-        <div className="lg:col-span-7 bg-slate-50/70 border border-slate-200/80 rounded-2xl p-6 flex flex-col justify-between">
+        <div className="lg:col-span-7 bg-[var(--bg-sidebar)] border border-[var(--border-color)] rounded-2xl p-6 flex flex-col justify-between">
           <div className="mb-2">
-            <h3 className="text-sm font-bold text-slate-800 tracking-tight">
+            <h3 className="text-sm font-bold text-white tracking-tight">
               Product Health
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-400 mt-0.5">
               Real-time operational distribution and equipment readiness
             </p>
           </div>
@@ -137,7 +137,7 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
                   cx="80"
                   cy="80"
                   r={radius}
-                  stroke="#e2e8f0"
+                  stroke="var(--border-color)"
                   strokeWidth={strokeWidth}
                   fill="transparent"
                 />
@@ -167,10 +167,10 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
 
               {/* Center Label */}
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none select-none">
-                <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-none">
+                <span className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-none">
                   {activeArc ? activeArc.count : grandTotal}
                 </span>
-                <span className="text-xs font-semibold text-slate-500 mt-1">
+                <span className="text-xs font-semibold text-slate-400 mt-1">
                   {activeArc ? `${activeArc.label} (${activeArc.pct}%)` : 'Total Devices'}
                 </span>
               </div>
@@ -186,19 +186,19 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
                     onMouseEnter={() => setHovered(arc.key)}
                     onMouseLeave={() => setHovered(null)}
                     className={`flex items-center gap-3 cursor-pointer py-1.5 px-2.5 -mx-2.5 rounded-xl transition-all ${
-                      isHovered ? 'bg-slate-200/70' : 'hover:bg-slate-100'
+                      isHovered ? 'bg-[var(--bg-card-hover)]' : 'hover:bg-[var(--bg-card)]'
                     }`}
                   >
                     {/* Solid indicator dot */}
                     <span className={`w-3 h-3 rounded-full shrink-0 ${arc.dotClass}`} />
 
                     {/* Count */}
-                    <span className="text-base sm:text-lg font-extrabold text-slate-900 min-w-[24px]">
+                    <span className="text-base sm:text-lg font-extrabold text-white min-w-[24px]">
                       {arc.count}
                     </span>
 
                     {/* Label */}
-                    <span className="text-xs sm:text-sm font-medium text-slate-700">
+                    <span className="text-xs sm:text-sm font-medium text-slate-300">
                       {arc.label}
                     </span>
                   </div>
@@ -211,10 +211,10 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
         {/* ── RIGHT SIDE: Operations & Zone Personnel (col-span-5) ── */}
         <div className="lg:col-span-5 flex flex-col justify-between gap-3.5">
           <div>
-            <h3 className="text-sm font-bold text-slate-800 tracking-tight">
+            <h3 className="text-sm font-bold text-white tracking-tight">
               Operations &amp; Zone Personnel
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-400 mt-0.5">
               Click any card to inspect active assigned personnel
             </p>
           </div>
@@ -224,17 +224,17 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
             <button
               type="button"
               onClick={() => onCardClick?.('zone_officers')}
-              className="rounded-2xl p-4 border border-purple-200/80 bg-purple-50/70 hover:bg-purple-100/70 hover:border-purple-300 transition-all duration-200 flex items-center justify-between text-left cursor-pointer group shadow-xs hover:shadow-md hover:-translate-y-0.5 flex-1"
+              className="rounded-2xl p-4 border border-[var(--border-color)] bg-[var(--bg-sidebar)] hover:bg-[var(--bg-card-hover)] hover:border-purple-500/50 transition-all duration-200 flex items-center justify-between text-left cursor-pointer group shadow-sm hover:shadow-md hover:-translate-y-0.5 flex-1"
             >
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-purple-950/70 border border-purple-800/60 text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <Shield size={22} />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-xs font-semibold text-slate-600 tracking-tight">
+                  <span className="text-xs font-semibold text-slate-400 tracking-tight">
                     Zone Officers
                   </span>
-                  <span className="text-2xl font-extrabold text-slate-900 leading-none mt-1 block">
+                  <span className="text-2xl font-extrabold text-white leading-none mt-1 block">
                     {zoneOfficersCount}
                   </span>
                   <span className="text-[11px] text-slate-500 font-medium truncate block mt-0.5">
@@ -243,7 +243,7 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
                 </div>
               </div>
 
-              <span className="px-3 py-1 rounded-xl text-xs font-bold bg-purple-100 hover:bg-purple-200 text-purple-700 flex items-center gap-1 transition-colors shrink-0">
+              <span className="px-3 py-1 rounded-xl text-xs font-bold bg-purple-900/50 hover:bg-purple-800/60 text-purple-300 flex items-center gap-1 transition-colors shrink-0">
                 <span>Officers</span>
                 <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
               </span>
@@ -253,17 +253,17 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
             <button
               type="button"
               onClick={() => onCardClick?.('staff')}
-              className="rounded-2xl p-4 border border-teal-200/80 bg-teal-50/70 hover:bg-teal-100/70 hover:border-teal-300 transition-all duration-200 flex items-center justify-between text-left cursor-pointer group shadow-xs hover:shadow-md hover:-translate-y-0.5 flex-1"
+              className="rounded-2xl p-4 border border-[var(--border-color)] bg-[var(--bg-sidebar)] hover:bg-[var(--bg-card-hover)] hover:border-teal-500/50 transition-all duration-200 flex items-center justify-between text-left cursor-pointer group shadow-sm hover:shadow-md hover:-translate-y-0.5 flex-1"
             >
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-12 h-12 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-teal-950/70 border border-teal-800/60 text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <UserCheck size={22} />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-xs font-semibold text-slate-600 tracking-tight">
+                  <span className="text-xs font-semibold text-slate-400 tracking-tight">
                     Staff Members
                   </span>
-                  <span className="text-2xl font-extrabold text-slate-900 leading-none mt-1 block">
+                  <span className="text-2xl font-extrabold text-white leading-none mt-1 block">
                     {staffMembersCount}
                   </span>
                   <span className="text-[11px] text-slate-500 font-medium truncate block mt-0.5">
@@ -272,7 +272,7 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
                 </div>
               </div>
 
-              <span className="px-3 py-1 rounded-xl text-xs font-bold bg-teal-100 hover:bg-teal-200 text-teal-700 flex items-center gap-1 transition-colors shrink-0">
+              <span className="px-3 py-1 rounded-xl text-xs font-bold bg-teal-900/50 hover:bg-teal-800/60 text-teal-300 flex items-center gap-1 transition-colors shrink-0">
                 <span>Floor Staff</span>
                 <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
               </span>
@@ -282,17 +282,17 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
             <button
               type="button"
               onClick={() => onCardClick?.('technicians')}
-              className="rounded-2xl p-4 border border-amber-200/80 bg-amber-50/70 hover:bg-amber-100/70 hover:border-amber-300 transition-all duration-200 flex items-center justify-between text-left cursor-pointer group shadow-xs hover:shadow-md hover:-translate-y-0.5 flex-1"
+              className="rounded-2xl p-4 border border-[var(--border-color)] bg-[var(--bg-sidebar)] hover:bg-[var(--bg-card-hover)] hover:border-amber-500/50 transition-all duration-200 flex items-center justify-between text-left cursor-pointer group shadow-sm hover:shadow-md hover:-translate-y-0.5 flex-1"
             >
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-amber-950/70 border border-amber-800/60 text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <Wrench size={22} />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-xs font-semibold text-slate-600 tracking-tight">
+                  <span className="text-xs font-semibold text-slate-400 tracking-tight">
                     Technicians
                   </span>
-                  <span className="text-2xl font-extrabold text-slate-900 leading-none mt-1 block">
+                  <span className="text-2xl font-extrabold text-white leading-none mt-1 block">
                     {techniciansCount}
                   </span>
                   <span className="text-[11px] text-slate-500 font-medium truncate block mt-0.5">
@@ -301,7 +301,7 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
                 </div>
               </div>
 
-              <span className="px-3 py-1 rounded-xl text-xs font-bold bg-amber-100 hover:bg-amber-200 text-amber-800 flex items-center gap-1 transition-colors shrink-0">
+              <span className="px-3 py-1 rounded-xl text-xs font-bold bg-amber-900/50 hover:bg-amber-800/60 text-amber-300 flex items-center gap-1 transition-colors shrink-0">
                 <span>Engineers</span>
                 <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
               </span>
