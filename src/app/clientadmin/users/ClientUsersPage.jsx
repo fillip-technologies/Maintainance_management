@@ -113,10 +113,10 @@ export default function ClientUsersPage() {
       {/* Top Headline Banner */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 py-1">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
             Facility Team & User Roles
           </h1>
-          <p className="text-xs md:text-sm text-slate-500 max-w-2xl">
+          <p className="text-xs md:text-sm text-slate-400 max-w-2xl">
             Manage operational team access, assign Zone In-Charges and Floor Staff, allocate certified Technicians, and configure user permissions.
           </p>
         </div>
