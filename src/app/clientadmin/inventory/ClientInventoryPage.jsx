@@ -389,8 +389,8 @@ export default function ClientInventoryPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 py-1">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Inventory</h1>
-          <p className="text-xs text-slate-500">Hardware units for your organization — add, deploy, track status, raise defects.</p>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Inventory</h1>
+          <p className="text-xs text-slate-400">Hardware units for your organization — add, deploy, track status, raise defects.</p>
         </div>
         <div className="flex items-center gap-2.5 flex-wrap">
           <button onClick={fetchProducts} disabled={loading}

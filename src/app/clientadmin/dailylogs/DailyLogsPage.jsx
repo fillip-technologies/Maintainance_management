@@ -737,8 +737,8 @@ export default function DailyLogsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 py-1">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Activity Overview</h1>
-          <p className="text-xs md:text-sm text-slate-500 max-w-2xl">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Activity Overview</h1>
+          <p className="text-xs md:text-sm text-slate-400 max-w-2xl">
             Live device logs, raised queries, and the full product lifecycle for your facility.
           </p>
         </div>

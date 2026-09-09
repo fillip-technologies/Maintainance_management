@@ -56,5 +56,16 @@
   select[class*="bg-[var(--bg-sidebar)"] {
     color: #ffffff;
   }
+
+  /* Page headline contrast safeguard for dark website layout */
+  main > div > div > h1,
+  main > div > div > div > h1 {
+    color: var(--text-main);
+  }
+
+  .bg-white h1,
+  [class*="bg-white"] h1 {
+    color: #0f172a;
+  }
 }
 
