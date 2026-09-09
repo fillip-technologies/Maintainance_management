@@ -136,28 +136,8 @@ export default function ClientOverview() {
     provisionedProducts: stats.provisionedDevices  ?? 0,
   };
 
-  // Switch page background to clean white exclusively when viewing the Zone / Map page
-  useEffect(() => {
-    if (activeTab === 'zone') {
-      const mainEl = document.querySelector('main');
-      const contentWrapper = mainEl?.parentElement;
-      const prevMainBg = mainEl?.style.backgroundColor;
-      const prevWrapperBg = contentWrapper?.style.backgroundColor;
-
-      if (mainEl) mainEl.style.backgroundColor = '#f8fafc';
-      if (contentWrapper) contentWrapper.style.backgroundColor = '#f8fafc';
-
-      return () => {
-        if (mainEl) mainEl.style.backgroundColor = prevMainBg || '';
-        if (contentWrapper) contentWrapper.style.backgroundColor = prevWrapperBg || '';
-      };
-    }
-  }, [activeTab]);
-
   return (
-    <div className={`flex flex-col gap-6 pb-12 animate-in fade-in duration-200 min-h-full ${
-      activeTab === 'zone' ? 'bg-[#f8fafc] text-slate-900' : 'bg-[var(--bg-main)] text-slate-100'
-    }`}>
+    <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 min-h-full bg-[var(--bg-main)] text-slate-100">
 
       {/* Analytics tab */}
       {activeTab === 'analytics' && (
@@ -181,14 +161,14 @@ export default function ClientOverview() {
         </>
       )}
 
-      {/* Zone View tab — clean white canvas exclusively for map & zone cards */}
+      {/* Zone View tab — dark theme matching master layout */}
       {activeTab === 'zone' && (
-        <div className="flex flex-col gap-4 -m-3.5 sm:-m-6 md:-m-8 p-3.5 sm:p-6 md:p-8 min-h-screen bg-[#f8fafc]">
+        <div className="flex flex-col gap-4 min-h-screen">
           <div>
             <button
               type="button"
               onClick={() => setActiveTab('analytics')}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200/90 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-200 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl hover:bg-[var(--bg-card-hover)] hover:text-white hover:border-[var(--border-hover)] transition-all shadow-xs cursor-pointer"
             >
               ← Back to Dashboard Overview
             </button>

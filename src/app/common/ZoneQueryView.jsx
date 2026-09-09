@@ -211,7 +211,7 @@ function buildProductCategories(allDevices) {
   return Object.values(catMap).sort((a, b) => b.total - a.total);
 }
 
-// ── Product card — matching the clean enterprise equipment design ─────────
+// ── Product card — matching the clean enterprise equipment design (Dark Theme) ──
 function ProductCard({ cat, onClick }) {
   const { Component: SvgVisual, isLink } = getEquipmentVisual(cat.name);
   const total = cat.total ?? 0;
@@ -223,11 +223,11 @@ function ProductCard({ cat, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="group flex flex-col justify-between bg-white hover:bg-slate-50/60 border border-slate-200/90 hover:border-slate-300 rounded-2xl p-4 sm:p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer text-left w-full focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+      className="group flex flex-col justify-between bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] hover:border-[var(--border-hover)] rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 cursor-pointer text-left w-full focus:outline-none focus:ring-2 focus:ring-blue-500/30"
     >
       {/* Top section: Icon on left, Name directly adjacent, Big number on far right */}
       <div className="flex items-center justify-between gap-2 w-full">
-        <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="shrink-0 flex items-center justify-center">
             {cat.imageUrl ? (
               <img
@@ -240,12 +240,12 @@ function ProductCard({ cat, onClick }) {
             )}
           </div>
 
-          <span className="text-xs sm:text-sm font-semibold text-slate-700 truncate" title={cat.name}>
+          <span className="text-xs sm:text-sm font-semibold text-slate-200 group-hover:text-white transition-colors truncate" title={cat.name}>
             {cat.name}
           </span>
         </div>
 
-        <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-none shrink-0">
+        <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-none shrink-0">
           {total}
         </span>
       </div>
@@ -254,26 +254,26 @@ function ProductCard({ cat, onClick }) {
       <div className="mt-5 flex flex-col gap-2 w-full">
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
-            <span className="text-slate-600 font-medium">{isLink ? 'Active' : 'Online'}</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0 shadow-xs shadow-emerald-400/30" />
+            <span className="text-slate-300 font-medium">{isLink ? 'Active' : 'Online'}</span>
           </div>
-          <span className="font-bold text-slate-900">{working}</span>
+          <span className="font-bold text-white">{working}</span>
         </div>
 
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
-            <span className="text-slate-600 font-medium">{isLink ? 'Down' : 'Offline'}</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0 shadow-xs shadow-rose-500/30" />
+            <span className="text-slate-300 font-medium">{isLink ? 'Down' : 'Offline'}</span>
           </div>
-          <span className="font-bold text-slate-900">{faulty}</span>
+          <span className="font-bold text-white">{faulty}</span>
         </div>
 
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0" />
-            <span className="text-slate-600 font-medium">Maintenance</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0 shadow-xs shadow-amber-400/30" />
+            <span className="text-slate-300 font-medium">Maintenance</span>
           </div>
-          <span className="font-bold text-slate-900">{maintenance}</span>
+          <span className="font-bold text-white">{maintenance}</span>
         </div>
       </div>
     </button>
@@ -431,16 +431,16 @@ export default function ZoneQueryView({ clientId, initialCat } = {}) {
   const offlineRate = totalDevCount > 0 ? Math.round((offlineDevCount / totalDevCount) * 100) : 0;
   const maintRate   = totalDevCount > 0 ? Math.round((maintDevCount / totalDevCount) * 100) : 0;
 
-// ── Skeleton Loader matching the Safari Map & Zones Dashboard ─────────────
+// ── Skeleton Loader matching the Safari Map & Zones Dashboard (Dark Theme) ──
 function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
   return (
-    <div className="flex flex-col gap-5 text-slate-900 animate-in fade-in duration-200">
+    <div className="flex flex-col gap-5 text-white animate-in fade-in duration-200">
       {/* 1. Breadcrumb Bar Skeleton */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-2.5 sm:p-3 shadow-xs flex items-center gap-2 animate-pulse">
-        <div className="h-7 w-20 bg-slate-100 rounded-xl" />
-        <div className="w-3 h-3 bg-slate-200 rounded-full" />
-        <div className="h-7 w-24 bg-blue-100 rounded-xl flex items-center justify-center">
-          <span className="text-xs font-bold text-blue-600 opacity-60">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-2.5 sm:p-3 shadow-md flex items-center gap-2 animate-pulse">
+        <div className="h-7 w-20 bg-[var(--bg-card-hover)] rounded-xl" />
+        <div className="w-3 h-3 bg-slate-700 rounded-full" />
+        <div className="h-7 w-24 bg-blue-600/30 border border-blue-500/40 rounded-xl flex items-center justify-center">
+          <span className="text-xs font-bold text-blue-400 opacity-80">
             {selectedCategoryName || 'Loading…'}
           </span>
         </div>
@@ -449,16 +449,16 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
       {/* 2. Top 4 KPI Metric Cards Skeleton */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs flex flex-col justify-between gap-3 animate-pulse">
+          <div key={i} className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-md flex flex-col justify-between gap-3 animate-pulse">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-slate-100 shrink-0" />
+              <div className="w-11 h-11 rounded-full bg-[var(--bg-card-hover)] shrink-0" />
               <div className="flex flex-col gap-1.5 flex-1">
-                <div className="h-6 w-14 bg-slate-200 rounded-md" />
-                <div className="h-3 w-20 bg-slate-100 rounded" />
+                <div className="h-6 w-14 bg-slate-700 rounded-md" />
+                <div className="h-3 w-20 bg-slate-800 rounded" />
               </div>
             </div>
-            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-              <div className="h-full bg-slate-200 rounded-full w-2/5" />
+            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+              <div className="h-full bg-slate-700 rounded-full w-2/5" />
             </div>
           </div>
         ))}
@@ -467,56 +467,56 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
       {/* 3. Main Section Skeleton: Map on Left, All Zones Table on Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Left: Map Skeleton (7 cols) */}
-        <div className="lg:col-span-7 bg-white border border-slate-200/90 rounded-3xl shadow-xs overflow-hidden flex flex-col animate-pulse">
+        <div className="lg:col-span-7 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl shadow-md overflow-hidden flex flex-col animate-pulse">
           {/* Map Header */}
-          <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 border-b border-slate-100 bg-white">
+          <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 border-b border-[var(--border-color)] bg-[var(--bg-card)]">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-blue-50" />
-              <div className="h-4 w-28 bg-slate-200 rounded-md" />
+              <div className="w-7 h-7 rounded-lg bg-blue-500/20" />
+              <div className="h-4 w-28 bg-slate-700 rounded-md" />
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-7 w-24 bg-slate-100 rounded-xl" />
-              <div className="h-7 w-7 bg-slate-100 rounded-xl" />
+              <div className="h-7 w-24 bg-[var(--bg-card-hover)] rounded-xl" />
+              <div className="h-7 w-7 bg-[var(--bg-card-hover)] rounded-xl" />
             </div>
           </div>
 
           {/* Map Canvas Skeleton */}
-          <div className="relative w-full h-[360px] sm:h-[420px] bg-slate-100/90 flex flex-col items-center justify-center gap-2.5">
-            <div className="w-12 h-12 rounded-2xl bg-white/80 shadow-xs border border-slate-200/60 flex items-center justify-center text-blue-500">
-              <Loader2 size={24} className="animate-spin text-blue-600" />
+          <div className="relative w-full h-[360px] sm:h-[420px] bg-[var(--bg-main)] flex flex-col items-center justify-center gap-2.5">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--bg-card)] shadow-md border border-[var(--border-color)] flex items-center justify-center text-blue-400">
+              <Loader2 size={24} className="animate-spin text-blue-500" />
             </div>
-            <span className="text-xs font-semibold text-slate-500">Loading safari map & zones…</span>
+            <span className="text-xs font-semibold text-slate-400">Loading safari map & zones…</span>
           </div>
         </div>
 
         {/* Right: Table Skeleton (5 cols) */}
-        <div className="lg:col-span-5 bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col gap-3.5 animate-pulse">
+        <div className="lg:col-span-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-4 sm:p-5 shadow-md flex flex-col gap-3.5 animate-pulse">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <div className="h-5 w-20 bg-slate-200 rounded-md" />
-            <div className="h-4 w-14 bg-blue-100 rounded" />
+            <div className="h-5 w-20 bg-slate-700 rounded-md" />
+            <div className="h-4 w-14 bg-blue-600/30 rounded" />
           </div>
 
           {/* Table Skeleton Rows */}
-          <div className="rounded-2xl border border-slate-100 overflow-hidden w-full">
-            <div className="bg-[#f8fafc] px-3 py-2.5 border-b border-slate-100 flex items-center justify-between">
-              <div className="h-3 w-4 bg-slate-200 rounded" />
-              <div className="h-3 w-20 bg-slate-200 rounded" />
-              <div className="h-3 w-10 bg-slate-200 rounded" />
-              <div className="h-3 w-10 bg-slate-200 rounded" />
-              <div className="h-3 w-10 bg-slate-200 rounded" />
+          <div className="rounded-2xl border border-[var(--border-color)] overflow-hidden w-full">
+            <div className="bg-[var(--bg-card-hover)] px-3 py-2.5 border-b border-[var(--border-color)] flex items-center justify-between">
+              <div className="h-3 w-4 bg-slate-700 rounded" />
+              <div className="h-3 w-20 bg-slate-700 rounded" />
+              <div className="h-3 w-10 bg-slate-700 rounded" />
+              <div className="h-3 w-10 bg-slate-700 rounded" />
+              <div className="h-3 w-10 bg-slate-700 rounded" />
             </div>
-            <div className="divide-y divide-slate-100 bg-white">
+            <div className="divide-y divide-[var(--border-color)] bg-[var(--bg-card)]">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="px-3 py-3 flex items-center justify-between">
-                  <div className="h-3 w-4 bg-slate-100 rounded" />
+                  <div className="h-3 w-4 bg-slate-800 rounded" />
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-md bg-slate-100" />
-                    <div className="h-3.5 w-24 bg-slate-100 rounded" />
+                    <div className="w-6 h-6 rounded-md bg-slate-800" />
+                    <div className="h-3.5 w-24 bg-slate-800 rounded" />
                   </div>
-                  <div className="h-3 w-8 bg-slate-100 rounded" />
-                  <div className="h-3 w-8 bg-slate-100 rounded" />
-                  <div className="h-3 w-8 bg-slate-100 rounded" />
+                  <div className="h-3 w-8 bg-slate-800 rounded" />
+                  <div className="h-3 w-8 bg-slate-800 rounded" />
+                  <div className="h-3 w-8 bg-slate-800 rounded" />
                 </div>
               ))}
             </div>
@@ -544,15 +544,15 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col gap-5 text-slate-900">
+    <div className="flex flex-col gap-5 text-white">
 
       {/* ── Products view ─────────────────────────────────────────────────── */}
       {viewMode === 'products' && (
         <>
           {productCategories.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-2 text-slate-400 bg-white rounded-3xl border border-slate-200/90 shadow-xs">
+            <div className="flex flex-col items-center justify-center py-16 gap-2 text-slate-400 bg-[var(--bg-card)] rounded-3xl border border-[var(--border-color)] shadow-md">
               <Package size={30} className="opacity-40" />
-              <p className="text-sm font-medium">No products deployed yet</p>
+              <p className="text-sm font-medium text-slate-300">No products deployed yet</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -571,17 +571,17 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
       {/* ── Zones / devices view ──────────────────────────────────────────── */}
       {(viewMode === 'zones' || viewMode === 'devices') && (
         <>
-          {/* Breadcrumb Navigation — Light enterprise pill style */}
-          <nav className="flex items-center gap-2 flex-wrap text-xs bg-white border border-slate-200/90 rounded-2xl p-2.5 sm:p-3 shadow-xs">
+          {/* Breadcrumb Navigation — Dark enterprise pill style */}
+          <nav className="flex items-center gap-2 flex-wrap text-xs bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-2.5 sm:p-3 shadow-md">
             {/* Back to products */}
             <button
               onClick={handleBackToProducts}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-slate-200 bg-[var(--bg-card-hover)] hover:bg-[var(--border-color)] hover:text-white transition-colors cursor-pointer border border-[var(--border-color)]"
             >
               <ChevronLeft size={14} /> Products
             </button>
 
-            <ChevronRight size={14} className="text-slate-400 shrink-0" />
+            <ChevronRight size={14} className="text-slate-500 shrink-0" />
 
             {/* Category label */}
             <button
@@ -589,7 +589,7 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
               className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
                 breadcrumb.length === 0
                   ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-700 bg-slate-100 hover:bg-slate-200'
+                  : 'text-slate-300 bg-[var(--bg-card-hover)] hover:bg-[var(--border-color)] hover:text-white border border-[var(--border-color)]'
               }`}
             >
               {selectedCat?.name ?? 'All'}
@@ -598,13 +598,13 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
             {/* Zone breadcrumb */}
             {breadcrumb.map((crumb, i) => (
               <React.Fragment key={crumb.id}>
-                <ChevronRight size={14} className="text-slate-400 shrink-0" />
+                <ChevronRight size={14} className="text-slate-500 shrink-0" />
                 <button
                   onClick={() => goToBreadcrumb(i)}
                   className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
                     i === breadcrumb.length - 1
                       ? 'bg-blue-600 text-white shadow-xs'
-                      : 'text-slate-700 bg-slate-100 hover:bg-slate-200'
+                      : 'text-slate-300 bg-[var(--bg-card-hover)] hover:bg-[var(--border-color)] hover:text-white border border-[var(--border-color)]'
                   }`}
                 >
                   {crumb.name}
@@ -619,89 +619,89 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
               {/* ── Top 4 KPI Metric Cards ─────────────────────────────────── */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
                 {/* 1. Total Cameras / Equipment */}
-                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs flex items-center justify-between group hover:border-slate-300 transition-all">
+                <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-md flex items-center justify-between group hover:border-[var(--border-hover)] transition-all">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 shrink-0">
-                      <Camera size={20} className="text-slate-600" />
+                    <div className="w-11 h-11 rounded-full bg-[var(--bg-card-hover)] border border-[var(--border-color)] flex items-center justify-center text-slate-300 shrink-0">
+                      <Camera size={20} className="text-slate-300" />
                     </div>
                     <div>
-                      <div className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">
+                      <div className="text-xl sm:text-2xl font-extrabold text-white leading-none">
                         {totalDevCount}
                       </div>
-                      <div className="text-xs font-semibold text-slate-500 mt-1 truncate max-w-[100px]">
+                      <div className="text-xs font-semibold text-slate-400 mt-1 truncate max-w-[100px]">
                         Total {selectedCat?.name ?? 'Cameras'}
                       </div>
                     </div>
                   </div>
-                  <ChevronRight size={16} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
+                  <ChevronRight size={16} className="text-slate-500 group-hover:text-slate-300 transition-colors" />
                 </div>
 
                 {/* 2. Online */}
-                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs flex flex-col justify-between">
+                <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-md flex flex-col justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-full bg-emerald-500 flex items-center justify-center text-white shrink-0 shadow-xs shadow-emerald-500/20">
+                    <div className="w-11 h-11 rounded-full bg-emerald-500 flex items-center justify-center text-white shrink-0 shadow-xs shadow-emerald-500/30">
                       <Check size={20} strokeWidth={3} />
                     </div>
                     <div>
-                      <div className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">
+                      <div className="text-xl sm:text-2xl font-extrabold text-white leading-none">
                         {onlineDevCount}
                       </div>
-                      <div className="text-xs font-semibold text-slate-500 mt-1">
+                      <div className="text-xs font-semibold text-slate-400 mt-1">
                         Online
                       </div>
                     </div>
                   </div>
                   <div className="mt-3 flex items-center gap-2">
-                    <div className="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div className="flex-1 bg-slate-800 rounded-full h-1.5 overflow-hidden">
                       <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${onlineRate}%` }} />
                     </div>
-                    <span className="text-[11px] font-bold text-emerald-600">{onlineRate}%</span>
+                    <span className="text-[11px] font-bold text-emerald-400">{onlineRate}%</span>
                   </div>
                 </div>
 
                 {/* 3. Offline */}
-                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs flex flex-col justify-between">
+                <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-md flex flex-col justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-full bg-rose-500 flex items-center justify-center text-white shrink-0 shadow-xs shadow-rose-500/20">
+                    <div className="w-11 h-11 rounded-full bg-rose-500 flex items-center justify-center text-white shrink-0 shadow-xs shadow-rose-500/30">
                       <X size={20} strokeWidth={3} />
                     </div>
                     <div>
-                      <div className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">
+                      <div className="text-xl sm:text-2xl font-extrabold text-white leading-none">
                         {offlineDevCount}
                       </div>
-                      <div className="text-xs font-semibold text-slate-500 mt-1">
+                      <div className="text-xs font-semibold text-slate-400 mt-1">
                         Offline
                       </div>
                     </div>
                   </div>
                   <div className="mt-3 flex items-center gap-2">
-                    <div className="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div className="flex-1 bg-slate-800 rounded-full h-1.5 overflow-hidden">
                       <div className="bg-rose-500 h-full rounded-full transition-all duration-500" style={{ width: `${offlineRate}%` }} />
                     </div>
-                    <span className="text-[11px] font-bold text-rose-600">{offlineRate}%</span>
+                    <span className="text-[11px] font-bold text-rose-400">{offlineRate}%</span>
                   </div>
                 </div>
 
                 {/* 4. Maintenance */}
-                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs flex flex-col justify-between">
+                <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-md flex flex-col justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-full bg-amber-400 flex items-center justify-center text-white shrink-0 shadow-xs shadow-amber-400/20">
+                    <div className="w-11 h-11 rounded-full bg-amber-400 flex items-center justify-center text-white shrink-0 shadow-xs shadow-amber-400/30">
                       <Wrench size={19} />
                     </div>
                     <div>
-                      <div className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-none">
+                      <div className="text-xl sm:text-2xl font-extrabold text-white leading-none">
                         {maintDevCount}
                       </div>
-                      <div className="text-xs font-semibold text-slate-500 mt-1">
+                      <div className="text-xs font-semibold text-slate-400 mt-1">
                         Maintenance
                       </div>
                     </div>
                   </div>
                   <div className="mt-3 flex items-center gap-2">
-                    <div className="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div className="flex-1 bg-slate-800 rounded-full h-1.5 overflow-hidden">
                       <div className="bg-amber-400 h-full rounded-full transition-all duration-500" style={{ width: `${maintRate}%` }} />
                     </div>
-                    <span className="text-[11px] font-bold text-amber-600">{maintRate}%</span>
+                    <span className="text-[11px] font-bold text-amber-400">{maintRate}%</span>
                   </div>
                 </div>
               </div>
@@ -710,14 +710,14 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
                 {/* Left: Zoo Safari Map (7 cols when normal, 12 cols when expanded) */}
-                <div className={`${isMapExpanded ? 'lg:col-span-12' : 'lg:col-span-7'} bg-white border border-slate-200/90 rounded-3xl shadow-xs flex flex-col overflow-hidden transition-all duration-300`}>
+                <div className={`${isMapExpanded ? 'lg:col-span-12' : 'lg:col-span-7'} bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl shadow-md flex flex-col overflow-hidden transition-all duration-300`}>
                   {/* Map Header */}
-                  <div className="flex items-center justify-between gap-3 flex-wrap px-4 sm:px-5 py-3 sm:py-3.5 border-b border-slate-100 bg-white">
+                  <div className="flex items-center justify-between gap-3 flex-wrap px-4 sm:px-5 py-3 sm:py-3.5 border-b border-[var(--border-color)] bg-[var(--bg-card)]">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                      <div className="w-7 h-7 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center font-bold">
                         <MapPin size={16} />
                       </div>
-                      <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                      <h2 className="text-base font-bold text-white tracking-tight">
                         Zoo Safari Map
                       </h2>
                     </div>
@@ -727,11 +727,11 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
                       <select
                         value={selectedZoneId}
                         onChange={(e) => setSelectedZoneId(e.target.value)}
-                        className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-100 cursor-pointer"
+                        className="px-3 py-1.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card-hover)] text-xs font-semibold text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 cursor-pointer"
                       >
-                        <option value="all">All Zones</option>
+                        <option value="all" className="bg-[#0c172c] text-white">All Zones</option>
                         {currentZones.map((z) => (
-                          <option key={z.id} value={z.id}>{z.name}</option>
+                          <option key={z.id} value={z.id} className="bg-[#0c172c] text-white">{z.name}</option>
                         ))}
                       </select>
 
@@ -739,7 +739,7 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
                       <button
                         type="button"
                         onClick={() => setIsMapExpanded((prev) => !prev)}
-                        className="p-1.5 rounded-xl border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-xl border border-[var(--border-color)] text-slate-300 hover:text-white hover:bg-[var(--bg-card-hover)] transition-colors cursor-pointer"
                         title={isMapExpanded ? 'Collapse Map' : 'Expand Map'}
                       >
                         {isMapExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
@@ -785,9 +785,9 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
                               : 'hover:scale-105 z-10 shadow-lg'
                           }`}
                         >
-                          <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl px-2.5 py-2 flex items-center gap-2.5 shadow-md hover:border-blue-400/80">
+                          <div className="bg-[#0c172c]/95 backdrop-blur-md border border-[var(--border-color)] rounded-2xl px-2.5 py-2 flex items-center gap-2.5 shadow-xl hover:border-blue-400/80">
                             {/* Zone Avatar */}
-                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 overflow-hidden text-slate-700 p-0.5">
+                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[var(--bg-card-hover)] border border-[var(--border-color)] flex items-center justify-center shrink-0 overflow-hidden text-slate-200 p-0.5">
                               {zone.logoUrl || zone.imageUrl ? (
                                 <img src={zone.logoUrl || zone.imageUrl} alt={zone.name} className="w-full h-full object-contain" />
                               ) : (
@@ -797,24 +797,24 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
 
                             {/* Zone Details */}
                             <div className="flex flex-col min-w-0 text-left">
-                              <span className="text-xs font-bold text-slate-900 truncate max-w-[110px] sm:max-w-[130px]" title={zone.name}>
+                              <span className="text-xs font-bold text-white truncate max-w-[110px] sm:max-w-[130px]" title={zone.name}>
                                 {zone.name}
                               </span>
-                              <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-600 mt-0.5">
-                                <span className="flex items-center gap-1 font-bold text-slate-800">
+                              <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-300 mt-0.5">
+                                <span className="flex items-center gap-1 font-bold text-slate-200">
                                   <Camera size={11} className="text-slate-400" />
                                   {totalZoneCount}
                                 </span>
-                                <span className="flex items-center gap-1 text-emerald-700 font-bold">
+                                <span className="flex items-center gap-1 text-emerald-400 font-bold">
                                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                   {stats.working}
                                 </span>
-                                <span className={`flex items-center gap-1 font-bold ${stats.faulty > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${stats.faulty > 0 ? 'bg-rose-500' : 'bg-slate-300'}`} />
+                                <span className={`flex items-center gap-1 font-bold ${stats.faulty > 0 ? 'text-rose-400' : 'text-slate-500'}`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full ${stats.faulty > 0 ? 'bg-rose-500' : 'bg-slate-700'}`} />
                                   {stats.faulty}
                                 </span>
-                                <span className={`flex items-center gap-1 font-bold ${stats.underMaintenance > 0 ? 'text-amber-700' : 'text-slate-400'}`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${stats.underMaintenance > 0 ? 'bg-amber-400' : 'bg-slate-300'}`} />
+                                <span className={`flex items-center gap-1 font-bold ${stats.underMaintenance > 0 ? 'text-amber-400' : 'text-slate-500'}`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full ${stats.underMaintenance > 0 ? 'bg-amber-400' : 'bg-slate-700'}`} />
                                   {stats.underMaintenance}
                                 </span>
                               </div>
@@ -828,34 +828,34 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
 
                 {/* Right: All Zones Table (5 cols, or hidden if map expanded) */}
                 {!isMapExpanded && (
-                  <div className="lg:col-span-5 bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col gap-3.5">
+                  <div className="lg:col-span-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-4 sm:p-5 shadow-md flex flex-col gap-3.5">
                     {/* Header */}
                     <div className="flex items-center justify-between">
-                      <h3 className="text-base font-bold text-slate-900 tracking-tight">
+                      <h3 className="text-base font-bold text-white tracking-tight">
                         All Zones
                       </h3>
                       <button
                         type="button"
                         onClick={() => setSelectedZoneId('all')}
-                        className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
+                        className="text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
                       >
                         View All
                       </button>
                     </div>
 
                     {/* Table — Clean, no horizontal scrollbar, matching Image 2 */}
-                    <div className="rounded-2xl border border-slate-100 overflow-hidden w-full">
+                    <div className="rounded-2xl border border-[var(--border-color)] overflow-hidden w-full">
                       <table className="w-full text-left text-xs border-collapse">
-                        <thead className="bg-[#f8fafc] text-slate-600 font-bold border-b border-slate-100 text-xs">
+                        <thead className="bg-[var(--bg-card-hover)] text-slate-300 font-bold border-b border-[var(--border-color)] text-xs">
                           <tr>
                             <th className="py-2.5 px-3 w-8 text-center text-slate-400 font-semibold">#</th>
-                            <th className="py-2.5 px-3 font-semibold text-slate-600">Zone / Area</th>
-                            <th className="py-2.5 px-2 text-center w-16 font-semibold text-slate-600">Online</th>
-                            <th className="py-2.5 px-2 text-center w-16 font-semibold text-slate-600">Offline</th>
-                            <th className="py-2.5 px-2 text-center w-16 font-semibold text-slate-600">Maint.</th>
+                            <th className="py-2.5 px-3 font-semibold text-slate-300">Zone / Area</th>
+                            <th className="py-2.5 px-2 text-center w-16 font-semibold text-slate-300">Online</th>
+                            <th className="py-2.5 px-2 text-center w-16 font-semibold text-slate-300">Offline</th>
+                            <th className="py-2.5 px-2 text-center w-16 font-semibold text-slate-300">Maint.</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-[var(--border-color)]">
                           {currentZones.map((zone, idx) => {
                             const stats = zoneDeviceStats[zone.id] ?? { working: 0, faulty: 0, underMaintenance: 0 };
                             const ZoneIcon = getZoneIcon(zone.name);
@@ -873,40 +873,40 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
                                 onMouseLeave={() => setHoveredZoneId(null)}
                                 className={`cursor-pointer transition-colors ${
                                   isSelected || isHovered
-                                    ? 'bg-blue-50/70 font-semibold'
-                                    : 'hover:bg-slate-50/80'
+                                    ? 'bg-blue-950/40 font-semibold'
+                                    : 'hover:bg-[var(--bg-card-hover)]'
                                 }`}
                               >
                                 <td className="py-3 px-3 text-slate-400 font-medium text-center">{idx + 1}</td>
                                 <td className="py-3 px-3">
                                   <div className="flex items-center gap-2.5 min-w-0">
-                                    <div className="w-6 h-6 rounded-md bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden text-slate-700">
+                                    <div className="w-6 h-6 rounded-md bg-[var(--bg-card-hover)] border border-[var(--border-color)] flex items-center justify-center shrink-0 overflow-hidden text-slate-200">
                                       {zone.logoUrl || zone.imageUrl ? (
                                         <img src={zone.logoUrl || zone.imageUrl} alt={zone.name} className="w-full h-full object-contain" />
                                       ) : (
                                         <ZoneIcon size={14} />
                                       )}
                                     </div>
-                                    <span className="font-semibold text-slate-900 truncate" title={zone.name}>
+                                    <span className="font-semibold text-white truncate" title={zone.name}>
                                       {zone.name}
                                     </span>
                                   </div>
                                 </td>
                                 <td className="py-3 px-2 text-center">
-                                  <span className="inline-flex items-center justify-center gap-1.5 font-bold text-slate-700">
-                                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                                  <span className="inline-flex items-center justify-center gap-1.5 font-bold text-slate-200">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 shadow-xs shadow-emerald-400/30" />
                                     {stats.working}
                                   </span>
                                 </td>
                                 <td className="py-3 px-2 text-center">
-                                  <span className="inline-flex items-center justify-center gap-1.5 font-bold text-slate-700">
-                                    <span className={`w-2 h-2 rounded-full ${stats.faulty > 0 ? 'bg-rose-500' : 'bg-slate-300'} shrink-0`} />
+                                  <span className="inline-flex items-center justify-center gap-1.5 font-bold text-slate-200">
+                                    <span className={`w-2 h-2 rounded-full ${stats.faulty > 0 ? 'bg-rose-500' : 'bg-slate-700'} shrink-0 shadow-xs shadow-rose-500/30`} />
                                     {stats.faulty}
                                   </span>
                                 </td>
                                 <td className="py-3 px-2 text-center">
-                                  <span className="inline-flex items-center justify-center gap-1.5 font-bold text-slate-700">
-                                    <span className={`w-2 h-2 rounded-full ${stats.underMaintenance > 0 ? 'bg-amber-400' : 'bg-slate-300'} shrink-0`} />
+                                  <span className="inline-flex items-center justify-center gap-1.5 font-bold text-slate-200">
+                                    <span className={`w-2 h-2 rounded-full ${stats.underMaintenance > 0 ? 'bg-amber-400' : 'bg-slate-700'} shrink-0 shadow-xs shadow-amber-400/30`} />
                                     {stats.underMaintenance}
                                   </span>
                                 </td>
@@ -938,110 +938,110 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
               {devLoading ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4 animate-pulse">
                   {[...Array(8)].map((_, i) => (
-                    <div key={i} className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs flex flex-col justify-between h-[130px]">
+                    <div key={i} className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-md flex flex-col justify-between h-[130px]">
                       <div className="flex items-center justify-between">
-                        <div className="w-9 h-9 rounded-xl bg-slate-100" />
-                        <div className="h-4 w-12 bg-slate-100 rounded-full" />
+                        <div className="w-9 h-9 rounded-xl bg-slate-800" />
+                        <div className="h-4 w-12 bg-slate-800 rounded-full" />
                       </div>
                       <div className="flex flex-col gap-1.5 mt-4">
-                        <div className="h-3.5 w-20 bg-slate-200 rounded" />
-                        <div className="h-3 w-14 bg-slate-100 rounded" />
+                        <div className="h-3.5 w-20 bg-slate-700 rounded" />
+                        <div className="h-3 w-14 bg-slate-800 rounded" />
                       </div>
                     </div>
                   ))}
                 </div>
               ) : devices.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 gap-2 text-slate-400 bg-white rounded-3xl border border-slate-200/90 shadow-xs">
-                <Package size={30} className="opacity-40" />
-                <p className="text-sm font-medium">No {selectedCat?.name ?? 'devices'} in this zone</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
-                {devices.map((device) => {
-                  const isFaulty = device.status === 'faulty' || deviceIssueIds.has(device.id);
-                  const isMaint = device.status === 'under_maintenance';
-                  const isActive = !isFaulty && !isMaint && (device.status === 'active' || device.status === 'operational');
+                <div className="flex flex-col items-center justify-center py-16 gap-2 text-slate-400 bg-[var(--bg-card)] rounded-3xl border border-[var(--border-color)] shadow-md">
+                  <Package size={30} className="opacity-40" />
+                  <p className="text-sm font-medium text-slate-300">No {selectedCat?.name ?? 'devices'} in this zone</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
+                  {devices.map((device) => {
+                    const isFaulty = device.status === 'faulty' || deviceIssueIds.has(device.id);
+                    const isMaint = device.status === 'under_maintenance';
+                    const isActive = !isFaulty && !isMaint && (device.status === 'active' || device.status === 'operational');
 
-                  let statusInfo;
-                  if (isActive) {
-                    statusInfo = {
-                      cardBorder: 'border-emerald-200 hover:border-emerald-400',
-                      accentLine: 'bg-emerald-500',
-                      iconBox: 'bg-emerald-50 text-emerald-600 border border-emerald-200',
-                      Icon: CheckCircle2,
-                      badge: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-                      dot: 'bg-emerald-500',
-                      label: 'Active',
-                    };
-                  } else if (isMaint) {
-                    statusInfo = {
-                      cardBorder: 'border-amber-200 hover:border-amber-400',
-                      accentLine: 'bg-amber-400',
-                      iconBox: 'bg-amber-50 text-amber-700 border border-amber-200',
-                      Icon: Wrench,
-                      badge: 'bg-amber-50 text-amber-700 border border-amber-200',
-                      dot: 'bg-amber-400',
-                      label: 'Under Maintenance',
-                    };
-                  } else if (isFaulty) {
-                    statusInfo = {
-                      cardBorder: 'border-rose-200 hover:border-rose-400',
-                      accentLine: 'bg-rose-500',
-                      iconBox: 'bg-rose-50 text-rose-600 border border-rose-200',
-                      Icon: AlertCircle,
-                      badge: 'bg-rose-50 text-rose-700 border border-rose-200',
-                      dot: 'bg-rose-500',
-                      label: 'Faulty',
-                    };
-                  } else {
-                    statusInfo = {
-                      cardBorder: 'border-slate-200 hover:border-slate-300',
-                      accentLine: 'bg-slate-300',
-                      iconBox: 'bg-slate-100 text-slate-600 border border-slate-200',
-                      Icon: Package,
-                      badge: 'bg-slate-100 text-slate-600 border border-slate-200',
-                      dot: 'bg-slate-400',
-                      label: (device.status || 'Unknown').replace(/_/g, ' '),
-                    };
-                  }
+                    let statusInfo;
+                    if (isActive) {
+                      statusInfo = {
+                        cardBorder: 'border-emerald-500/40 hover:border-emerald-400',
+                        accentLine: 'bg-emerald-500',
+                        iconBox: 'bg-emerald-950/50 text-emerald-400 border border-emerald-800/60',
+                        Icon: CheckCircle2,
+                        badge: 'bg-emerald-950/50 text-emerald-400 border border-emerald-800/60',
+                        dot: 'bg-emerald-500',
+                        label: 'Active',
+                      };
+                    } else if (isMaint) {
+                      statusInfo = {
+                        cardBorder: 'border-amber-500/40 hover:border-amber-400',
+                        accentLine: 'bg-amber-400',
+                        iconBox: 'bg-amber-950/50 text-amber-400 border border-amber-800/60',
+                        Icon: Wrench,
+                        badge: 'bg-amber-950/50 text-amber-400 border border-amber-800/60',
+                        dot: 'bg-amber-400',
+                        label: 'Under Maintenance',
+                      };
+                    } else if (isFaulty) {
+                      statusInfo = {
+                        cardBorder: 'border-rose-500/40 hover:border-rose-400',
+                        accentLine: 'bg-rose-500',
+                        iconBox: 'bg-rose-950/50 text-rose-400 border border-rose-800/60',
+                        Icon: AlertCircle,
+                        badge: 'bg-rose-950/50 text-rose-400 border border-rose-800/60',
+                        dot: 'bg-rose-500',
+                        label: 'Faulty',
+                      };
+                    } else {
+                      statusInfo = {
+                        cardBorder: 'border-[var(--border-color)] hover:border-[var(--border-hover)]',
+                        accentLine: 'bg-slate-600',
+                        iconBox: 'bg-[var(--bg-card-hover)] text-slate-300 border border-[var(--border-color)]',
+                        Icon: Package,
+                        badge: 'bg-[var(--bg-card-hover)] text-slate-300 border border-[var(--border-color)]',
+                        dot: 'bg-slate-400',
+                        label: (device.status || 'Unknown').replace(/_/g, ' '),
+                      };
+                    }
 
-                  const StatusIcon = statusInfo.Icon;
+                    const StatusIcon = statusInfo.Icon;
 
-                  return (
-                    <div
-                      key={device.id}
-                      title={`${device.name} — ${statusInfo.label}`}
-                      className={`bg-white hover:bg-slate-50/60 rounded-2xl p-4 sm:p-5 border shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between text-center min-h-[140px] relative overflow-hidden group hover:-translate-y-0.5 ${statusInfo.cardBorder}`}
-                    >
-                      {/* Top 3px accent indicator line */}
-                      <div className={`absolute top-0 left-0 right-0 h-[3px] ${statusInfo.accentLine}`} />
+                    return (
+                      <div
+                        key={device.id}
+                        title={`${device.name} — ${statusInfo.label}`}
+                        className={`bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] rounded-2xl p-4 sm:p-5 border shadow-md hover:shadow-xl transition-all duration-200 flex flex-col justify-between text-center min-h-[140px] relative overflow-hidden group hover:-translate-y-0.5 ${statusInfo.cardBorder}`}
+                      >
+                        {/* Top 3px accent indicator line */}
+                        <div className={`absolute top-0 left-0 right-0 h-[3px] ${statusInfo.accentLine}`} />
 
-                      {/* Icon */}
-                      <div className="flex items-center justify-center pt-1">
-                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${statusInfo.iconBox} shadow-xs group-hover:scale-105 transition-transform`}>
-                          <StatusIcon size={22} />
+                        {/* Icon */}
+                        <div className="flex items-center justify-center pt-1">
+                          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${statusInfo.iconBox} shadow-xs group-hover:scale-105 transition-transform`}>
+                            <StatusIcon size={22} />
+                          </div>
+                        </div>
+
+                        {/* Device Name */}
+                        <div className="my-2.5">
+                          <p className="text-xs sm:text-sm font-extrabold text-white tracking-tight leading-tight line-clamp-2" title={device.name}>
+                            {device.name}
+                          </p>
+                        </div>
+
+                        {/* Status Badge Pill */}
+                        <div className="flex items-center justify-center">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${statusInfo.badge}`}>
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${statusInfo.dot}`} />
+                            <span>{statusInfo.label}</span>
+                          </span>
                         </div>
                       </div>
-
-                      {/* Device Name */}
-                      <div className="my-2.5">
-                        <p className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight leading-tight line-clamp-2" title={device.name}>
-                          {device.name}
-                        </p>
-                      </div>
-
-                      {/* Status Badge Pill */}
-                      <div className="flex items-center justify-center">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${statusInfo.badge}`}>
-                          <span className={`w-2 h-2 rounded-full shrink-0 ${statusInfo.dot}`} />
-                          <span>{statusInfo.label}</span>
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                    );
+                  })}
+                </div>
+              )}
           </div>
         )}
         </>
