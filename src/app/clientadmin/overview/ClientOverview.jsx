@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getDashboardSummary } from '../../api/dashboardApi';
+import { getDashboardSummary, getProductBreakdown } from '../../api/dashboardApi';
 import { getUsers } from '../../api/usersApi';
 import { socketClient } from '../../api/socketClient';
 import { ClientProductCards, ClientTeamCards } from './components/ClientStatCards';
@@ -33,6 +33,9 @@ export default function ClientOverview() {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isLive, setIsLive] = useState(false);
+  const [breakdown, setBreakdown] = useState({ categories: [], products: [] });
+  const [breakdownLoading, setBreakdownLoading] = useState(true);
+  const [breakdownError, setBreakdownError] = useState('');
   const [drawer, setDrawer] = useState(null);
   const [activeTab, setActiveTab] = useState('analytics'); // 'analytics' | 'zone'
   const [zoneInitialCat, setZoneInitialCat] = useState(null);
@@ -54,10 +57,14 @@ export default function ClientOverview() {
   const fetchStats = useCallback(async () => {
     try {
       const scopeParams = getScope();
-      const [data, usersData] = await Promise.all([
+      setBreakdownLoading(true);
+      setBreakdownError('');
+      const [data, usersData, breakdownData] = await Promise.all([
         getDashboardSummary(scopeParams),
-        getUsers({ limit: 100 })
+        getUsers({ limit: 100 }),
+        getProductBreakdown(scopeParams),
       ]);
+      setBreakdown(breakdownData);
 
       // Always reflect the API — even all-zeros. (Previously these were gated on
       // ">0" so placeholder demo numbers could show for empty data, which made the
@@ -78,8 +85,10 @@ export default function ClientOverview() {
       setLastUpdated(new Date());
     } catch (err) {
       console.error('[ClientOverview] Dashboard fetch error:', err.message);
+      setBreakdownError(err.message || 'Failed to load breakdown.');
     } finally {
       setLoading(false);
+      setBreakdownLoading(false);
     }
   }, [currentUser]);
 
@@ -172,16 +181,19 @@ export default function ClientOverview() {
       {/* Analytics tab */}
       {activeTab === 'analytics' && (
         <>
-          <ClientProductCards stats={cardStats} onCardClick={setDrawer} />
-          <ClientProductHealthCards
-            refreshTick={lastUpdated}
+          <ClientProductCards
+            categories={breakdown.categories}
+            provisionedCount={cardStats.provisionedProducts}
+            loading={breakdownLoading}
             onCategoryClick={(cat) => { setZoneInitialCat(cat); setActiveTab('zone'); }}
           />
-          <ClientProductCircleGraph
-            stats={stats}
-            teamStats={teamStats}
-            onCardClick={setDrawer}
+          <ClientProductHealthCards
+            products={breakdown.products}
+            loading={breakdownLoading}
+            error={breakdownError}
           />
+          <ClientProductCircleGraph stats={stats} />
+          <ClientTeamCards teamStats={teamStats} onCardClick={setDrawer} />
           {drawer && (
             <ClientDetailDrawer type={drawer} onClose={() => setDrawer(null)} />
           )}
