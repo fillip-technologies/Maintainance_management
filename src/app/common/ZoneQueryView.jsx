@@ -227,20 +227,20 @@ function ProductCard({ cat, onClick }) {
     >
       {/* Top section: Icon on left, Name directly adjacent, Big number on far right */}
       <div className="flex items-center justify-between gap-2 w-full">
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-3.5 min-w-0">
           <div className="shrink-0 flex items-center justify-center">
             {cat.imageUrl ? (
               <img
                 src={cat.imageUrl}
                 alt={cat.name}
-                className="w-12 h-12 object-contain"
+                className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
               />
             ) : (
-              <SvgVisual className="w-12 h-12" />
+              <SvgVisual className="w-16 h-16 sm:w-20 sm:h-20" />
             )}
           </div>
 
-          <span className="text-xs sm:text-sm font-semibold text-slate-200 group-hover:text-white transition-colors truncate" title={cat.name}>
+          <span className="text-xs sm:text-sm font-bold text-white group-hover:text-white transition-colors leading-tight break-words" title={cat.name}>
             {cat.name}
           </span>
         </div>
