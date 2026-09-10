@@ -6,16 +6,17 @@ import {
   FileWarning,
   CheckCircle2,
   X,
-  RefreshCw,
-  Wifi,
-  WifiOff,
   BarChart2,
   LayoutGrid,
   ChevronDown,
 } from 'lucide-react';
 
 import StatCard from './components/StatCard';
-import EquipmentStatusStats from './components/EquipmentStatusStats';
+import PlatformKpiCards from './components/PlatformKpiCards';
+import LocationsOverviewMap from './components/LocationsOverviewMap';
+import DeviceStatusDistribution from './components/DeviceStatusDistribution';
+import DevicesByLocationChart from './components/DevicesByLocationChart';
+import LocationCardsRow from './components/LocationCardsRow';
 import WorkOrderStatus from './components/WorkOrderStatus';
 import CriticalAlerts from './components/CriticalAlerts';
 import FacilityOverviewTable from './components/FacilityOverviewTable';
@@ -111,60 +112,28 @@ export default function Overview() {
         </div>
       )}
 
-      {/* Header — Title, Tab switcher, and Live status */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-1">
-        <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-            Dashboard
-          </h1>
-
-          {/* Tab nav */}
-          <div className="flex items-center bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-1.5 gap-1 shadow-inner">
-            <button
-              onClick={() => setActiveTab('analytics')}
-              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer
-                ${activeTab === 'analytics'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                  : 'text-slate-400 hover:text-white'}`}
-            >
-              <BarChart2 size={16} />
-              Analytics
-            </button>
-            <button
-              onClick={() => setActiveTab('zone')}
-              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer
-                ${activeTab === 'zone'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                  : 'text-slate-400 hover:text-white'}`}
-            >
-              <LayoutGrid size={16} />
-              Zone View
-            </button>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 text-xs shrink-0">
-          <span
-            className={`inline-flex items-center gap-1.5 font-semibold px-2.5 py-1 rounded-full border ${
-              isLive
-                ? 'bg-emerald-950/50 text-emerald-400 border-emerald-800/60'
-                : 'bg-slate-800 text-slate-400 border-slate-700'
-            }`}
-          >
-            {isLive ? <Wifi size={13} className="animate-pulse" /> : <WifiOff size={13} />}
-            {isLive ? 'Live' : 'Offline'}
-          </span>
-          {lastUpdated && (
-            <span className="text-slate-400 hidden sm:block">
-              Updated {lastUpdated.toLocaleTimeString()}
-            </span>
-          )}
+      {/* Header Tab Switcher (Analytics / Zone View) */}
+      <div className="flex items-center justify-end py-1">
+        <div className="flex items-center bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-1 gap-1 shadow-inner">
           <button
-            onClick={fetchOverview}
-            className="inline-flex items-center gap-1.5 bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-blue-500/50 hover:bg-[var(--bg-card-hover)] text-slate-300 hover:text-white font-semibold px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer"
+            onClick={() => setActiveTab('analytics')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer
+              ${activeTab === 'analytics'
+                ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
+                : 'text-slate-400 hover:text-white'}`}
           >
-            <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
-            Refresh
+            <BarChart2 size={13} />
+            Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab('zone')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer
+              ${activeTab === 'zone'
+                ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
+                : 'text-slate-400 hover:text-white'}`}
+          >
+            <LayoutGrid size={13} />
+            Zone View
           </button>
         </div>
       </div>
@@ -211,65 +180,32 @@ export default function Overview() {
       {/* ── Analytics tab ──────────────────────────────────────────────── */}
       {activeTab === 'analytics' && <>
 
-      {/* KPI stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Devices"
-          value={loading ? '—' : (devices?.total ?? 0).toLocaleString('en-IN')}
-          icon={Cpu}
-          iconBg="primary"
-        />
-        <StatCard
-          title="Open Work Orders"
-          value={loading ? '—' : (issues?.open ?? 0).toLocaleString('en-IN')}
-          icon={ClipboardList}
-          iconBg="cyan"
-        />
-        <StatCard
-          title="Critical Open"
-          value={loading ? '—' : (issues?.byPriority?.critical ?? 0).toLocaleString('en-IN')}
-          icon={AlertTriangle}
-          iconBg="purple"
-        />
-        <StatCard
-          title="Missing Today's Log"
-          value={loading ? '—' : (devices?.missingTodayLog ?? 0).toLocaleString('en-IN')}
-          icon={FileWarning}
-          iconBg="success"
-        />
-      </div>
-
-      {/* Tenancy quick strip */}
-      {tenancy && !loading && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {[
-            { label: 'Organizations', value: tenancy.companies },
-            { label: 'Clients', value: tenancy.clients },
-            { label: 'Zones', value: tenancy.zones },
-            { label: 'Users', value: tenancy.users },
-            { label: 'Technicians', value: tenancy.technicians },
-            { label: 'Faulty Devices', value: devices?.faulty ?? 0 }
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-[var(--border-hover)] rounded-xl px-3 py-2.5 flex flex-col shadow-xs transition-all"
-            >
-              <span className="text-lg font-extrabold text-white">{item.value}</span>
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
-                {item.label}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <EquipmentStatusStats
+      {/* 1. 7 KPI Stat Cards Banner */}
+      <PlatformKpiCards
+        tenancy={tenancy}
         devices={devices}
-        byHardwareType={overview?.byHardwareType}
         loading={loading}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      {/* 2. Middle Row: Locations Overview Map & List (Left) + Distribution & Location Bar Chart (Right) */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
+        {/* Left 7 cols: Interactive Satellite Map & Locations List */}
+        <div className="xl:col-span-7 flex flex-col">
+          <LocationsOverviewMap />
+        </div>
+
+        {/* Right 5 cols: Device Status Distribution Donut + Devices by Location Bar Chart */}
+        <div className="xl:col-span-5 flex flex-col gap-5">
+          <DeviceStatusDistribution devices={devices} loading={loading} />
+          <DevicesByLocationChart />
+        </div>
+      </div>
+
+      {/* 3. Bottom Row: 5 Location Operational Cards */}
+      <LocationCardsRow />
+
+      {/* Operational Sections */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-2">
         <WorkOrderStatus issues={issues} loading={loading} />
         <CriticalAlerts alerts={overview?.criticalAlerts} loading={loading} />
       </div>

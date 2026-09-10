@@ -239,3 +239,31 @@
   }
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   CUSTOM DARK SCROLLBAR — Sleek, subtle scrollbars for panels and tables
+   ───────────────────────────────────────────────────────────────────────────── */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #1e3a66 rgba(12, 23, 44, 0.6);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(12, 23, 44, 0.6);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #1e3a66;
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
+
+

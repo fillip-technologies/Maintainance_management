@@ -843,18 +843,19 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
                       </button>
                     </div>
 
-                    {/* Table — Clean, no horizontal scrollbar, matching Image 2 */}
-                    <div className="rounded-2xl border border-[var(--border-color)] overflow-hidden w-full">
-                      <table className="w-full text-left text-xs border-collapse">
-                        <thead className="bg-[var(--bg-card-hover)] text-slate-300 font-bold border-b border-[var(--border-color)] text-xs">
-                          <tr>
-                            <th className="py-2.5 px-3 w-8 text-center text-slate-400 font-semibold">#</th>
-                            <th className="py-2.5 px-3 font-semibold text-slate-300">Zone / Area</th>
-                            <th className="py-2.5 px-2 text-center w-16 font-semibold text-slate-300">Online</th>
-                            <th className="py-2.5 px-2 text-center w-16 font-semibold text-slate-300">Offline</th>
-                            <th className="py-2.5 px-2 text-center w-16 font-semibold text-slate-300">Maint.</th>
-                          </tr>
-                        </thead>
+                    {/* Table — Clean, with vertical scroll, fixed sticky header */}
+                    <div className="rounded-2xl border border-[var(--border-color)] overflow-hidden w-full flex flex-col">
+                      <div className="overflow-y-auto max-h-[420px] custom-scrollbar">
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead className="bg-[var(--bg-card-hover)] text-slate-300 font-bold border-b border-[var(--border-color)] text-xs sticky top-0 z-10">
+                            <tr>
+                              <th className="py-2.5 px-3 w-8 text-center text-slate-400 font-semibold bg-[var(--bg-card-hover)]">#</th>
+                              <th className="py-2.5 px-3 font-semibold text-slate-300 bg-[var(--bg-card-hover)]">Zone / Area</th>
+                              <th className="py-2.5 px-2 text-center w-16 font-semibold text-slate-300 bg-[var(--bg-card-hover)]">Online</th>
+                              <th className="py-2.5 px-2 text-center w-16 font-semibold text-slate-300 bg-[var(--bg-card-hover)]">Offline</th>
+                              <th className="py-2.5 px-2 text-center w-16 font-semibold text-slate-300 bg-[var(--bg-card-hover)]">Maint.</th>
+                            </tr>
+                          </thead>
                         <tbody className="divide-y divide-[var(--border-color)]">
                           {currentZones.map((zone, idx) => {
                             const stats = zoneDeviceStats[zone.id] ?? { working: 0, faulty: 0, underMaintenance: 0 };
@@ -917,7 +918,8 @@ function ZoneDashboardSkeleton({ selectedCategoryName = '' }) {
                       </table>
                     </div>
                   </div>
-                )}
+                </div>
+              )}
               </div>
             </div>
           )}

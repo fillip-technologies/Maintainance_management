@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getDashboardSummary, getProductBreakdown } from '../../api/dashboardApi';
 import { getUsers } from '../../api/usersApi';
 import { socketClient } from '../../api/socketClient';
-import { ClientProductCards, ClientTeamCards } from './components/ClientStatCards';
+import { ClientProductCards } from './components/ClientStatCards';
 import ClientProductCircleGraph from './components/ClientProductCircleGraph';
 import ClientProductHealthCards from './components/ClientProductHealthCards';
 import ClientDetailDrawer from './components/ClientDetailDrawer';
@@ -153,8 +153,11 @@ export default function ClientOverview() {
             loading={breakdownLoading}
             error={breakdownError}
           />
-          <ClientProductCircleGraph stats={stats} />
-          <ClientTeamCards teamStats={teamStats} onCardClick={setDrawer} />
+          <ClientProductCircleGraph
+            stats={stats}
+            teamStats={teamStats}
+            onCardClick={setDrawer}
+          />
           {drawer && (
             <ClientDetailDrawer type={drawer} onClose={() => setDrawer(null)} />
           )}
