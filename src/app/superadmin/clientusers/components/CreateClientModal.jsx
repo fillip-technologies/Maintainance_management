@@ -3,13 +3,20 @@ import { X, Building2, User, Mail, Lock, Eye, EyeOff, MapPin, ChevronDown } from
 import { createUser } from '../../../api/usersApi';
 import { createClient } from '../../../api/clientsApi';
 import { getCompanies } from '../../../api/companiesApi';
+import MapLocationPreviewField from '../../../common/components/MapLocationPreviewField';
 
 const EMPTY_FORM = {
   companyId: '',
   clientName: '',
+  facilityName: '',
   adminName: '',
   email: '',
   location: '',
+  imageUrl: '',
+  latitude: '',
+  longitude: '',
+  mapX: '',
+  mapY: '',
   password: ''
 };
 
@@ -54,7 +61,13 @@ export default function CreateClientModal({ isOpen, onClose, onCreated }) {
       const client = await createClient({
         companyId: formData.companyId,
         name: formData.clientName.trim(),
+        facilityName: formData.facilityName.trim() || undefined,
         location: formData.location.trim() || undefined,
+        imageUrl: formData.imageUrl.trim() || undefined,
+        latitude: formData.latitude ? Number(formData.latitude) : undefined,
+        longitude: formData.longitude ? Number(formData.longitude) : undefined,
+        mapX: formData.mapX ? Number(formData.mapX) : undefined,
+        mapY: formData.mapY ? Number(formData.mapY) : undefined,
       });
       if (!client?.id) throw new Error('Client was not created (no id returned).');
 
@@ -209,6 +222,38 @@ export default function CreateClientModal({ isOpen, onClose, onCreated }) {
               />
             </div>
           </div>
+
+          {/* Facility Image URL */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-slate-700">Facility Image / Logo URL (Optional)</label>
+            <input
+              type="url"
+              placeholder="https://example.com/facility.jpg"
+              value={formData.imageUrl}
+              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            />
+          </div>
+
+          {/* Map Location & Visual GPS Placement */}
+          <MapLocationPreviewField
+            mapX={formData.mapX}
+            mapY={formData.mapY}
+            latitude={formData.latitude}
+            longitude={formData.longitude}
+            location={formData.location}
+            facilityName={formData.facilityName || formData.clientName}
+            onChange={(coords) =>
+              setFormData((prev) => ({
+                ...prev,
+                mapX: coords.mapX != null ? coords.mapX : prev.mapX,
+                mapY: coords.mapY != null ? coords.mapY : prev.mapY,
+                latitude: coords.latitude != null ? coords.latitude : prev.latitude,
+                longitude: coords.longitude != null ? coords.longitude : prev.longitude,
+                location: coords.location ? coords.location : prev.location,
+              }))
+            }
+          />
 
           {/* Password */}
           <div className="flex flex-col gap-1.5">

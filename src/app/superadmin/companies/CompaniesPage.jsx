@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Building2,
   Plus,
@@ -100,6 +101,8 @@ export default function CompaniesPage() {
 
   const activeCount = companies.filter((c) => (c.status || 'active') === 'active').length;
   const inactiveCount = companies.length - activeCount;
+  const locationsCount = new Set(companies.filter((c) => c.location).map((c) => c.location)).size;
+  const totalClientsCount = Object.values(clientCounts).reduce((a, b) => a + b, 0);
 
   return (
     <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 relative">
@@ -122,37 +125,39 @@ export default function CompaniesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 py-1">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
             Organizations
           </h1>
-          <p className="text-xs md:text-sm text-slate-500 max-w-2xl">
-            Manage top-level organizations. Each client is created under an organization.
+          <p className="text-xs md:text-sm text-slate-400 max-w-2xl">
+            Manage top-level organizations. Each client facility is created under an organization.
           </p>
         </div>
 
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-indigo-200 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shrink-0"
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shrink-0"
         >
           <Plus size={16} />
           <span>Add Organization</span>
         </button>
       </div>
 
-      {/* KPI mini-cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* KPI Stat Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Organizations', value: companies.length, color: 'text-white' },
-          { label: 'Active', value: activeCount, color: 'text-emerald-400' },
-          { label: 'Inactive', value: inactiveCount, color: 'text-slate-400' }
+          { label: 'Total Organizations', value: companies.length, color: 'text-white', badge: 'Registered orgs' },
+          { label: 'Active Orgs', value: activeCount, color: 'text-emerald-400', badge: 'In operation' },
+          { label: 'Inactive Orgs', value: inactiveCount, color: 'text-slate-400', badge: 'Suspended/Inactive' },
+          { label: 'Managed Clients', value: totalClientsCount, color: 'text-indigo-400', badge: 'Active sites' },
         ].map((k) => (
           <div key={k.label} className="bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-[var(--border-hover)] rounded-2xl p-5 flex items-center justify-between shadow-md transition-all">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{k.label}</span>
-              <span className={`text-3xl font-extrabold tracking-tight ${k.color}`}>{k.value}</span>
+              <span className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${k.color}`}>{k.value}</span>
+              <span className="text-[11px] text-slate-500 font-medium">{k.badge}</span>
             </div>
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 shadow-xs">
-              <Building2 size={22} />
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 shadow-xs shrink-0">
+              <Building2 size={20} />
             </div>
           </div>
         ))}
@@ -176,27 +181,30 @@ export default function CompaniesPage() {
           )}
         </div>
 
+        {/* Status Filter */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          {[
-            { key: 'all', label: `All (${companies.length})`, active: 'bg-blue-600 text-white' },
-            { key: 'active', label: `Active (${activeCount})`, active: 'bg-emerald-600 text-white' },
-            { key: 'inactive', label: `Inactive (${inactiveCount})`, active: 'bg-slate-700 text-white' }
-          ].map((t) => (
+          {['all', 'active', 'inactive'].map((s) => (
             <button
-              key={t.key}
-              onClick={() => setStatusFilter(t.key)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                statusFilter === t.key ? `${t.active} shadow-xs` : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer capitalize ${
+                statusFilter === s
+                  ? s === 'active'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : s === 'inactive'
+                    ? 'bg-slate-700 text-white shadow-xs'
+                    : 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
               }`}
             >
-              {t.label}
+              {s} ({s === 'all' ? companies.length : s === 'active' ? activeCount : inactiveCount})
             </button>
           ))}
           <button
             onClick={fetchCompanies}
             disabled={loading}
             className="p-2 rounded-xl border border-[var(--border-color)] text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-1 cursor-pointer"
-            title="Refresh"
+            title="Refresh organizations"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
           </button>
@@ -245,8 +253,8 @@ export default function CompaniesPage() {
                   <tr key={c.id} className="hover:bg-[var(--bg-main)]/50 transition-colors group">
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
-                          <Building2 size={16} />
+                        <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+                          <Building2 size={18} />
                         </div>
                         <span className="font-bold text-white group-hover:text-blue-400 transition-colors">{c.name}</span>
                       </div>
@@ -262,7 +270,18 @@ export default function CompaniesPage() {
                         {status}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-300 font-medium">{count}</td>
+                    <td className="py-3.5 px-4">
+                      <Link
+                        to={`/superadmin/clients?companyId=${c.id}`}
+                        className="inline-flex items-center gap-1.5 font-bold text-blue-400 hover:text-blue-300 hover:underline transition-colors group/link"
+                        title={`View and manage clients for ${c.name}`}
+                      >
+                        <span>{count}</span>
+                        <span className="text-[10px] text-slate-500 font-normal group-hover/link:text-blue-300">
+                          manage →
+                        </span>
+                      </Link>
+                    </td>
                     <td className="py-3.5 px-4 text-slate-400">
                       {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '—'}
                     </td>

@@ -61,8 +61,19 @@ export default function ClientTable({ clients = [], onEditClient, onDeleteClient
                   {/* 1. Organization & Client */}
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
-                        <Building2 size={20} />
+                      <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform overflow-hidden">
+                        {client.imageUrl ? (
+                          <img
+                            src={client.imageUrl}
+                            alt={client.facilityName || 'Facility'}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <Building2 size={20} />
+                        )}
                       </div>
                       <div className="flex flex-col">
                         <span className="font-bold text-white group-hover:text-blue-400 transition-colors">
@@ -100,9 +111,16 @@ export default function ClientTable({ clients = [], onEditClient, onDeleteClient
 
                   {/* 3. Location */}
                   <td className="py-4 px-6">
-                    <div className="flex items-center gap-1.5 text-slate-300">
-                      <MapPin size={13} className="text-slate-400 shrink-0" />
-                      <span className="truncate max-w-[160px]">{client.location || '—'}</span>
+                    <div className="flex flex-col gap-0.5">
+                      <div className="flex items-center gap-1.5 text-slate-300">
+                        <MapPin size={13} className="text-slate-400 shrink-0" />
+                        <span className="truncate max-w-[160px]">{client.location || '—'}</span>
+                      </div>
+                      {client.latitude != null && client.longitude != null && (
+                        <span className="text-[10px] text-slate-500 font-mono pl-4">
+                          📍 {Number(client.latitude).toFixed(4)}, {Number(client.longitude).toFixed(4)}
+                        </span>
+                      )}
                     </div>
                   </td>
 
@@ -137,10 +155,9 @@ export default function ClientTable({ clients = [], onEditClient, onDeleteClient
                   <td className="py-4 px-6 text-right">
                     <div className="flex items-center justify-end gap-1.5">
                       <button
-                        onClick={() => hasAdmin && onEditClient && onEditClient(client)}
-                        disabled={!hasAdmin}
-                        className="p-1.5 rounded-lg border border-[var(--border-color)] transition-colors cursor-pointer text-slate-400 hover:text-blue-400 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
-                        title={hasAdmin ? 'Edit client admin' : 'No admin to edit'}
+                        onClick={() => onEditClient && onEditClient(client)}
+                        className="p-1.5 rounded-lg border border-[var(--border-color)] transition-colors cursor-pointer text-slate-400 hover:text-blue-400 hover:bg-slate-800"
+                        title="Edit client facility & admin"
                       >
                         <Edit3 size={14} />
                       </button>

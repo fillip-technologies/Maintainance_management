@@ -191,18 +191,30 @@ export default function Overview() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         {/* Left 7 cols: Interactive Satellite Map & Locations List */}
         <div className="xl:col-span-7 flex flex-col">
-          <LocationsOverviewMap />
+          <LocationsOverviewMap
+            facilities={overview?.facilities}
+            loading={loading}
+            className="h-full"
+          />
         </div>
 
         {/* Right 5 cols: Device Status Distribution Donut + Devices by Location Bar Chart */}
-        <div className="xl:col-span-5 flex flex-col gap-5">
-          <DeviceStatusDistribution devices={devices} loading={loading} />
-          <DevicesByLocationChart />
+        <div className="xl:col-span-5 flex flex-col gap-5 justify-between">
+          <DeviceStatusDistribution devices={devices} loading={loading} className="flex-1" />
+          <DevicesByLocationChart
+            facilities={overview?.facilities}
+            hardwareTypes={overview?.byHardwareType}
+            loading={loading}
+            className="flex-1"
+          />
         </div>
       </div>
 
-      {/* 3. Bottom Row: 5 Location Operational Cards */}
-      <LocationCardsRow />
+      {/* 3. Bottom Row: Location Operational Cards */}
+      <LocationCardsRow
+        facilities={overview?.facilities}
+        loading={loading}
+      />
 
       {/* Operational Sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-2">

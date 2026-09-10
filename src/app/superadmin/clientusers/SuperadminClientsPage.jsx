@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Building2, UserPlus, Search, X, CheckCircle2, RefreshCw } from 'lucide-react';
 import { getUsers } from '../../api/usersApi';
 import { getClients } from '../../api/clientsApi';
@@ -10,6 +11,9 @@ import EditClientModal from './components/EditClientModal';
 import DeleteClientModal from './components/DeleteClientModal';
 
 export default function SuperadminClientsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const companyFilter = searchParams.get('companyId');
+
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,11 +53,19 @@ export default function SuperadminClientsPage() {
         return {
           id: admin?.id ?? null,               // user id — null when no admin exists
           clientId: client.id,                  // always set from the client record
+          companyId: client.companyId,
           companyName: company?.name ?? '—',
           facilityName: client.facilityName ?? client.name ?? '—',
+          name: client.name,
           adminName: admin?.name ?? null,
           email: admin?.email ?? null,
           location: client.location ?? '—',
+          imageUrl: client.imageUrl ?? null,
+          latitude: client.latitude ?? null,
+          longitude: client.longitude ?? null,
+          mapX: client.mapX ?? null,
+          mapY: client.mapY ?? null,
+          pinColor: client.pinColor ?? null,
           status: admin?.accountStatus ?? 'no_admin',
           createdAt: client.createdAt ?? new Date().toISOString()
         };
@@ -89,7 +101,7 @@ export default function SuperadminClientsPage() {
   };
 
   const handleClientUpdated = (updatedClient) => {
-    showToast(`Client Admin "${updatedClient.name || updatedClient.adminName}" updated successfully!`);
+    showToast(`Client "${updatedClient.facilityName || updatedClient.name || updatedClient.adminName}" updated successfully!`);
     fetchClientUsers();
   };
 
@@ -99,7 +111,7 @@ export default function SuperadminClientsPage() {
     fetchClientUsers();
   };
 
-  // Filter clients based on search and status
+  // Filter clients based on search, status, and companyId query param
   const filteredClients = useMemo(() => {
     return clients.filter((c) => {
       const q = searchQuery.toLowerCase().trim();
@@ -112,10 +124,11 @@ export default function SuperadminClientsPage() {
         c.location?.toLowerCase().includes(q);
 
       const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
+      const matchesCompany = !companyFilter || c.companyId === companyFilter;
 
-      return matchesSearch && matchesStatus;
+      return matchesSearch && matchesStatus && matchesCompany;
     });
-  }, [clients, searchQuery, statusFilter]);
+  }, [clients, searchQuery, statusFilter, companyFilter]);
 
   return (
     <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 relative">
@@ -157,6 +170,31 @@ export default function SuperadminClientsPage() {
 
       {/* KPI Stats Cards */}
       <ClientStatCards clients={clients} />
+
+      {/* Filtered by Organization Banner */}
+      {companyFilter && (
+        <div className="flex items-center justify-between bg-blue-500/10 border border-blue-500/30 px-4 py-2.5 rounded-xl text-xs text-blue-300">
+          <div className="flex items-center gap-2">
+            <Building2 size={16} className="text-blue-400 shrink-0" />
+            <span>
+              Showing clients for organization:{' '}
+              <strong className="text-white">
+                {clients.find((c) => c.companyId === companyFilter)?.companyName || companyFilter}
+              </strong>
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              searchParams.delete('companyId');
+              setSearchParams(searchParams);
+            }}
+            className="flex items-center gap-1 text-xs text-blue-400 hover:text-white px-2 py-1 rounded-lg hover:bg-blue-500/20 transition-colors cursor-pointer"
+          >
+            <X size={13} />
+            <span>Clear filter</span>
+          </button>
+        </div>
+      )}
 
       {/* Search & Filter Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-[var(--bg-card)] p-3.5 rounded-2xl border border-[var(--border-color)] shadow-xs">

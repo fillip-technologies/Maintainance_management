@@ -25,18 +25,18 @@ function ExclamationIcon({ className = 'w-6 h-6 text-white' }) {
 }
 
 export default function PlatformKpiCards({ tenancy, devices, loading }) {
-  const total = devices?.total ?? 1246;
-  const working = devices?.working ?? 1182;
-  const faulty = devices?.faulty ?? 38;
-  const underMaintenance = devices?.underMaintenance ?? 26;
-  const organizations = tenancy?.companies ?? tenancy?.activeCompanies ?? 1;
-  const locations = tenancy?.zones ?? tenancy?.clients ?? 5;
+  const total = devices?.total ?? 0;
+  const working = devices?.working ?? 0;
+  const faulty = devices?.faulty ?? 0;
+  const underMaintenance = devices?.underMaintenance ?? 0;
+  const organizations = tenancy?.companies ?? tenancy?.activeCompanies ?? 0;
+  const locations = tenancy?.zones ?? tenancy?.clients ?? 0;
 
   const fmt = (n) => (loading ? '—' : (n ?? 0).toLocaleString('en-IN'));
 
-  const onlinePct = total > 0 ? ((working / total) * 100).toFixed(1) : '94.8';
-  const offlinePct = total > 0 ? ((faulty / total) * 100).toFixed(1) : '3.1';
-  const maintenancePct = total > 0 ? ((underMaintenance / total) * 100).toFixed(1) : '2.1';
+  const onlinePct = total > 0 ? ((working / total) * 100).toFixed(1) : '0';
+  const offlinePct = total > 0 ? ((faulty / total) * 100).toFixed(1) : '0';
+  const maintenancePct = total > 0 ? ((underMaintenance / total) * 100).toFixed(1) : '0';
 
   const cards = [
     {

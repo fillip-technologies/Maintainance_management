@@ -1,16 +1,16 @@
 import React from 'react';
 
-export default function DeviceStatusDistribution({ devices, loading }) {
-  const total = devices?.total ?? 1246;
-  const working = devices?.working ?? 1182;
-  const faulty = devices?.faulty ?? 38;
-  const underMaintenance = devices?.underMaintenance ?? 26;
+export default function DeviceStatusDistribution({ devices, loading, className = '' }) {
+  const total = devices?.total ?? 0;
+  const working = devices?.working ?? 0;
+  const faulty = devices?.faulty ?? 0;
+  const underMaintenance = devices?.underMaintenance ?? 0;
 
   const fmt = (n) => (loading ? '—' : (n ?? 0).toLocaleString('en-IN'));
 
-  const onlinePct = total > 0 ? (working / total) * 100 : 94.8;
-  const offlinePct = total > 0 ? (faulty / total) * 100 : 3.1;
-  const maintPct = total > 0 ? (underMaintenance / total) * 100 : 2.1;
+  const onlinePct = total > 0 ? (working / total) * 100 : 0;
+  const offlinePct = total > 0 ? (faulty / total) * 100 : 0;
+  const maintPct = total > 0 ? (underMaintenance / total) * 100 : 0;
 
   // SVG Donut calculation
   const radius = 56;
@@ -18,22 +18,22 @@ export default function DeviceStatusDistribution({ devices, loading }) {
   const circumference = 2 * Math.PI * radius; // ~351.86
 
   // Gap between segments in circumference units
-  const gap = 3;
-  const onlineLen = Math.max((onlinePct / 100) * circumference - gap, 0);
-  const offlineLen = Math.max((offlinePct / 100) * circumference - gap, 0);
-  const maintLen = Math.max((maintPct / 100) * circumference - gap, 0);
+  const gap = total > 0 ? 3 : 0;
+  const onlineLen = total > 0 ? Math.max((onlinePct / 100) * circumference - gap, 0) : 0;
+  const offlineLen = total > 0 ? Math.max((offlinePct / 100) * circumference - gap, 0) : 0;
+  const maintLen = total > 0 ? Math.max((maintPct / 100) * circumference - gap, 0) : 0;
 
   const onlineOffset = 0;
   const offlineOffset = -(onlineLen + gap);
   const maintOffset = -(onlineLen + gap + offlineLen + gap);
 
   return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 sm:p-6 flex flex-col gap-4 shadow-md">
-      <h3 className="text-base font-bold text-white tracking-tight">
+    <div className={`bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 sm:p-6 flex flex-col justify-between gap-4 shadow-md h-full flex-1 ${className}`}>
+      <h3 className="text-base font-bold text-white tracking-tight shrink-0">
         Device Status Distribution
       </h3>
 
-      <div className="flex items-center justify-around gap-4 flex-1">
+      <div className="flex items-center justify-around gap-4 flex-1 my-auto">
         {/* SVG Donut Chart */}
         <div className="relative w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center shrink-0">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 140 140">

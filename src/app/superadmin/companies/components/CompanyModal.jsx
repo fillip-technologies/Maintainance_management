@@ -2,12 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { X, Building2 } from 'lucide-react';
 import { createCompany, updateCompany } from '../../../api/companiesApi';
 
-/**
- * Create or edit a company (organization). `company` prop:
- *   null       → create mode
- *   { id,... } → edit mode
- * Matches backend contract: POST/PATCH /companies { name, status }.
- */
 export default function CompanyModal({ isOpen, company, onClose, onSaved }) {
   const isEdit = !!company?.id;
   const [name, setName] = useState('');
@@ -27,7 +21,7 @@ export default function CompanyModal({ isOpen, company, onClose, onSaved }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) {
-      setErrorMsg('Company name is required.');
+      setErrorMsg('Organization name is required.');
       return;
     }
     setErrorMsg(null);
@@ -37,11 +31,11 @@ export default function CompanyModal({ isOpen, company, onClose, onSaved }) {
       const saved = isEdit
         ? await updateCompany(company.id, payload)
         : await createCompany(payload);
-      if (!saved?.id) throw new Error('Company was not saved (no id returned).');
+      if (!saved?.id) throw new Error('Organization was not saved (no id returned).');
       onSaved(saved, isEdit ? 'edit' : 'create');
       onClose();
     } catch (err) {
-      setErrorMsg(err.message || 'Failed to save company.');
+      setErrorMsg(err.message || 'Failed to save organization.');
     } finally {
       setIsSubmitting(false);
     }
