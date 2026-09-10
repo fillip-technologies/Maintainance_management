@@ -43,6 +43,28 @@ export async function deleteClient(id) {
   return apiClient.request(`/clients/${id}`, { method: 'DELETE' });
 }
 
+export async function uploadClientImage(id, file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  const res = await apiClient.request(`/clients/${id}/image`, {
+    method: 'POST',
+    body: fd,
+    _multipart: true,
+  });
+  return res?.data ?? null;
+}
+
+export async function uploadClientImageDirect(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  const res = await apiClient.request('/clients/upload-image', {
+    method: 'POST',
+    body: fd,
+    _multipart: true,
+  });
+  return res?.data ?? null;
+}
+
 export async function getClientDependents(id) {
   const res = await apiClient.request(`/clients/${id}/dependents`, { method: 'GET' });
   return res?.data ?? null;

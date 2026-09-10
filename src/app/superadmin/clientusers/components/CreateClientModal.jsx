@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { X, Building2, User, Mail, Lock, Eye, EyeOff, MapPin, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Building2, User, Mail, Lock, Eye, EyeOff, MapPin, ChevronDown, Upload, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { createUser } from '../../../api/usersApi';
-import { createClient } from '../../../api/clientsApi';
+import { createClient, uploadClientImage } from '../../../api/clientsApi';
 import { getCompanies } from '../../../api/companiesApi';
 import MapLocationPreviewField from '../../../common/components/MapLocationPreviewField';
 
@@ -12,7 +12,6 @@ const EMPTY_FORM = {
   adminName: '',
   email: '',
   location: '',
-  imageUrl: '',
   latitude: '',
   longitude: '',
   mapX: '',
@@ -27,6 +26,9 @@ export default function CreateClientModal({ isOpen, onClose, onCreated }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -38,6 +40,19 @@ export default function CreateClientModal({ isOpen, onClose, onCreated }) {
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,18 +73,26 @@ export default function CreateClientModal({ isOpen, onClose, onCreated }) {
     setIsSubmitting(true);
 
     try {
-      const client = await createClient({
+      let client = await createClient({
         companyId: formData.companyId,
         name: formData.clientName.trim(),
         facilityName: formData.facilityName.trim() || undefined,
         location: formData.location.trim() || undefined,
-        imageUrl: formData.imageUrl.trim() || undefined,
         latitude: formData.latitude ? Number(formData.latitude) : undefined,
         longitude: formData.longitude ? Number(formData.longitude) : undefined,
         mapX: formData.mapX ? Number(formData.mapX) : undefined,
         mapY: formData.mapY ? Number(formData.mapY) : undefined,
       });
       if (!client?.id) throw new Error('Client was not created (no id returned).');
+
+      if (imageFile) {
+        try {
+          const updatedClient = await uploadClientImage(client.id, imageFile);
+          if (updatedClient) client = updatedClient;
+        } catch (uploadErr) {
+          console.error('Failed to upload client image to Cloudinary:', uploadErr);
+        }
+      }
 
       const newAdmin = await createUser({
         name: formData.adminName.trim(),
@@ -82,6 +105,8 @@ export default function CreateClientModal({ isOpen, onClose, onCreated }) {
       onCreated({ ...newAdmin, client });
       onClose();
       setFormData(EMPTY_FORM);
+      setImageFile(null);
+      setImagePreview(null);
     } catch (err) {
       setErrorMsg(err.message || 'Failed to provision client. The email may already exist.');
     } finally {
@@ -223,16 +248,58 @@ export default function CreateClientModal({ isOpen, onClose, onCreated }) {
             </div>
           </div>
 
-          {/* Facility Image URL */}
+          {/* Facility Image Upload */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700">Facility Image / Logo URL (Optional)</label>
-            <input
-              type="url"
-              placeholder="https://example.com/facility.jpg"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-            />
+            <label className="text-xs font-bold text-slate-700">
+              Facility Image / Logo <span className="text-slate-400 font-normal">(Optional)</span>
+            </label>
+            <div className="flex items-center gap-3">
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="w-16 h-16 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors shrink-0 overflow-hidden group/img relative"
+              >
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Facility preview" className="w-full h-full object-cover" />
+                ) : (
+                  <ImageIcon size={22} className="text-slate-300 group-hover/img:text-indigo-500 transition-colors" />
+                )}
+              </div>
+              <div className="flex flex-col gap-1 flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    <Upload size={13} /> {imagePreview ? 'Change Image' : 'Upload Image'}
+                  </button>
+                  {imagePreview && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
+                      title="Remove image"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </div>
+                {imageFile ? (
+                  <p className="text-[11px] text-slate-500 truncate" title={imageFile.name}>
+                    {imageFile.name} ({(imageFile.size / 1024).toFixed(0)} KB)
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-slate-400">PNG, JPG, or WEBP. Uploads to Cloudinary.</p>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+              />
+            </div>
           </div>
 
           {/* Map Location & Visual GPS Placement */}

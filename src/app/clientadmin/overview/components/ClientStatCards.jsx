@@ -23,7 +23,7 @@ function CategoryCard({ cat, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] hover:border-[var(--border-hover)] rounded-2xl p-4 sm:p-5 transition-all duration-200 cursor-pointer text-left group shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-between gap-3 sm:gap-4 focus:outline-none focus:ring-2 focus:ring-blue-500/40 w-full"
+      className="bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] hover:border-[var(--border-hover)] rounded-2xl p-4 sm:p-5 transition-all duration-200 cursor-pointer text-left group shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-between gap-3 sm:gap-4 focus:outline-none focus:ring-2 focus:ring-blue-500/40 w-full overflow-hidden"
     >
       {/* Left: Uploaded logo OR colored badge icon */}
       <div className={`w-12 h-12 sm:w-13 sm:h-13 rounded-full shrink-0 shadow-lg overflow-hidden flex items-center justify-center ${cat.imageUrl ? '' : `${badgeConfig.bgClass} text-white`}`}>
@@ -34,7 +34,7 @@ function CategoryCard({ cat, onClick }) {
       </div>
 
       {/* Middle: Big count + Category title */}
-      <div className="flex-1 min-w-0 flex flex-col justify-center">
+      <div className="flex-1 min-w-0 flex flex-col justify-center overflow-hidden">
         <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-none">
           {total}
         </span>
@@ -44,21 +44,21 @@ function CategoryCard({ cat, onClick }) {
       </div>
 
       {/* Right: 3 status rows with colored dots */}
-      <div className="flex flex-col gap-1.5 shrink-0 text-xs">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-1.5 shrink min-w-0 text-xs">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
           <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-          <span className="font-bold text-white min-w-[22px] text-right">{working}</span>
-          <span className="text-slate-400 text-xs">{isLink ? 'Active' : 'Online'}</span>
+          <span className="font-bold text-white min-w-[20px] text-right shrink-0">{working}</span>
+          <span className="text-slate-400 text-xs truncate" title={isLink ? 'Active' : 'Online'}>{isLink ? 'Active' : 'Online'}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
           <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
-          <span className="font-bold text-white min-w-[22px] text-right">{faulty}</span>
-          <span className="text-slate-400 text-xs">{isLink ? 'Down' : 'Offline'}</span>
+          <span className="font-bold text-white min-w-[20px] text-right shrink-0">{faulty}</span>
+          <span className="text-slate-400 text-xs truncate" title={isLink ? 'Down' : 'Offline'}>{isLink ? 'Down' : 'Offline'}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
           <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
-          <span className="font-bold text-white min-w-[22px] text-right">{maintenance}</span>
-          <span className="text-slate-400 text-xs">Maintenance</span>
+          <span className="font-bold text-white min-w-[20px] text-right shrink-0">{maintenance}</span>
+          <span className="text-slate-400 text-xs truncate" title="Maintenance">Maintenance</span>
         </div>
       </div>
     </button>
@@ -67,28 +67,28 @@ function CategoryCard({ cat, onClick }) {
 
 function CategoryCardSkeleton() {
   return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-3 sm:gap-4 animate-pulse">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-3 sm:gap-4 animate-pulse overflow-hidden">
       {/* Left: Round circle skeleton */}
       <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-[var(--border-color)]/60 shrink-0" />
 
       {/* Middle: Count + text skeleton */}
-      <div className="flex-1 min-w-0 flex flex-col gap-2">
+      <div className="flex-1 min-w-0 flex flex-col gap-2 overflow-hidden">
         <div className="h-6 w-12 bg-[var(--border-color)]/80 rounded-md" />
         <div className="h-3.5 w-24 bg-[var(--border-color)]/50 rounded-md" />
       </div>
 
       {/* Right: 3 status rows skeleton */}
-      <div className="flex flex-col gap-2 shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-emerald-500/30" />
+      <div className="flex flex-col gap-2 shrink min-w-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <div className="w-2 h-2 rounded-full bg-emerald-500/30 shrink-0" />
           <div className="h-3 w-14 bg-[var(--border-color)]/50 rounded" />
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-rose-500/30" />
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <div className="w-2 h-2 rounded-full bg-rose-500/30 shrink-0" />
           <div className="h-3 w-14 bg-[var(--border-color)]/50 rounded" />
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-amber-500/30" />
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <div className="w-2 h-2 rounded-full bg-amber-500/30 shrink-0" />
           <div className="h-3 w-14 bg-[var(--border-color)]/50 rounded" />
         </div>
       </div>

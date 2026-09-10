@@ -185,7 +185,7 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
                     key={arc.key}
                     onMouseEnter={() => setHovered(arc.key)}
                     onMouseLeave={() => setHovered(null)}
-                    className={`flex items-center gap-3 cursor-pointer py-1.5 px-2.5 -mx-2.5 rounded-xl transition-all ${
+                    className={`flex items-center gap-3 cursor-pointer py-1.5 px-2.5 -mx-2.5 rounded-xl transition-all min-w-0 ${
                       isHovered ? 'bg-[var(--bg-card-hover)]' : 'hover:bg-[var(--bg-card)]'
                     }`}
                   >
@@ -193,12 +193,12 @@ export default function ClientProductCircleGraph({ stats, teamStats, onCardClick
                     <span className={`w-3 h-3 rounded-full shrink-0 ${arc.dotClass}`} />
 
                     {/* Count */}
-                    <span className="text-base sm:text-lg font-extrabold text-white min-w-[24px]">
+                    <span className="text-base sm:text-lg font-extrabold text-white min-w-[24px] shrink-0">
                       {arc.count}
                     </span>
 
                     {/* Label */}
-                    <span className="text-xs sm:text-sm font-medium text-slate-300">
+                    <span className="text-xs sm:text-sm font-medium text-slate-300 truncate" title={arc.label}>
                       {arc.label}
                     </span>
                   </div>
