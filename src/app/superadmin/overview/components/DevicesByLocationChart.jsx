@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { CHART_PALETTE } from '../../../../tokens';
 
-const COLOR_PALETTE = ['#ef4444', '#3b82f6', '#10b981', '#8b5cf6', '#f97316', '#06b6d4', '#ec4899'];
+const COLOR_PALETTE = CHART_PALETTE;
 
 export default function DevicesByLocationChart({ facilities, locations, hardwareTypes = [], loading, className = '' }) {
   const [deviceFilter, setDeviceFilter] = useState('all');

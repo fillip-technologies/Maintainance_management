@@ -9,17 +9,12 @@ import { getProducts, createProduct, deployProduct, retireProduct, getCategories
 import { getZones } from '../../api/zonesApi';
 import { getIssues } from '../../api/issuesApi';
 import { socketClient } from '../../api/socketClient';
+import { DEVICE_STATUS_BADGE } from '../../../tokens';
 import ExcelImportModal from '../../common/ExcelImportModal';
 import RaiseQueryModal from '../../common/RaiseQueryModal';
 
 // ─── Status config ───────────────────────────────────────────────────────────
-const STATUS_META = {
-  provisioned:       { label: 'In Stock',         color: 'bg-slate-100 text-slate-600 border-slate-300',    dot: 'bg-slate-400' },
-  active:            { label: 'Active',            color: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
-  under_maintenance: { label: 'Under Maintenance', color: 'bg-amber-50 text-amber-700 border-amber-200',    dot: 'bg-amber-500' },
-  faulty:            { label: 'Faulty',            color: 'bg-rose-50 text-rose-700 border-rose-200',       dot: 'bg-rose-500' },
-  retired:           { label: 'Retired',           color: 'bg-slate-100 text-slate-400 border-slate-200',   dot: 'bg-slate-300' },
-};
+const STATUS_META = DEVICE_STATUS_BADGE;
 
 const STATUS_TABS = ['all', 'provisioned', 'active', 'under_maintenance', 'faulty', 'retired'];
 

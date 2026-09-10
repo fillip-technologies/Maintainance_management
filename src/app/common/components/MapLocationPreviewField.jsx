@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MapPin, Compass, Navigation, ChevronDown, ChevronUp, Sliders } from 'lucide-react';
 import MapLocationPickerModal from './MapLocationPickerModal';
 import satelliteMapImg from '../../../assets/locations/satellite_map.jpg';
+import { MAP_PIN_DEFAULT } from '../../../tokens';
 
 export default function MapLocationPreviewField({
   mapX,
@@ -9,7 +10,7 @@ export default function MapLocationPreviewField({
   latitude,
   longitude,
   location = '',
-  pinColor = '#3B82F6',
+  pinColor = MAP_PIN_DEFAULT,
   facilityName = '',
   onChange,
 }) {
@@ -35,14 +36,14 @@ export default function MapLocationPreviewField({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-          <MapPin size={13} className="text-blue-600" />
+        <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+          <MapPin size={13} className="text-blue-400" />
           <span>Map Location &amp; Coordinates</span>
         </label>
         <button
           type="button"
           onClick={() => setShowManualFields(!showManualFields)}
-          className="text-[11px] text-slate-400 hover:text-slate-600 font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+          className="text-[11px] text-slate-400 hover:text-slate-200 font-semibold flex items-center gap-1 transition-colors cursor-pointer"
         >
           <Sliders size={11} />
           <span>{showManualFields ? 'Hide manual fields' : 'Manual entry'}</span>
@@ -51,19 +52,19 @@ export default function MapLocationPreviewField({
       </div>
 
       {/* Visual Placement Card */}
-      <div className="p-3 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 flex items-center gap-3.5 shadow-2xs hover:border-slate-300 transition-colors">
+      <div className="p-3 rounded-2xl border border-slate-800 bg-slate-900/90 flex items-center gap-3.5 shadow-md hover:border-slate-700 transition-colors">
         {/* Mini Map Thumbnail Preview */}
         <div
           onClick={() => setIsPickerOpen(true)}
-          className="relative w-20 h-16 rounded-xl overflow-hidden border border-slate-300 bg-slate-950 shrink-0 cursor-pointer group shadow-xs"
+          className="relative w-20 h-16 rounded-xl overflow-hidden border border-slate-700 bg-slate-950 shrink-0 cursor-pointer group shadow-xs"
           title="Click to open map picker"
         >
           <img
             src={satelliteMapImg}
             alt="Mini Map"
-            className="w-full h-full object-cover brightness-75 contrast-110 group-hover:scale-105 transition-transform duration-200"
+            className="w-full h-full object-cover brightness-90 contrast-110 group-hover:scale-105 transition-transform duration-200"
           />
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
+          <div className="absolute inset-0 bg-black/25 group-hover:bg-black/0 transition-colors" />
 
           {/* Active Pin on Mini Map */}
           {displayX != null && displayY != null ? (
@@ -72,15 +73,15 @@ export default function MapLocationPreviewField({
               className="absolute -translate-x-1/2 -translate-y-1/2"
             >
               <div
-                className="w-3.5 h-3.5 rounded-full border border-white flex items-center justify-center shadow-md animate-pulse"
+                className="w-3.5 h-3.5 rounded-full border-2 border-white flex items-center justify-center shadow-md animate-pulse"
                 style={{ backgroundColor: pinColor }}
               >
-                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                <div className="w-1 h-1 rounded-full bg-white" />
               </div>
             </div>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <MapPin size={16} className="text-slate-400 animate-bounce" />
+              <MapPin size={16} className="text-blue-400 animate-bounce" />
             </div>
           )}
         </div>
@@ -89,23 +90,23 @@ export default function MapLocationPreviewField({
         <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
           {hasCoords ? (
             <div className="flex flex-col min-w-0">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+              <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 shadow-xs shadow-emerald-500/50" />
                 <span className="truncate">Placed on Map</span>
               </div>
               {location && (
-                <span className="text-[11px] font-semibold text-slate-600 truncate mt-0.5 max-w-[240px]" title={location}>
+                <span className="text-[11px] font-semibold text-slate-300 truncate mt-0.5 max-w-[240px]" title={location}>
                   📍 {location}
                 </span>
               )}
-              <div className="flex items-center gap-2 flex-wrap text-[10px] text-slate-500 font-mono mt-0.5">
+              <div className="flex items-center gap-2 flex-wrap text-[10px] text-slate-300 font-mono mt-0.5">
                 {displayX != null && (
-                  <span className="bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                  <span className="bg-slate-950/80 px-2 py-0.5 rounded-md border border-slate-800 text-slate-300">
                     X: {displayX}% • Y: {displayY}%
                   </span>
                 )}
                 {latitude && (
-                  <span className="bg-white px-1.5 py-0.5 rounded border border-slate-200 truncate">
+                  <span className="bg-slate-950/80 px-2 py-0.5 rounded-md border border-slate-800 text-slate-300 truncate">
                     GPS: {Number(latitude).toFixed(4)}, {Number(longitude).toFixed(4)}
                   </span>
                 )}
@@ -113,8 +114,8 @@ export default function MapLocationPreviewField({
             </div>
           ) : (
             <div className="flex flex-col">
-              <span className="text-xs font-bold text-slate-700">No Location Placed</span>
-              <span className="text-[11px] text-slate-400">Click the button to choose position on map</span>
+              <span className="text-xs font-bold text-white">No Location Placed</span>
+              <span className="text-[11px] text-slate-400">Click button or map preview to place on map</span>
             </div>
           )}
         </div>
@@ -123,7 +124,7 @@ export default function MapLocationPreviewField({
         <button
           type="button"
           onClick={() => setIsPickerOpen(true)}
-          className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 flex items-center gap-1.5 transition-all cursor-pointer shrink-0 hover:scale-[1.02] active:scale-[0.98]"
+          className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-blue-500/25 flex items-center gap-1.5 transition-all cursor-pointer shrink-0 hover:scale-[1.02] active:scale-[0.98]"
         >
           <MapPin size={14} />
           <span>{hasCoords ? 'Adjust on Map' : 'Pick on Map'}</span>
@@ -132,11 +133,11 @@ export default function MapLocationPreviewField({
 
       {/* Expandable Manual Inputs */}
       {showManualFields && (
-        <div className="p-3.5 rounded-2xl border border-slate-200 bg-white flex flex-col gap-3 animate-in slide-in-from-top-2 duration-150">
+        <div className="p-3.5 rounded-2xl border border-slate-800 bg-slate-950/70 flex flex-col gap-3 animate-in slide-in-from-top-2 duration-150">
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
-                <Navigation size={12} className="text-emerald-500" /> Latitude
+              <label className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
+                <Navigation size={12} className="text-emerald-400" /> Latitude
               </label>
               <input
                 type="number"
@@ -152,12 +153,12 @@ export default function MapLocationPreviewField({
                     longitude,
                   })
                 }
-                className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
+                className="w-full px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-900 text-white text-xs font-medium placeholder:text-slate-500 outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
-                <Navigation size={12} className="text-emerald-500" /> Longitude
+              <label className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
+                <Navigation size={12} className="text-emerald-400" /> Longitude
               </label>
               <input
                 type="number"
@@ -173,15 +174,15 @@ export default function MapLocationPreviewField({
                     longitude: e.target.value,
                   })
                 }
-                className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
+                className="w-full px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-900 text-white text-xs font-medium placeholder:text-slate-500 outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
-                <Compass size={12} className="text-blue-500" /> Map X Position (%)
+              <label className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
+                <Compass size={12} className="text-blue-400" /> Map X Position (%)
               </label>
               <input
                 type="number"
@@ -199,12 +200,12 @@ export default function MapLocationPreviewField({
                     longitude,
                   })
                 }
-                className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
+                className="w-full px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-900 text-white text-xs font-medium placeholder:text-slate-500 outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold text-slate-600 flex items-center gap-1">
-                <Compass size={12} className="text-blue-500" /> Map Y Position (%)
+              <label className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
+                <Compass size={12} className="text-blue-400" /> Map Y Position (%)
               </label>
               <input
                 type="number"
@@ -222,7 +223,7 @@ export default function MapLocationPreviewField({
                     longitude,
                   })
                 }
-                className="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-100"
+                className="w-full px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-900 text-white text-xs font-medium placeholder:text-slate-500 outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30"
               />
             </div>
           </div>

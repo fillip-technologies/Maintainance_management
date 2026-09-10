@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { getDevices } from '../api/devicesApi';
 import { getDailyLogs, submitDailyLog } from '../api/dailyLogsApi';
+import { LOG_STATUS_CONFIG, getLogStatusConfig } from '../../tokens';
 
 function todayISO() {
   const d = new Date();
@@ -17,37 +18,9 @@ function fmtDate(iso) {
   });
 }
 
-const STATUS_CFG = [
-  {
-    key:    'working',
-    label:  'Working',
-    icon:   CheckCircle2,
-    active: 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-100',
-    idle:   'bg-white border-slate-200 text-slate-500 hover:border-emerald-400 hover:text-emerald-700 hover:bg-emerald-50/60',
-    dot:    'bg-emerald-500',
-    badge:  'bg-emerald-100 text-emerald-700 border-emerald-200',
-  },
-  {
-    key:    'needs_attention',
-    label:  'Needs Attention',
-    icon:   AlertTriangle,
-    active: 'bg-amber-500 border-amber-500 text-white shadow-amber-100',
-    idle:   'bg-white border-slate-200 text-slate-500 hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50/60',
-    dot:    'bg-amber-500',
-    badge:  'bg-amber-100 text-amber-700 border-amber-200',
-  },
-  {
-    key:    'not_working',
-    label:  'Not Working',
-    icon:   XCircle,
-    active: 'bg-rose-600 border-rose-600 text-white shadow-rose-100',
-    idle:   'bg-white border-slate-200 text-slate-500 hover:border-rose-400 hover:text-rose-700 hover:bg-rose-50/60',
-    dot:    'bg-rose-500',
-    badge:  'bg-rose-100 text-rose-700 border-rose-200',
-  },
-];
+const STATUS_CFG = LOG_STATUS_CONFIG;
 
-const statusCfg = (key) => STATUS_CFG.find((s) => s.key === key);
+const statusCfg = getLogStatusConfig;
 
 export default function LogEntryPanel({ onSubmitted }) {
   const today = todayISO();

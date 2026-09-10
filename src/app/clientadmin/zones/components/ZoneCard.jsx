@@ -2,15 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, XCircle, Package, ArrowUpRight, MapPin, Plus, Trash2, Loader2, Settings } from 'lucide-react';
 import { deleteZone } from '../../../api/zonesApi';
+import { ZONE_GRADIENTS } from '../../../../tokens';
 
-const GRADIENT = [
-  'from-indigo-600 to-sky-500',
-  'from-violet-600 to-purple-500',
-  'from-emerald-600 to-teal-500',
-  'from-rose-600 to-pink-500',
-  'from-amber-600 to-orange-500',
-  'from-cyan-600 to-blue-500',
-];
+const GRADIENT = ZONE_GRADIENTS.map((g) => g.gradient);
 
 export default function ZoneCard({ zone, stats = {}, index = 0, basePath = '/clientadmin', onNotWorkingClick, onRaiseIssue, onDeleted, onManage }) {
   const navigate = useNavigate();

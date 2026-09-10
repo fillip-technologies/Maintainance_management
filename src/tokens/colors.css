@@ -1,0 +1,879 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   FIXLY — CENTRALIZED COLOR TOKENS
+   Single source of truth for every color in the application.
+   All CSS custom properties, Tailwind @theme integration, and dark-mode overrides.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LAYER 0 — Legacy Component Variables
+   Used directly by layout components via bg-[var(--bg-main)] etc.
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  --bg-main:        #0a0f1e;
+  --bg-sidebar:     #070b16;
+  --bg-header:      #0a0f1e;
+  --bg-card:        #111a2f;
+  --bg-card-hover:  #15213b;
+  --border-color:   rgba(255, 255, 255, 0.10);
+  --border-hover:   rgba(255, 255, 255, 0.18);
+  --text-main:      #f1f5f9;
+  --text-muted:     #94a3b8;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LAYER 1 — Surfaces
+   Dark-navy ramp: elevation is expressed by LIGHTER surfaces, not shadows.
+   base < inset < card < card-hover < elevated
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  --color-surface-base:       #0a0f1e;
+  --color-surface-sidebar:    #070b16;
+  --color-surface-card:       #111a2f;
+  --color-surface-card-hover: #15213b;
+  --color-surface-elevated:   #182540;
+  --color-surface-inset:      #0a1120;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LAYER 2 — Borders
+   Light white-alpha strokes (research: 1px rgba(255,255,255,0.08–0.12) borders
+   replace heavy shadows on dark UIs)
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  --color-border-default:  rgba(255, 255, 255, 0.10);
+  --color-border-hover:    rgba(255, 255, 255, 0.18);
+  --color-border-focus:    rgba(99, 102, 241, 0.55);
+  --color-border-divider:  rgba(255, 255, 255, 0.07);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LAYER 3 — Text
+   Primary uses off-white (#f1f5f9 ≈ 15:1 on card) to avoid pure-white halation.
+   Secondary ≥ 7:1 on card; tertiary ≥ 6:1 for small labels/placeholders.
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  --color-text-primary:   #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-tertiary:  #7c8db5;
+  --color-text-disabled:  #55627a;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LAYER 4 — Brand
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  --color-brand-primary:        #6366f1;
+  --color-brand-primary-hover:  #818cf8;
+  --color-brand-primary-muted:  rgba(99, 102, 241, 0.15);
+  --color-brand-primary-ring:   rgba(129, 140, 248, 0.55);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LAYER 5 — Semantic Status
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Success */
+  --color-success:       #22c55e;
+  --color-success-muted: rgba(34, 197, 94, 0.15);
+  --color-success-text:  #4ade80;
+  --color-success-border: rgba(34, 197, 94, 0.30);
+
+  /* Warning */
+  --color-warning:       #f59e0b;
+  --color-warning-muted: rgba(245, 158, 11, 0.15);
+  --color-warning-text:  #fbbf24;
+  --color-warning-border: rgba(245, 158, 11, 0.30);
+
+  /* Danger */
+  --color-danger:        #ef4444;
+  --color-danger-muted:  rgba(239, 68, 68, 0.15);
+  --color-danger-text:   #fda4af;
+  --color-danger-border: rgba(239, 68, 68, 0.30);
+
+  /* Info */
+  --color-info:          #3b82f6;
+  --color-info-muted:    rgba(59, 130, 246, 0.15);
+  --color-info-text:     #7dd3fc;
+  --color-info-border:   rgba(59, 130, 246, 0.30);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LAYER 6 — Interactive States
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  --color-interactive-hover:  rgba(255, 255, 255, 0.06);
+  --color-interactive-active: rgba(255, 255, 255, 0.10);
+  --color-interactive-disabled: #334155;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   TAILWIND v4 @theme INTEGRATION
+   Maps CSS vars to Tailwind utility classes.
+   Usage: bg-surface-card → var(--color-surface-card)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+@theme {
+  /* Legacy component variables */
+  --color-bg-main:          var(--bg-main);
+  --color-bg-sidebar:       var(--bg-sidebar);
+  --color-bg-header:        var(--bg-header);
+  --color-bg-card:          var(--bg-card);
+  --color-bg-card-hover:    var(--bg-card-hover);
+  --color-border-color:     var(--border-color);
+  --color-border-hover:     var(--border-hover);
+  --color-text-main:        var(--text-main);
+  --color-text-muted:       var(--text-muted);
+
+  /* Surfaces */
+  --color-surface-base:        var(--color-surface-base);
+  --color-surface-sidebar:     var(--color-surface-sidebar);
+  --color-surface-card:        var(--color-surface-card);
+  --color-surface-card-hover:  var(--color-surface-card-hover);
+  --color-surface-elevated:    var(--color-surface-elevated);
+  --color-surface-inset:       var(--color-surface-inset);
+
+  /* Borders */
+  --color-border-default:      var(--color-border-default);
+  --color-border-hover:        var(--color-border-hover);
+  --color-border-focus:        var(--color-border-focus);
+  --color-border-divider:      var(--color-border-divider);
+
+  /* Text */
+  --color-text-primary:        var(--color-text-primary);
+  --color-text-secondary:      var(--color-text-secondary);
+  --color-text-tertiary:       var(--color-text-tertiary);
+  --color-text-disabled:       var(--color-text-disabled);
+
+  /* Brand */
+  --color-brand:               var(--color-brand-primary);
+  --color-brand-hover:         var(--color-brand-primary-hover);
+  --color-brand-muted:         var(--color-brand-primary-muted);
+  --color-brand-ring:          var(--color-brand-primary-ring);
+
+  /* Status — Success */
+  --color-success:             var(--color-success);
+  --color-success-muted:       var(--color-success-muted);
+  --color-success-text:        var(--color-success-text);
+
+  /* Status — Warning */
+  --color-warning:             var(--color-warning);
+  --color-warning-muted:       var(--color-warning-muted);
+  --color-warning-text:        var(--color-warning-text);
+
+  /* Status — Danger */
+  --color-danger:              var(--color-danger);
+  --color-danger-muted:        var(--color-danger-muted);
+  --color-danger-text:         var(--color-danger-text);
+
+  /* Status — Info */
+  --color-info:                var(--color-info);
+  --color-info-muted:          var(--color-info-muted);
+  --color-info-text:           var(--color-info-text);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   DARK-MODE OVERRIDES
+   Components use light-mode Tailwind classes (bg-white, text-slate-900, etc.)
+   because the app is dark-first. These overrides force dark values.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* /* ── White / light backgrounds → card surface ── */
+main .bg-white,
+.fixed .bg-white,
+.fixed.bg-white,
+[role="dialog"] .bg-white,
+[role="dialog"].bg-white,
+.fixed.inset-0 .bg-white {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* ── Slate-50/100/200 backgrounds → subtle dark fill ── */
+main [class~="bg-slate-50"],
+main [class*="bg-slate-50/"],
+main [class~="bg-slate-100"],
+main [class*="bg-slate-100/"],
+main [class~="bg-slate-200"],
+main [class*="bg-slate-200/"],
+.fixed [class~="bg-slate-50"],
+.fixed [class*="bg-slate-50/"],
+.fixed [class~="bg-slate-100"],
+.fixed [class*="bg-slate-100/"],
+.fixed [class~="bg-slate-200"],
+.fixed [class*="bg-slate-200/"],
+[role="dialog"] [class~="bg-slate-50"],
+[role="dialog"] [class*="bg-slate-50/"],
+[role="dialog"] [class~="bg-slate-100"],
+[role="dialog"] [class*="bg-slate-100/"],
+[role="dialog"] [class~="bg-slate-200"],
+[role="dialog"] [class*="bg-slate-200/"] {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* ── Slate button pills (unselected tabs) ── */
+main button[class*="bg-slate-100"],
+main button[class*="bg-slate-200"],
+.fixed button[class*="bg-slate-100"],
+.fixed button[class*="bg-slate-200"],
+[role="dialog"] button[class*="bg-slate-100"],
+[role="dialog"] button[class*="bg-slate-200"] {
+  background-color: #1e293b !important;
+  color: #cbd5e1 !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+main button[class*="bg-slate-100"]:hover,
+main button[class*="bg-slate-200"]:hover,
+.fixed button[class*="bg-slate-100"]:hover,
+.fixed button[class*="bg-slate-200"]:hover,
+[role="dialog"] button[class*="bg-slate-100"]:hover,
+[role="dialog"] button[class*="bg-slate-200"]:hover {
+  background-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+/* ── Tab bar groups ── */
+main [class*="bg-slate-100"] > button,
+main [class*="bg-slate-50"] > button,
+main [class*="bg-slate-200"] > button,
+.fixed [class*="bg-slate-100"] > button,
+.fixed [class*="bg-slate-50"] > button,
+.fixed [class*="bg-slate-200"] > button,
+[role="dialog"] [class*="bg-slate-100"] > button,
+[role="dialog"] [class*="bg-slate-50"] > button,
+[role="dialog"] [class*="bg-slate-200"] > button {
+  color: var(--color-text-secondary);
+}
+
+main [class*="bg-slate-100"] > button.bg-white,
+main [class*="bg-slate-100"] > button[class*="bg-white"],
+main [class*="bg-slate-200"] > button.bg-white,
+main [class*="bg-slate-200"] > button[class*="bg-white"],
+main [class*="bg-slate-50"] > button.bg-white,
+main [class*="bg-slate-50"] > button[class*="bg-white"],
+.fixed [class*="bg-slate-100"] > button.bg-white,
+.fixed [class*="bg-slate-100"] > button[class*="bg-white"],
+.fixed [class*="bg-slate-200"] > button.bg-white,
+.fixed [class*="bg-slate-200"] > button[class*="bg-white"],
+.fixed [class*="bg-slate-50"] > button.bg-white,
+.fixed [class*="bg-slate-50"] > button[class*="bg-white"],
+[role="dialog"] [class*="bg-slate-100"] > button.bg-white,
+[role="dialog"] [class*="bg-slate-100"] > button[class*="bg-white"],
+[role="dialog"] [class*="bg-slate-200"] > button.bg-white,
+[role="dialog"] [class*="bg-slate-200"] > button[class*="bg-white"],
+[role="dialog"] [class*="bg-slate-50"] > button.bg-white,
+[role="dialog"] [class*="bg-slate-50"] > button[class*="bg-white"] {
+  background-color: var(--color-brand-primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ── Dark text overrides ── */
+main .text-slate-900,
+main .text-slate-800,
+.fixed .text-slate-900,
+.fixed .text-slate-800,
+[role="dialog"] .text-slate-900,
+[role="dialog"] .text-slate-800 {
+  color: var(--text-main) !important;
+}
+
+main .text-slate-700,
+main .text-slate-600,
+.fixed .text-slate-700,
+.fixed .text-slate-600,
+[role="dialog"] .text-slate-700,
+[role="dialog"] .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+main .text-slate-500,
+.fixed .text-slate-500,
+[role="dialog"] .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+
+/* ── Border overrides ── */
+main .border-slate-200,
+main .border-slate-100,
+main .border-slate-300,
+.fixed .border-slate-200,
+.fixed .border-slate-100,
+.fixed .border-slate-300,
+[role="dialog"] .border-slate-200,
+[role="dialog"] .border-slate-100,
+[role="dialog"] .border-slate-300 {
+  border-color: var(--border-color) !important;
+}
+
+main .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+main .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+.fixed .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.fixed .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+[role="dialog"] .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+[role="dialog"] .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border-color) !important;
+}
+
+/* ── Hover states ── */
+main .hover\:bg-slate-50:hover,
+main .hover\:bg-slate-50\/50:hover,
+main .hover\:bg-slate-50\/60:hover,
+main .hover\:bg-slate-100:hover,
+.fixed .hover\:bg-slate-50:hover,
+.fixed .hover\:bg-slate-50\/50:hover,
+.fixed .hover\:bg-slate-50\/60:hover,
+.fixed .hover\:bg-slate-100:hover,
+[role="dialog"] .hover\:bg-slate-50:hover,
+[role="dialog"] .hover\:bg-slate-50\/50:hover,
+[role="dialog"] .hover\:bg-slate-50\/60:hover,
+[role="dialog"] .hover\:bg-slate-100:hover {
+  background-color: var(--color-interactive-hover) !important;
+}
+
+main .focus-within\:bg-white:focus-within,
+main .focus\:bg-white:focus,
+.fixed .focus-within\:bg-white:focus-within,
+.fixed .focus\:bg-white:focus,
+[role="dialog"] .focus-within\:bg-white:focus-within,
+[role="dialog"] .focus\:bg-white:focus {
+  background-color: var(--bg-main) !important;
+}
+
+/* ── Tables ── */
+main table thead th {
+  background-color: var(--bg-main) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border-color) !important;
+}
+
+main table td {
+  border-color: var(--border-color) !important;
+}
+
+/* ── Inputs, selects, textareas ── */
+main input:where(:not([type="checkbox"]):not([type="radio"])),
+main select,
+main textarea,
+.fixed input:where(:not([type="checkbox"]):not([type="radio"])),
+.fixed select,
+.fixed textarea,
+[role="dialog"] input:where(:not([type="checkbox"]):not([type="radio"])),
+[role="dialog"] select,
+[role="dialog"] textarea {
+  background-color: var(--bg-main) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-main) !important;
+}
+
+main select option,
+.fixed select option,
+[role="dialog"] select option {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+}
+
+/* ── Inputs styled "bg-transparent" blend with their wrapper box ── */
+main input[class*="bg-transparent"],
+.fixed input[class*="bg-transparent"],
+[role="dialog"] input[class*="bg-transparent"] {
+  background-color: transparent !important;
+}
+
+main input::placeholder,
+main textarea::placeholder,
+.fixed input::placeholder,
+.fixed textarea::placeholder,
+[role="dialog"] input::placeholder,
+[role="dialog"] textarea::placeholder {
+  color: var(--color-text-tertiary) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DARK-MODE TEXT OVERRIDES
+   Light-mode "*-700/800/900" text is unreadable on dark surfaces (<2:1).
+   Map each hue family to its light 300/400 sibling.
+   ───────────────────────────────────────────────────────────────────────────── */
+main .text-emerald-900, main [class*="text-emerald-900/"],
+main .text-emerald-800, main [class*="text-emerald-800/"],
+main .text-emerald-700, main [class*="text-emerald-700/"],
+main .text-emerald-600, main [class*="text-emerald-600/"],
+main .text-green-900,   main [class*="text-green-900/"],
+main .text-green-800,   main [class*="text-green-800/"],
+main .text-green-700,   main [class*="text-green-700/"],
+main .text-green-600,   main [class*="text-green-600/"],
+main .text-teal-900,    main [class*="text-teal-900/"],
+main .text-teal-800,    main [class*="text-teal-800/"],
+main .text-teal-700,    main [class*="text-teal-700/"],
+main .text-teal-600,    main [class*="text-teal-600/"],
+.fixed .text-emerald-900, .fixed [class*="text-emerald-900/"],
+.fixed .text-emerald-800, .fixed [class*="text-emerald-800/"],
+.fixed .text-emerald-700, .fixed [class*="text-emerald-700/"],
+.fixed .text-emerald-600, .fixed [class*="text-emerald-600/"],
+.fixed .text-green-900,   .fixed [class*="text-green-900/"],
+.fixed .text-green-800,   .fixed [class*="text-green-800/"],
+.fixed .text-green-700,   .fixed [class*="text-green-700/"],
+.fixed .text-green-600,   .fixed [class*="text-green-600/"],
+.fixed .text-teal-900,    .fixed [class*="text-teal-900/"],
+.fixed .text-teal-800,    .fixed [class*="text-teal-800/"],
+.fixed .text-teal-700,    .fixed [class*="text-teal-700/"],
+.fixed .text-teal-600,    .fixed [class*="text-teal-600/"],
+[role="dialog"] .text-emerald-900, [role="dialog"] [class*="text-emerald-900/"],
+[role="dialog"] .text-emerald-800, [role="dialog"] [class*="text-emerald-800/"],
+[role="dialog"] .text-emerald-700, [role="dialog"] [class*="text-emerald-700/"],
+[role="dialog"] .text-emerald-600, [role="dialog"] [class*="text-emerald-600/"],
+[role="dialog"] .text-green-900,   [role="dialog"] [class*="text-green-900/"],
+[role="dialog"] .text-green-800,   [role="dialog"] [class*="text-green-800/"],
+[role="dialog"] .text-green-700,   [role="dialog"] [class*="text-green-700/"],
+[role="dialog"] .text-green-600,   [role="dialog"] [class*="text-green-600/"],
+[role="dialog"] .text-teal-900,    [role="dialog"] [class*="text-teal-900/"],
+[role="dialog"] .text-teal-800,    [role="dialog"] [class*="text-teal-800/"],
+[role="dialog"] .text-teal-700,    [role="dialog"] [class*="text-teal-700/"],
+[role="dialog"] .text-teal-600,    [role="dialog"] [class*="text-teal-600/"] {
+  color: #6ee7b7 !important;
+}
+
+main .text-rose-900,  main [class*="text-rose-900/"],
+main .text-rose-800,  main [class*="text-rose-800/"],
+main .text-rose-700,  main [class*="text-rose-700/"],
+main .text-rose-600,  main [class*="text-rose-600/"],
+main .text-red-900,   main [class*="text-red-900/"],
+main .text-red-800,   main [class*="text-red-800/"],
+main .text-red-700,   main [class*="text-red-700/"],
+main .text-red-600,   main [class*="text-red-600/"],
+main .text-pink-900,  main [class*="text-pink-900/"],
+main .text-pink-800,  main [class*="text-pink-800/"],
+main .text-pink-700,  main [class*="text-pink-700/"],
+main .text-pink-600,  main [class*="text-pink-600/"],
+.fixed .text-rose-900,  .fixed [class*="text-rose-900/"],
+.fixed .text-rose-800,  .fixed [class*="text-rose-800/"],
+.fixed .text-rose-700,  .fixed [class*="text-rose-700/"],
+.fixed .text-rose-600,  .fixed [class*="text-rose-600/"],
+.fixed .text-red-900,   .fixed [class*="text-red-900/"],
+.fixed .text-red-800,   .fixed [class*="text-red-800/"],
+.fixed .text-red-700,   .fixed [class*="text-red-700/"],
+.fixed .text-red-600,   .fixed [class*="text-red-600/"],
+.fixed .text-pink-900,  .fixed [class*="text-pink-900/"],
+.fixed .text-pink-800,  .fixed [class*="text-pink-800/"],
+.fixed .text-pink-700,  .fixed [class*="text-pink-700/"],
+.fixed .text-pink-600,  .fixed [class*="text-pink-600/"],
+[role="dialog"] .text-rose-900,  [role="dialog"] [class*="text-rose-900/"],
+[role="dialog"] .text-rose-800,  [role="dialog"] [class*="text-rose-800/"],
+[role="dialog"] .text-rose-700,  [role="dialog"] [class*="text-rose-700/"],
+[role="dialog"] .text-rose-600,  [role="dialog"] [class*="text-rose-600/"],
+[role="dialog"] .text-red-900,   [role="dialog"] [class*="text-red-900/"],
+[role="dialog"] .text-red-800,   [role="dialog"] [class*="text-red-800/"],
+[role="dialog"] .text-red-700,   [role="dialog"] [class*="text-red-700/"],
+[role="dialog"] .text-red-600,   [role="dialog"] [class*="text-red-600/"],
+[role="dialog"] .text-pink-900,  [role="dialog"] [class*="text-pink-900/"],
+[role="dialog"] .text-pink-800,  [role="dialog"] [class*="text-pink-800/"],
+[role="dialog"] .text-pink-700,  [role="dialog"] [class*="text-pink-700/"],
+[role="dialog"] .text-pink-600,  [role="dialog"] [class*="text-pink-600/"] {
+  color: #fda4af !important;
+}
+
+main .text-amber-900,   main [class*="text-amber-900/"],
+main .text-amber-800,   main [class*="text-amber-800/"],
+main .text-amber-700,   main [class*="text-amber-700/"],
+main .text-amber-600,   main [class*="text-amber-600/"],
+main .text-orange-900,  main [class*="text-orange-900/"],
+main .text-orange-800,  main [class*="text-orange-800/"],
+main .text-orange-700,  main [class*="text-orange-700/"],
+main .text-orange-600,  main [class*="text-orange-600/"],
+main .text-yellow-900,  main [class*="text-yellow-900/"],
+main .text-yellow-800,  main [class*="text-yellow-800/"],
+main .text-yellow-700,  main [class*="text-yellow-700/"],
+main .text-yellow-600,  main [class*="text-yellow-600/"],
+.fixed .text-amber-900,   .fixed [class*="text-amber-900/"],
+.fixed .text-amber-800,   .fixed [class*="text-amber-800/"],
+.fixed .text-amber-700,   .fixed [class*="text-amber-700/"],
+.fixed .text-amber-600,   .fixed [class*="text-amber-600/"],
+.fixed .text-orange-900,  .fixed [class*="text-orange-900/"],
+.fixed .text-orange-800,  .fixed [class*="text-orange-800/"],
+.fixed .text-orange-700,  .fixed [class*="text-orange-700/"],
+.fixed .text-orange-600,  .fixed [class*="text-orange-600/"],
+.fixed .text-yellow-900,  .fixed [class*="text-yellow-900/"],
+.fixed .text-yellow-800,  .fixed [class*="text-yellow-800/"],
+.fixed .text-yellow-700,  .fixed [class*="text-yellow-700/"],
+.fixed .text-yellow-600,  .fixed [class*="text-yellow-600/"],
+[role="dialog"] .text-amber-900,   [role="dialog"] [class*="text-amber-900/"],
+[role="dialog"] .text-amber-800,   [role="dialog"] [class*="text-amber-800/"],
+[role="dialog"] .text-amber-700,   [role="dialog"] [class*="text-amber-700/"],
+[role="dialog"] .text-amber-600,   [role="dialog"] [class*="text-amber-600/"],
+[role="dialog"] .text-orange-900,  [role="dialog"] [class*="text-orange-900/"],
+[role="dialog"] .text-orange-800,  [role="dialog"] [class*="text-orange-800/"],
+[role="dialog"] .text-orange-700,  [role="dialog"] [class*="text-orange-700/"],
+[role="dialog"] .text-orange-600,  [role="dialog"] [class*="text-orange-600/"],
+[role="dialog"] .text-yellow-900,  [role="dialog"] [class*="text-yellow-900/"],
+[role="dialog"] .text-yellow-800,  [role="dialog"] [class*="text-yellow-800/"],
+[role="dialog"] .text-yellow-700,  [role="dialog"] [class*="text-yellow-700/"],
+[role="dialog"] .text-yellow-600,  [role="dialog"] [class*="text-yellow-600/"] {
+  color: #fcd34d !important;
+}
+
+main .text-indigo-900, main [class*="text-indigo-900/"],
+main .text-indigo-800, main [class*="text-indigo-800/"],
+main .text-indigo-700, main [class*="text-indigo-700/"],
+main .text-indigo-600, main [class*="text-indigo-600/"],
+main .text-blue-900,   main [class*="text-blue-900/"],
+main .text-blue-800,   main [class*="text-blue-800/"],
+main .text-blue-700,   main [class*="text-blue-700/"],
+main .text-blue-600,   main [class*="text-blue-600/"],
+main .text-violet-900, main [class*="text-violet-900/"],
+main .text-violet-800, main [class*="text-violet-800/"],
+main .text-violet-700, main [class*="text-violet-700/"],
+main .text-violet-600, main [class*="text-violet-600/"],
+.fixed .text-indigo-900, .fixed [class*="text-indigo-900/"],
+.fixed .text-indigo-800, .fixed [class*="text-indigo-800/"],
+.fixed .text-indigo-700, .fixed [class*="text-indigo-700/"],
+.fixed .text-indigo-600, .fixed [class*="text-indigo-600/"],
+.fixed .text-blue-900,   .fixed [class*="text-blue-900/"],
+.fixed .text-blue-800,   .fixed [class*="text-blue-800/"],
+.fixed .text-blue-700,   .fixed [class*="text-blue-700/"],
+.fixed .text-blue-600,   .fixed [class*="text-blue-600/"],
+.fixed .text-violet-900, .fixed [class*="text-violet-900/"],
+.fixed .text-violet-800, .fixed [class*="text-violet-800/"],
+.fixed .text-violet-700, .fixed [class*="text-violet-700/"],
+.fixed .text-violet-600, .fixed [class*="text-violet-600/"],
+[role="dialog"] .text-indigo-900, [role="dialog"] [class*="text-indigo-900/"],
+[role="dialog"] .text-indigo-800, [role="dialog"] [class*="text-indigo-800/"],
+[role="dialog"] .text-indigo-700, [role="dialog"] [class*="text-indigo-700/"],
+[role="dialog"] .text-indigo-600, [role="dialog"] [class*="text-indigo-600/"],
+[role="dialog"] .text-blue-900,   [role="dialog"] [class*="text-blue-900/"],
+[role="dialog"] .text-blue-800,   [role="dialog"] [class*="text-blue-800/"],
+[role="dialog"] .text-blue-700,   [role="dialog"] [class*="text-blue-700/"],
+[role="dialog"] .text-blue-600,   [role="dialog"] [class*="text-blue-600/"],
+[role="dialog"] .text-violet-900, [role="dialog"] [class*="text-violet-900/"],
+[role="dialog"] .text-violet-800, [role="dialog"] [class*="text-violet-800/"],
+[role="dialog"] .text-violet-700, [role="dialog"] [class*="text-violet-700/"],
+[role="dialog"] .text-violet-600, [role="dialog"] [class*="text-violet-600/"] {
+  color: #a5b4fc !important;
+}
+
+main .text-sky-900,  main [class*="text-sky-900/"],
+main .text-sky-800,  main [class*="text-sky-800/"],
+main .text-sky-700,  main [class*="text-sky-700/"],
+main .text-sky-600,  main [class*="text-sky-600/"],
+main .text-cyan-900, main [class*="text-cyan-900/"],
+main .text-cyan-800, main [class*="text-cyan-800/"],
+main .text-cyan-700, main [class*="text-cyan-700/"],
+main .text-cyan-600, main [class*="text-cyan-600/"],
+.fixed .text-sky-900,  .fixed [class*="text-sky-900/"],
+.fixed .text-sky-800,  .fixed [class*="text-sky-800/"],
+.fixed .text-sky-700,  .fixed [class*="text-sky-700/"],
+.fixed .text-sky-600,  .fixed [class*="text-sky-600/"],
+.fixed .text-cyan-900, .fixed [class*="text-cyan-900/"],
+.fixed .text-cyan-800, .fixed [class*="text-cyan-800/"],
+.fixed .text-cyan-700, .fixed [class*="text-cyan-700/"],
+.fixed .text-cyan-600, .fixed [class*="text-cyan-600/"],
+[role="dialog"] .text-sky-900,  [role="dialog"] [class*="text-sky-900/"],
+[role="dialog"] .text-sky-800,  [role="dialog"] [class*="text-sky-800/"],
+[role="dialog"] .text-sky-700,  [role="dialog"] [class*="text-sky-700/"],
+[role="dialog"] .text-sky-600,  [role="dialog"] [class*="text-sky-600/"],
+[role="dialog"] .text-cyan-900, [role="dialog"] [class*="text-cyan-900/"],
+[role="dialog"] .text-cyan-800, [role="dialog"] [class*="text-cyan-800/"],
+[role="dialog"] .text-cyan-700, [role="dialog"] [class*="text-cyan-700/"],
+[role="dialog"] .text-cyan-600, [role="dialog"] [class*="text-cyan-600/"] {
+  color: #7dd3fc !important;
+}
+
+main .text-purple-900, main [class*="text-purple-900/"],
+main .text-purple-800, main [class*="text-purple-800/"],
+main .text-purple-700, main [class*="text-purple-700/"],
+main .text-purple-600, main [class*="text-purple-600/"],
+.fixed .text-purple-900, .fixed [class*="text-purple-900/"],
+.fixed .text-purple-800, .fixed [class*="text-purple-800/"],
+.fixed .text-purple-700, .fixed [class*="text-purple-700/"],
+.fixed .text-purple-600, .fixed [class*="text-purple-600/"],
+[role="dialog"] .text-purple-900, [role="dialog"] [class*="text-purple-900/"],
+[role="dialog"] .text-purple-800, [role="dialog"] [class*="text-purple-800/"],
+[role="dialog"] .text-purple-700, [role="dialog"] [class*="text-purple-700/"],
+[role="dialog"] .text-purple-600, [role="dialog"] [class*="text-purple-600/"] {
+  color: #d8b4fe !important;
+}
+
+main .hover\:text-indigo-700:hover, .fixed .hover\:text-indigo-700:hover, [role="dialog"] .hover\:text-indigo-700:hover,
+main .hover\:text-emerald-700:hover, .fixed .hover\:text-emerald-700:hover, [role="dialog"] .hover\:text-emerald-700:hover,
+main .hover\:text-rose-700:hover,    .fixed .hover\:text-rose-700:hover,    [role="dialog"] .hover\:text-rose-700:hover,
+main .hover\:text-amber-700:hover,   .fixed .hover\:text-amber-700:hover,   [role="dialog"] .hover\:text-amber-700:hover {
+  color: #ffffff !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   LIGHT PASTEL BADGES → DARK MUTED BADGES
+   Every light pastel pill (bg-*-50/100, border-*-50/100/200, with or without
+   opacity suffix like bg-emerald-50/70) becomes a dark muted badge.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── SUCCESS family (emerald / green / teal) ── */
+main [class~="bg-emerald-50"], main [class*="bg-emerald-50/"],
+main [class~="bg-emerald-100"], main [class*="bg-emerald-100/"],
+main [class~="bg-green-50"],    main [class*="bg-green-50/"],
+main [class~="bg-green-100"],   main [class*="bg-green-100/"],
+main [class~="bg-teal-50"],     main [class*="bg-teal-50/"],
+main [class~="bg-teal-100"],    main [class*="bg-teal-100/"],
+.fixed [class~="bg-emerald-50"],   .fixed [class*="bg-emerald-50/"],
+.fixed [class~="bg-emerald-100"],  .fixed [class*="bg-emerald-100/"],
+.fixed [class~="bg-green-50"],     .fixed [class*="bg-green-50/"],
+.fixed [class~="bg-green-100"],    .fixed [class*="bg-green-100/"],
+.fixed [class~="bg-teal-50"],      .fixed [class*="bg-teal-50/"],
+.fixed [class~="bg-teal-100"],     .fixed [class*="bg-teal-100/"],
+[role="dialog"] [class~="bg-emerald-50"],   [role="dialog"] [class*="bg-emerald-50/"],
+[role="dialog"] [class~="bg-emerald-100"],  [role="dialog"] [class*="bg-emerald-100/"],
+[role="dialog"] [class~="bg-green-50"],     [role="dialog"] [class*="bg-green-50/"],
+[role="dialog"] [class~="bg-green-100"],    [role="dialog"] [class*="bg-green-100/"],
+[role="dialog"] [class~="bg-teal-50"],      [role="dialog"] [class*="bg-teal-50/"],
+[role="dialog"] [class~="bg-teal-100"],     [role="dialog"] [class*="bg-teal-100/"] {
+  background-color: var(--color-success-muted) !important;
+  border-color: var(--color-success-border) !important;
+}
+
+main [class~="border-emerald-50"],  main [class*="border-emerald-50/"],
+main [class~="border-emerald-100"], main [class*="border-emerald-100/"],
+main [class~="border-emerald-200"], main [class*="border-emerald-200/"],
+main [class~="border-green-50"],    main [class*="border-green-50/"],
+main [class~="border-green-100"],   main [class*="border-green-100/"],
+main [class~="border-green-200"],   main [class*="border-green-200/"],
+main [class~="border-teal-50"],     main [class*="border-teal-50/"],
+main [class~="border-teal-100"],    main [class*="border-teal-100/"],
+main [class~="border-teal-200"],    main [class*="border-teal-200/"],
+.fixed [class~="border-emerald-50"],  .fixed [class*="border-emerald-50/"],
+.fixed [class~="border-emerald-100"], .fixed [class*="border-emerald-100/"],
+.fixed [class~="border-emerald-200"], .fixed [class*="border-emerald-200/"],
+.fixed [class~="border-green-50"],    .fixed [class*="border-green-50/"],
+.fixed [class~="border-green-100"],   .fixed [class*="border-green-100/"],
+.fixed [class~="border-green-200"],   .fixed [class*="border-green-200/"],
+.fixed [class~="border-teal-50"],     .fixed [class*="border-teal-50/"],
+.fixed [class~="border-teal-100"],    .fixed [class*="border-teal-100/"],
+.fixed [class~="border-teal-200"],    .fixed [class*="border-teal-200/"],
+[role="dialog"] [class~="border-emerald-50"],  [role="dialog"] [class*="border-emerald-50/"],
+[role="dialog"] [class~="border-emerald-100"], [role="dialog"] [class*="border-emerald-100/"],
+[role="dialog"] [class~="border-emerald-200"], [role="dialog"] [class*="border-emerald-200/"],
+[role="dialog"] [class~="border-green-50"],    [role="dialog"] [class*="border-green-50/"],
+[role="dialog"] [class~="border-green-100"],   [role="dialog"] [class*="border-green-100/"],
+[role="dialog"] [class~="border-green-200"],   [role="dialog"] [class*="border-green-200/"],
+[role="dialog"] [class~="border-teal-50"],     [role="dialog"] [class*="border-teal-50/"],
+[role="dialog"] [class~="border-teal-100"],    [role="dialog"] [class*="border-teal-100/"],
+[role="dialog"] [class~="border-teal-200"],    [role="dialog"] [class*="border-teal-200/"] {
+  border-color: var(--color-success-border) !important;
+}
+
+/* ── DANGER family (rose / red / pink) ── */
+main [class~="bg-rose-50"], main [class*="bg-rose-50/"],
+main [class~="bg-rose-100"], main [class*="bg-rose-100/"],
+main [class~="bg-red-50"],  main [class*="bg-red-50/"],
+main [class~="bg-red-100"], main [class*="bg-red-100/"],
+main [class~="bg-pink-50"], main [class*="bg-pink-50/"],
+main [class~="bg-pink-100"], main [class*="bg-pink-100/"],
+.fixed [class~="bg-rose-50"],   .fixed [class*="bg-rose-50/"],
+.fixed [class~="bg-rose-100"],  .fixed [class*="bg-rose-100/"],
+.fixed [class~="bg-red-50"],    .fixed [class*="bg-red-50/"],
+.fixed [class~="bg-red-100"],   .fixed [class*="bg-red-100/"],
+.fixed [class~="bg-pink-50"],   .fixed [class*="bg-pink-50/"],
+.fixed [class~="bg-pink-100"],  .fixed [class*="bg-pink-100/"],
+[role="dialog"] [class~="bg-rose-50"],   [role="dialog"] [class*="bg-rose-50/"],
+[role="dialog"] [class~="bg-rose-100"],  [role="dialog"] [class*="bg-rose-100/"],
+[role="dialog"] [class~="bg-red-50"],    [role="dialog"] [class*="bg-red-50/"],
+[role="dialog"] [class~="bg-red-100"],   [role="dialog"] [class*="bg-red-100/"],
+[role="dialog"] [class~="bg-pink-50"],   [role="dialog"] [class*="bg-pink-50/"],
+[role="dialog"] [class~="bg-pink-100"],  [role="dialog"] [class*="bg-pink-100/"] {
+  background-color: var(--color-danger-muted) !important;
+  border-color: var(--color-danger-border) !important;
+}
+
+main [class~="border-rose-50"],  main [class*="border-rose-50/"],
+main [class~="border-rose-100"], main [class*="border-rose-100/"],
+main [class~="border-rose-200"], main [class*="border-rose-200/"],
+main [class~="border-red-50"],   main [class*="border-red-50/"],
+main [class~="border-red-100"],  main [class*="border-red-100/"],
+main [class~="border-red-200"],  main [class*="border-red-200/"],
+main [class~="border-pink-50"],  main [class*="border-pink-50/"],
+main [class~="border-pink-100"], main [class*="border-pink-100/"],
+main [class~="border-pink-200"], main [class*="border-pink-200/"],
+.fixed [class~="border-rose-50"],  .fixed [class*="border-rose-50/"],
+.fixed [class~="border-rose-100"], .fixed [class*="border-rose-100/"],
+.fixed [class~="border-rose-200"], .fixed [class*="border-rose-200/"],
+.fixed [class~="border-red-50"],   .fixed [class*="border-red-50/"],
+.fixed [class~="border-red-100"],  .fixed [class*="border-red-100/"],
+.fixed [class~="border-red-200"],  .fixed [class*="border-red-200/"],
+.fixed [class~="border-pink-50"],  .fixed [class*="border-pink-50/"],
+.fixed [class~="border-pink-100"], .fixed [class*="border-pink-100/"],
+.fixed [class~="border-pink-200"], .fixed [class*="border-pink-200/"],
+[role="dialog"] [class~="border-rose-50"],  [role="dialog"] [class*="border-rose-50/"],
+[role="dialog"] [class~="border-rose-100"], [role="dialog"] [class*="border-rose-100/"],
+[role="dialog"] [class~="border-rose-200"], [role="dialog"] [class*="border-rose-200/"],
+[role="dialog"] [class~="border-red-50"],   [role="dialog"] [class*="border-red-50/"],
+[role="dialog"] [class~="border-red-100"],  [role="dialog"] [class*="border-red-100/"],
+[role="dialog"] [class~="border-red-200"],  [role="dialog"] [class*="border-red-200/"],
+[role="dialog"] [class~="border-pink-50"],  [role="dialog"] [class*="border-pink-50/"],
+[role="dialog"] [class~="border-pink-100"], [role="dialog"] [class*="border-pink-100/"],
+[role="dialog"] [class~="border-pink-200"], [role="dialog"] [class*="border-pink-200/"] {
+  border-color: var(--color-danger-border) !important;
+}
+
+/* ── WARNING family (amber / orange / yellow) ── */
+main [class~="bg-amber-50"], main [class*="bg-amber-50/"],
+main [class~="bg-amber-100"], main [class*="bg-amber-100/"],
+main [class~="bg-orange-50"], main [class*="bg-orange-50/"],
+main [class~="bg-orange-100"], main [class*="bg-orange-100/"],
+main [class~="bg-yellow-50"], main [class*="bg-yellow-50/"],
+main [class~="bg-yellow-100"], main [class*="bg-yellow-100/"],
+.fixed [class~="bg-amber-50"],   .fixed [class*="bg-amber-50/"],
+.fixed [class~="bg-amber-100"],  .fixed [class*="bg-amber-100/"],
+.fixed [class~="bg-orange-50"],  .fixed [class*="bg-orange-50/"],
+.fixed [class~="bg-orange-100"], .fixed [class*="bg-orange-100/"],
+.fixed [class~="bg-yellow-50"],  .fixed [class*="bg-yellow-50/"],
+.fixed [class~="bg-yellow-100"], .fixed [class*="bg-yellow-100/"],
+[role="dialog"] [class~="bg-amber-50"],   [role="dialog"] [class*="bg-amber-50/"],
+[role="dialog"] [class~="bg-amber-100"],  [role="dialog"] [class*="bg-amber-100/"],
+[role="dialog"] [class~="bg-orange-50"],  [role="dialog"] [class*="bg-orange-50/"],
+[role="dialog"] [class~="bg-orange-100"], [role="dialog"] [class*="bg-orange-100/"],
+[role="dialog"] [class~="bg-yellow-50"],  [role="dialog"] [class*="bg-yellow-50/"],
+[role="dialog"] [class~="bg-yellow-100"], [role="dialog"] [class*="bg-yellow-100/"] {
+  background-color: var(--color-warning-muted) !important;
+  border-color: var(--color-warning-border) !important;
+}
+
+main [class~="border-amber-50"],  main [class*="border-amber-50/"],
+main [class~="border-amber-100"], main [class*="border-amber-100/"],
+main [class~="border-amber-200"], main [class*="border-amber-200/"],
+main [class~="border-orange-50"], main [class*="border-orange-50/"],
+main [class~="border-orange-100"], main [class*="border-orange-100/"],
+main [class~="border-orange-200"], main [class*="border-orange-200/"],
+main [class~="border-yellow-50"], main [class*="border-yellow-50/"],
+main [class~="border-yellow-100"], main [class*="border-yellow-100/"],
+main [class~="border-yellow-200"], main [class*="border-yellow-200/"],
+.fixed [class~="border-amber-50"],  .fixed [class*="border-amber-50/"],
+.fixed [class~="border-amber-100"], .fixed [class*="border-amber-100/"],
+.fixed [class~="border-amber-200"], .fixed [class*="border-amber-200/"],
+.fixed [class~="border-orange-50"], .fixed [class*="border-orange-50/"],
+.fixed [class~="border-orange-100"], .fixed [class*="border-orange-100/"],
+.fixed [class~="border-orange-200"], .fixed [class*="border-orange-200/"],
+.fixed [class~="border-yellow-50"],  .fixed [class*="border-yellow-50/"],
+.fixed [class~="border-yellow-100"], .fixed [class*="border-yellow-100/"],
+.fixed [class~="border-yellow-200"], .fixed [class*="border-yellow-200/"],
+[role="dialog"] [class~="border-amber-50"],  [role="dialog"] [class*="border-amber-50/"],
+[role="dialog"] [class~="border-amber-100"], [role="dialog"] [class*="border-amber-100/"],
+[role="dialog"] [class~="border-amber-200"], [role="dialog"] [class*="border-amber-200/"],
+[role="dialog"] [class~="border-orange-50"], [role="dialog"] [class*="border-orange-50/"],
+[role="dialog"] [class~="border-orange-100"], [role="dialog"] [class*="border-orange-100/"],
+[role="dialog"] [class~="border-orange-200"], [role="dialog"] [class*="border-orange-200/"],
+[role="dialog"] [class~="border-yellow-50"],  [role="dialog"] [class*="border-yellow-50/"],
+[role="dialog"] [class~="border-yellow-100"], [role="dialog"] [class*="border-yellow-100/"],
+[role="dialog"] [class~="border-yellow-200"], [role="dialog"] [class*="border-yellow-200/"] {
+  border-color: var(--color-warning-border) !important;
+}
+
+/* ── BRAND family (indigo / violet) ── */
+main [class~="bg-indigo-50"], main [class*="bg-indigo-50/"],
+main [class~="bg-indigo-100"], main [class*="bg-indigo-100/"],
+main [class~="bg-violet-50"], main [class*="bg-violet-50/"],
+main [class~="bg-violet-100"], main [class*="bg-violet-100/"],
+.fixed [class~="bg-indigo-50"],  .fixed [class*="bg-indigo-50/"],
+.fixed [class~="bg-indigo-100"], .fixed [class*="bg-indigo-100/"],
+.fixed [class~="bg-violet-50"],  .fixed [class*="bg-violet-50/"],
+.fixed [class~="bg-violet-100"], .fixed [class*="bg-violet-100/"],
+[role="dialog"] [class~="bg-indigo-50"],  [role="dialog"] [class*="bg-indigo-50/"],
+[role="dialog"] [class~="bg-indigo-100"], [role="dialog"] [class*="bg-indigo-100/"],
+[role="dialog"] [class~="bg-violet-50"],  [role="dialog"] [class*="bg-violet-50/"],
+[role="dialog"] [class~="bg-violet-100"], [role="dialog"] [class*="bg-violet-100/"] {
+  background-color: var(--color-brand-primary-muted) !important;
+  border-color: var(--color-border-focus) !important;
+}
+
+main [class~="border-indigo-50"],  main [class*="border-indigo-50/"],
+main [class~="border-indigo-100"], main [class*="border-indigo-100/"],
+main [class~="border-indigo-200"], main [class*="border-indigo-200/"],
+main [class~="border-violet-50"],  main [class*="border-violet-50/"],
+main [class~="border-violet-100"], main [class*="border-violet-100/"],
+main [class~="border-violet-200"], main [class*="border-violet-200/"],
+.fixed [class~="border-indigo-50"],  .fixed [class*="border-indigo-50/"],
+.fixed [class~="border-indigo-100"], .fixed [class*="border-indigo-100/"],
+.fixed [class~="border-indigo-200"], .fixed [class*="border-indigo-200/"],
+.fixed [class~="border-violet-50"],  .fixed [class*="border-violet-50/"],
+.fixed [class~="border-violet-100"], .fixed [class*="border-violet-100/"],
+.fixed [class~="border-violet-200"], .fixed [class*="border-violet-200/"],
+[role="dialog"] [class~="border-indigo-50"],  [role="dialog"] [class*="border-indigo-50/"],
+[role="dialog"] [class~="border-indigo-100"], [role="dialog"] [class*="border-indigo-100/"],
+[role="dialog"] [class~="border-indigo-200"], [role="dialog"] [class*="border-indigo-200/"],
+[role="dialog"] [class~="border-violet-50"],  [role="dialog"] [class*="border-violet-50/"],
+[role="dialog"] [class~="border-violet-100"], [role="dialog"] [class*="border-violet-100/"],
+[role="dialog"] [class~="border-violet-200"], [role="dialog"] [class*="border-violet-200/"] {
+  border-color: var(--color-border-focus) !important;
+}
+
+/* ── INFO family (blue / sky / cyan) ── */
+main [class~="bg-blue-50"], main [class*="bg-blue-50/"],
+main [class~="bg-blue-100"], main [class*="bg-blue-100/"],
+main [class~="bg-sky-50"],  main [class*="bg-sky-50/"],
+main [class~="bg-sky-100"], main [class*="bg-sky-100/"],
+main [class~="bg-cyan-50"], main [class*="bg-cyan-50/"],
+main [class~="bg-cyan-100"], main [class*="bg-cyan-100/"],
+.fixed [class~="bg-blue-50"],  .fixed [class*="bg-blue-50/"],
+.fixed [class~="bg-blue-100"], .fixed [class*="bg-blue-100/"],
+.fixed [class~="bg-sky-50"],   .fixed [class*="bg-sky-50/"],
+.fixed [class~="bg-sky-100"],  .fixed [class*="bg-sky-100/"],
+.fixed [class~="bg-cyan-50"],  .fixed [class*="bg-cyan-50/"],
+.fixed [class~="bg-cyan-100"], .fixed [class*="bg-cyan-100/"],
+[role="dialog"] [class~="bg-blue-50"],  [role="dialog"] [class*="bg-blue-50/"],
+[role="dialog"] [class~="bg-blue-100"], [role="dialog"] [class*="bg-blue-100/"],
+[role="dialog"] [class~="bg-sky-50"],   [role="dialog"] [class*="bg-sky-50/"],
+[role="dialog"] [class~="bg-sky-100"],  [role="dialog"] [class*="bg-sky-100/"],
+[role="dialog"] [class~="bg-cyan-50"],  [role="dialog"] [class*="bg-cyan-50/"],
+[role="dialog"] [class~="bg-cyan-100"], [role="dialog"] [class*="bg-cyan-100/"] {
+  background-color: var(--color-info-muted) !important;
+  border-color: var(--color-info-border) !important;
+}
+
+main [class~="border-blue-50"],  main [class*="border-blue-50/"],
+main [class~="border-blue-100"], main [class*="border-blue-100/"],
+main [class~="border-blue-200"], main [class*="border-blue-200/"],
+main [class~="border-sky-50"],   main [class*="border-sky-50/"],
+main [class~="border-sky-100"],  main [class*="border-sky-100/"],
+main [class~="border-sky-200"],  main [class*="border-sky-200/"],
+main [class~="border-cyan-50"],  main [class*="border-cyan-50/"],
+main [class~="border-cyan-100"], main [class*="border-cyan-100/"],
+main [class~="border-cyan-200"], main [class*="border-cyan-200/"],
+.fixed [class~="border-blue-50"],  .fixed [class*="border-blue-50/"],
+.fixed [class~="border-blue-100"], .fixed [class*="border-blue-100/"],
+.fixed [class~="border-blue-200"], .fixed [class*="border-blue-200/"],
+.fixed [class~="border-sky-50"],   .fixed [class*="border-sky-50/"],
+.fixed [class~="border-sky-100"],  .fixed [class*="border-sky-100/"],
+.fixed [class~="border-sky-200"],  .fixed [class*="border-sky-200/"],
+.fixed [class~="border-cyan-50"],  .fixed [class*="border-cyan-50/"],
+.fixed [class~="border-cyan-100"], .fixed [class*="border-cyan-100/"],
+.fixed [class~="border-cyan-200"], .fixed [class*="border-cyan-200/"],
+[role="dialog"] [class~="border-blue-50"],  [role="dialog"] [class*="border-blue-50/"],
+[role="dialog"] [class~="border-blue-100"], [role="dialog"] [class*="border-blue-100/"],
+[role="dialog"] [class~="border-blue-200"], [role="dialog"] [class*="border-blue-200/"],
+[role="dialog"] [class~="border-sky-50"],   [role="dialog"] [class*="border-sky-50/"],
+[role="dialog"] [class~="border-sky-100"],  [role="dialog"] [class*="border-sky-100/"],
+[role="dialog"] [class~="border-sky-200"],  [role="dialog"] [class*="border-sky-200/"],
+[role="dialog"] [class~="border-cyan-50"],  [role="dialog"] [class*="border-cyan-50/"],
+[role="dialog"] [class~="border-cyan-100"], [role="dialog"] [class*="border-cyan-100/"],
+[role="dialog"] [class~="border-cyan-200"], [role="dialog"] [class*="border-cyan-200/"] {
+  border-color: var(--color-info-border) !important;
+}
+
+/* ── PURPLE ── */
+main [class~="bg-purple-50"], main [class*="bg-purple-50/"],
+main [class~="bg-purple-100"], main [class*="bg-purple-100/"],
+.fixed [class~="bg-purple-50"],  .fixed [class*="bg-purple-50/"],
+.fixed [class~="bg-purple-100"], .fixed [class*="bg-purple-100/"],
+[role="dialog"] [class~="bg-purple-50"],  [role="dialog"] [class*="bg-purple-50/"],
+[role="dialog"] [class~="bg-purple-100"], [role="dialog"] [class*="bg-purple-100/"] {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+  border-color: rgba(168, 85, 247, 0.30) !important;
+}
+
+main [class~="border-purple-50"],  main [class*="border-purple-50/"],
+main [class~="border-purple-100"], main [class*="border-purple-100/"],
+main [class~="border-purple-200"], main [class*="border-purple-200/"],
+.fixed [class~="border-purple-50"],  .fixed [class*="border-purple-50/"],
+.fixed [class~="border-purple-100"], .fixed [class*="border-purple-100/"],
+.fixed [class~="border-purple-200"], .fixed [class*="border-purple-200/"],
+[role="dialog"] [class~="border-purple-50"],  [role="dialog"] [class*="border-purple-50/"],
+[role="dialog"] [class~="border-purple-100"], [role="dialog"] [class*="border-purple-100/"],
+[role="dialog"] [class~="border-purple-200"], [role="dialog"] [class*="border-purple-200/"] {
+  border-color: rgba(168, 85, 247, 0.30) !important;
+}

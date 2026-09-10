@@ -4,8 +4,11 @@ import templeImg from '../../../../assets/locations/temple.jpg';
 import tigerImg from '../../../../assets/locations/tiger.jpg';
 import hillsImg from '../../../../assets/locations/hills.jpg';
 import satelliteMapImg from '../../../../assets/locations/satellite_map.jpg';
+import { CHART_PALETTE } from '../../../../tokens';
 
 export { satelliteMapImg };
+
+const PIN_COLORS = CHART_PALETTE;
 
 export const OVERVIEW_LOCATIONS = [
   {
@@ -20,8 +23,8 @@ export const OVERVIEW_LOCATIONS = [
     operationalStatus: 'Operational',
     bottomStatusColor: 'emerald',
     image: lionImg,
-    pinColor: '#ef4444', // Red pin marker
-    barColor: '#ef4444', // Red bar in chart
+    pinColor: PIN_COLORS[0], // Red pin marker
+    barColor: PIN_COLORS[0], // Red bar in chart
     pinX: 28, // % from left
     pinY: 62, // % from top
   },
@@ -37,8 +40,8 @@ export const OVERVIEW_LOCATIONS = [
     operationalStatus: 'Operational',
     bottomStatusColor: 'emerald',
     image: deerImg,
-    pinColor: '#2563eb', // Blue pin marker
-    barColor: '#3b82f6', // Blue bar in chart
+    pinColor: PIN_COLORS[3], // Blue pin marker
+    barColor: PIN_COLORS[3], // Blue bar in chart
     pinX: 58,
     pinY: 53,
   },
@@ -54,8 +57,8 @@ export const OVERVIEW_LOCATIONS = [
     operationalStatus: 'Operational',
     bottomStatusColor: 'emerald',
     image: templeImg,
-    pinColor: '#10b981', // Green pin marker
-    barColor: '#10b981', // Green bar in chart
+    pinColor: PIN_COLORS[1], // Green pin marker
+    barColor: PIN_COLORS[1], // Green bar in chart
     pinX: 36,
     pinY: 48,
   },
@@ -71,8 +74,8 @@ export const OVERVIEW_LOCATIONS = [
     operationalStatus: 'Operational',
     bottomStatusColor: 'emerald',
     image: tigerImg,
-    pinColor: '#8b5cf6', // Purple pin marker
-    barColor: '#8b5cf6', // Purple bar in chart
+    pinColor: PIN_COLORS[5], // Purple pin marker
+    barColor: PIN_COLORS[5], // Purple bar in chart
     pinX: 24,
     pinY: 30,
   },
@@ -88,8 +91,8 @@ export const OVERVIEW_LOCATIONS = [
     operationalStatus: 'Partial Issues',
     bottomStatusColor: 'amber',
     image: hillsImg,
-    pinColor: '#ea580c', // Orange pin marker
-    barColor: '#f97316', // Orange bar in chart
+    pinColor: PIN_COLORS[3], // Orange pin marker
+    barColor: PIN_COLORS[3], // Orange bar in chart
     pinX: 53,
     pinY: 70,
   },

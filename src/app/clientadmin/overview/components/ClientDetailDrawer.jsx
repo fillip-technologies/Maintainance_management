@@ -8,6 +8,7 @@ import { getDevices } from '../../../api/devicesApi';
 import { getIssues } from '../../../api/issuesApi';
 import { getUsers } from '../../../api/usersApi';
 import { getTechnicians } from '../../../api/techniciansApi';
+import { DEVICE_STATUS_BADGE, ISSUE_STATUS_BADGE, PRIORITY_BADGE } from '../../../../tokens';
 
 // ── config per drawer type ────────────────────────────────────────────────────
 const TYPE_CONFIG = {
@@ -78,26 +79,19 @@ const TYPE_CONFIG = {
 
 // ── status helpers ─────────────────────────────────────────────────────────────
 const DEVICE_STATUS = {
-  active:            { label: 'Active',            badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
-  under_maintenance: { label: 'Under Maintenance', badge: 'bg-violet-50 text-violet-700 border-violet-200',   dot: 'bg-violet-500' },
-  faulty:            { label: 'Faulty',            badge: 'bg-rose-50 text-rose-700 border-rose-200',         dot: 'bg-rose-500' },
-  provisioned:       { label: 'Provisioned',       badge: 'bg-sky-50 text-sky-700 border-sky-200',            dot: 'bg-sky-500' },
-  retired:           { label: 'Retired',           badge: 'bg-slate-100 text-slate-500 border-slate-200',     dot: 'bg-slate-400' },
+  active:            { label: 'Active',            badge: DEVICE_STATUS_BADGE.active.color, dot: DEVICE_STATUS_BADGE.active.dot },
+  under_maintenance: { label: 'Under Maintenance', badge: DEVICE_STATUS_BADGE.under_maintenance.color, dot: DEVICE_STATUS_BADGE.under_maintenance.dot },
+  faulty:            { label: 'Faulty',            badge: DEVICE_STATUS_BADGE.faulty.color, dot: DEVICE_STATUS_BADGE.faulty.dot },
+  provisioned:       { label: 'Provisioned',       badge: DEVICE_STATUS_BADGE.provisioned.color, dot: DEVICE_STATUS_BADGE.provisioned.dot },
+  retired:           { label: 'Retired',           badge: DEVICE_STATUS_BADGE.retired.color, dot: DEVICE_STATUS_BADGE.retired.dot },
 };
 
 const ISSUE_STATUS = {
-  on_hold:     { label: 'On Hold',     badge: 'bg-orange-50 text-orange-700 border-orange-200' },
-  open:        { label: 'Open',        badge: 'bg-rose-50 text-rose-700 border-rose-200' },
-  in_progress: { label: 'In Progress', badge: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
-  resolved:    { label: 'Resolved',    badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  closed:      { label: 'Closed',      badge: 'bg-slate-100 text-slate-500 border-slate-200' },
-};
-
-const PRIORITY_BADGE = {
-  critical: 'bg-rose-100 text-rose-800 border-rose-300',
-  high:     'bg-orange-50 text-orange-700 border-orange-200',
-  medium:   'bg-amber-50 text-amber-700 border-amber-200',
-  low:      'bg-slate-100 text-slate-600 border-slate-200',
+  on_hold:     { label: 'On Hold',     badge: ISSUE_STATUS_BADGE.on_hold },
+  open:        { label: 'Open',        badge: ISSUE_STATUS_BADGE.open },
+  in_progress: { label: 'In Progress', badge: ISSUE_STATUS_BADGE.in_progress },
+  resolved:    { label: 'Resolved',    badge: ISSUE_STATUS_BADGE.resolved },
+  closed:      { label: 'Closed',      badge: ISSUE_STATUS_BADGE.closed },
 };
 
 function fmt(iso) {
@@ -109,13 +103,13 @@ function fmt(iso) {
 function DeviceRow({ device }) {
   const s = DEVICE_STATUS[device.status] ?? DEVICE_STATUS.provisioned;
   return (
-    <div className="flex items-center gap-3 py-3 border-b border-slate-100 last:border-0">
-      <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+    <div className="flex items-center gap-3 py-3 border-b border-[var(--border-color)] last:border-0">
+      <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center shrink-0">
         <Package size={16} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-slate-900 truncate">{device.name ?? '—'}</p>
-        <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+        <p className="text-xs font-bold text-white truncate">{device.name ?? '—'}</p>
+        <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
           <MapPin size={10} className="shrink-0" />
           {device.zone?.name ?? 'In Stock'} · {device.hardwareType?.name ?? device.category?.name ?? '—'}
         </p>
@@ -134,24 +128,24 @@ function IssueRow({ issue }) {
   const s = ISSUE_STATUS[issue.status] ?? ISSUE_STATUS.open;
   const p = PRIORITY_BADGE[issue.priority] ?? PRIORITY_BADGE.medium;
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
-      <div className="w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 text-orange-600 flex items-center justify-center shrink-0">
+    <div className="flex items-start gap-3 py-3 border-b border-[var(--border-color)] last:border-0">
+      <div className="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 text-orange-400 flex items-center justify-center shrink-0">
         <Wrench size={16} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-slate-900 truncate">{issue.device?.name ?? '—'}</p>
+        <p className="text-xs font-bold text-white truncate">{issue.device?.name ?? '—'}</p>
         {issue.device?.zone?.name && (
-          <p className="text-[11px] text-indigo-600 font-semibold flex items-center gap-1 mt-0.5">
+          <p className="text-[11px] text-indigo-400 font-semibold flex items-center gap-1 mt-0.5">
             <MapPin size={9} className="shrink-0" />{issue.device.zone.name}
           </p>
         )}
-        <p className="text-[11px] text-slate-500 truncate mt-0.5">{issue.description?.slice(0, 80)}{issue.description?.length > 80 ? '…' : ''}</p>
+        <p className="text-[11px] text-slate-400 truncate mt-0.5">{issue.description?.slice(0, 80)}{issue.description?.length > 80 ? '…' : ''}</p>
         <div className="flex items-center gap-1.5 mt-1">
           <Tag size={10} className="text-slate-400 shrink-0" />
-          <span className="text-[10px] text-slate-500">{issue.category?.name ?? '—'}</span>
-          <span className="text-slate-300">·</span>
+          <span className="text-[10px] text-slate-400">{issue.category?.name ?? '—'}</span>
+          <span className="text-slate-600">·</span>
           <Calendar size={10} className="text-slate-400 shrink-0" />
-          <span className="text-[10px] text-slate-500">{fmt(issue.createdAt)}</span>
+          <span className="text-[10px] text-slate-400">{fmt(issue.createdAt)}</span>
         </div>
       </div>
       <div className="flex flex-col items-end gap-1 shrink-0">
@@ -165,19 +159,19 @@ function IssueRow({ issue }) {
 function UserRow({ user }) {
   const roleLabel = user.role?.replace(/_/g, ' ') ?? '—';
   return (
-    <div className="flex items-center gap-3 py-3 border-b border-slate-100 last:border-0">
-      <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center shrink-0 font-bold text-sm uppercase">
+    <div className="flex items-center gap-3 py-3 border-b border-[var(--border-color)] last:border-0">
+      <div className="w-9 h-9 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-slate-200 flex items-center justify-center shrink-0 font-bold text-sm uppercase">
         {(user.name ?? '?').charAt(0)}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-slate-900 truncate">{user.name ?? '—'}</p>
-        <p className="text-[11px] text-slate-500 truncate">{user.email ?? '—'}</p>
+        <p className="text-xs font-bold text-white truncate">{user.name ?? '—'}</p>
+        <p className="text-[11px] text-slate-400 truncate">{user.email ?? '—'}</p>
       </div>
       <div className="flex flex-col items-end gap-1 shrink-0">
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 capitalize">
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--bg-main)] text-slate-300 border border-[var(--border-color)] capitalize">
           {roleLabel}
         </span>
-        <span className={`text-[10px] font-semibold ${user.accountStatus === 'active' ? 'text-emerald-600' : 'text-amber-600'}`}>
+        <span className={`text-[10px] font-semibold ${user.accountStatus === 'active' ? 'text-emerald-400' : 'text-amber-400'}`}>
           {user.accountStatus}
         </span>
       </div>
@@ -187,18 +181,18 @@ function UserRow({ user }) {
 
 function TechnicianRow({ tech }) {
   return (
-    <div className="flex items-center gap-3 py-3 border-b border-slate-100 last:border-0">
-      <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center shrink-0 font-bold text-sm uppercase">
+    <div className="flex items-center gap-3 py-3 border-b border-[var(--border-color)] last:border-0">
+      <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 font-bold text-sm uppercase">
         {(tech.user?.name ?? '?').charAt(0)}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-slate-900 truncate">{tech.user?.name ?? '—'}</p>
-        <p className="text-[11px] text-slate-500 truncate">{tech.user?.email ?? '—'}</p>
+        <p className="text-xs font-bold text-white truncate">{tech.user?.name ?? '—'}</p>
+        <p className="text-[11px] text-slate-400 truncate">{tech.user?.email ?? '—'}</p>
         {tech.specialization && (
-          <p className="text-[10px] text-amber-600 font-semibold mt-0.5">{tech.specialization}</p>
+          <p className="text-[10px] text-amber-400 font-semibold mt-0.5">{tech.specialization}</p>
         )}
       </div>
-      <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+      <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
         <Wrench size={14} />
       </div>
     </div>
@@ -246,39 +240,39 @@ export default function ClientDetailDrawer({ type, onClose }) {
       />
 
       {/* Drawer panel */}
-      <div className="fixed right-0 top-0 h-full z-50 w-full max-w-md bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-250">
+      <div className="fixed right-0 top-0 h-full z-50 w-full max-w-md bg-[var(--bg-card)] border-l border-[var(--border-color)] shadow-2xl flex flex-col animate-in slide-in-from-right duration-250 text-white">
 
         {/* Header */}
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 shrink-0">
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-[var(--border-color)] shrink-0">
           <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${cfg.iconBg}`}>
             <Icon size={20} />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-sm font-extrabold text-slate-900">{cfg.title}</h2>
-            <p className="text-[11px] text-slate-500 mt-0.5">{cfg.subtitle}</p>
+            <h2 className="text-sm font-extrabold text-white">{cfg.title}</h2>
+            <p className="text-[11px] text-slate-400 mt-0.5">{cfg.subtitle}</p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[var(--bg-main)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={15} />
           </button>
         </div>
 
         {/* Search */}
-        <div className="px-5 py-3 border-b border-slate-100 shrink-0">
+        <div className="px-5 py-3 border-b border-[var(--border-color)] shrink-0">
           <input
             type="text"
             placeholder="Search…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
+            className="w-full px-3 py-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-xs font-medium text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all placeholder:text-slate-500"
           />
         </div>
 
         {/* Count badge */}
         <div className="px-5 py-2 shrink-0 flex items-center justify-between">
-          <span className="text-[11px] font-semibold text-slate-500">
+          <span className="text-[11px] font-semibold text-slate-400">
             {loading ? 'Loading…' : `${filtered.length} result${filtered.length !== 1 ? 's' : ''}`}
           </span>
         </div>

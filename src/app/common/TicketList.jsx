@@ -4,6 +4,7 @@ import {
   CheckSquare, Square, CheckCheck, Zap, X
 } from 'lucide-react';
 import { bulkUpdateStatus } from '../api/issuesApi';
+import { getPriorityBadge as _getPriorityBadge, getIssueStatusBadge as _getIssueStatusBadge } from '../../tokens';
 
 const STATUS_TABS = ['all', 'open', 'in_progress', 'on_hold', 'resolved', 'closed'];
 
@@ -24,27 +25,9 @@ const formatDate = (value) => {
   return d.toLocaleString(undefined, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 };
 
-const getPriorityBadge = (priority) => {
-  switch (priority?.toLowerCase()) {
-    case 'critical': return 'bg-rose-50 text-rose-700 border-rose-200';
-    case 'high':     return 'bg-amber-50 text-amber-700 border-amber-200';
-    case 'medium':   return 'bg-sky-50 text-sky-700 border-sky-200';
-    default:         return 'bg-slate-50 text-slate-600 border-slate-200';
-  }
-};
+const getPriorityBadge = (priority) => _getPriorityBadge(priority?.toLowerCase());
 
-const getStatusBadge = (status) => {
-  switch (status) {
-    case 'open':
-    case 'reopened':    return 'bg-rose-50 text-rose-700 border-rose-200';
-    case 'assigned':    return 'bg-indigo-50 text-indigo-700 border-indigo-200';
-    case 'in_progress':
-    case 'on_hold':     return 'bg-amber-50 text-amber-700 border-amber-200';
-    case 'resolved':    return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-    case 'closed':      return 'bg-slate-100 text-slate-600 border-slate-200';
-    default:            return 'bg-slate-50 text-slate-700 border-slate-200';
-  }
-};
+const getStatusBadge = (status) => _getIssueStatusBadge(status);
 
 // onRefresh — called after a successful bulk update so the parent can reload
 export default function TicketList({ tickets = [], loading = false, onOpenRequestModal, onNotify, onRefresh }) {

@@ -61,16 +61,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/25 to-slate-100 flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden font-sans select-none">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0f1e] via-[#0d1526] to-[#070b16] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden font-sans select-none">
       {/* Background Ambient Gradient Accents */}
-      <div className="absolute top-[-10%] left-[-5%] w-[450px] h-[450px] bg-indigo-200/40 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[450px] h-[450px] bg-emerald-200/40 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-5%] w-[450px] h-[450px] bg-indigo-600/15 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[450px] h-[450px] bg-emerald-600/10 rounded-full blur-[100px] pointer-events-none" />
 
       {/* Subtle Dot Grid */}
       <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        className="absolute inset-0 opacity-[0.04] pointer-events-none"
         style={{
-          backgroundImage: `radial-gradient(#0f172a 1px, transparent 1px)`,
+          backgroundImage: `radial-gradient(#ffffff 1px, transparent 1px)`,
           backgroundSize: '24px 24px'
         }}
       />
@@ -81,17 +81,17 @@ export default function LoginPage() {
         <div className="lg:col-span-6 flex flex-col gap-6 text-left">
           {/* Logo Badge */}
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-sky-500 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-sky-500 flex items-center justify-center text-white shadow-lg shadow-indigo-950">
               <Wrench size={22} className="-rotate-12" />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-black tracking-tight text-slate-900 lowercase">fixly</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 tracking-wide uppercase">
+                <span className="text-2xl font-black tracking-tight text-slate-100 lowercase">fixly</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 tracking-wide uppercase">
                   Enterprise
                 </span>
               </div>
-              <span className="text-xs text-slate-500 font-medium">
+              <span className="text-xs text-slate-400 font-medium">
                 Facility & Maintenance Platform
               </span>
             </div>
@@ -99,36 +99,36 @@ export default function LoginPage() {
 
           {/* Heading */}
           <div className="flex flex-col gap-3">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-100 tracking-tight leading-[1.15]">
               Intelligent Facility <br />
-              <span className="bg-gradient-to-r from-indigo-600 via-sky-600 to-emerald-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-indigo-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent">
                 Command & Telemetry
               </span>
             </h1>
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-lg">
+            <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-lg">
               Manage facility equipment, monitor daily operational health logs, oversee Zone Officers, and coordinate certified field technicians seamlessly.
             </p>
           </div>
 
           {/* Feature Highlights Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-            <div className="p-4 rounded-2xl bg-white/90 border border-slate-200/90 shadow-xs backdrop-blur-sm flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+            <div className="p-4 rounded-2xl bg-[var(--bg-card)]/70 border border-[var(--border-color)] shadow-xs backdrop-blur-sm flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 flex items-center justify-center shrink-0">
                 <ShieldCheck size={20} />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-bold text-slate-900">Multi-Role Security</span>
-                <span className="text-[11px] text-slate-500">Strict RBAC & profile isolation</span>
+                <span className="text-xs font-bold text-slate-200">Multi-Role Security</span>
+                <span className="text-[11px] text-slate-400">Strict RBAC & profile isolation</span>
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white/90 border border-slate-200/90 shadow-xs backdrop-blur-sm flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+            <div className="p-4 rounded-2xl bg-[var(--bg-card)]/70 border border-[var(--border-color)] shadow-xs backdrop-blur-sm flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-center justify-center shrink-0">
                 <Activity size={20} />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-bold text-slate-900">Live Status Sync</span>
-                <span className="text-[11px] text-slate-500">Real-time daily equipment checks</span>
+                <span className="text-xs font-bold text-slate-200">Live Status Sync</span>
+                <span className="text-[11px] text-slate-400">Real-time daily equipment checks</span>
               </div>
             </div>
           </div>
@@ -136,25 +136,25 @@ export default function LoginPage() {
 
         {/* Right Side: Clean Login Card */}
         <div className="lg:col-span-6 w-full max-w-md mx-auto lg:max-w-none">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/60 border border-slate-200/90 flex flex-col gap-6 relative">
+          <div className="bg-[var(--bg-card)] rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/40 border border-[var(--border-color)] flex flex-col gap-6 relative">
             
             {/* Card Header */}
             <div className="flex flex-col gap-1 text-left">
-              <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+              <h2 className="text-xl font-extrabold text-slate-100 tracking-tight">
                 Sign In to Workspace
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-400">
                 Enter your registered administrator or facility credentials to continue.
               </p>
             </div>
 
             {/* Error Message Alert */}
             {errorInfo && (
-              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2.5 animate-in fade-in duration-150">
-                <AlertCircle size={16} className="text-rose-500 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5 animate-in fade-in duration-150">
+                <AlertCircle size={16} className="text-rose-400 shrink-0 mt-0.5" />
                 <div className="flex flex-col">
                   <span className="font-bold">{errorInfo.code}</span>
-                  <span className="text-rose-600 text-[11px] mt-0.5">{errorInfo.message}</span>
+                  <span className="text-rose-300 text-[11px] mt-0.5">{errorInfo.message}</span>
                 </div>
               </div>
             )}
@@ -163,18 +163,18 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-4 text-left">
               {/* Email Address */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700">
+                <label className="text-xs font-bold text-slate-300">
                   Email Address / Login ID
                 </label>
                 <div className="relative flex items-center">
-                  <Mail size={16} className="absolute left-3.5 text-slate-400 pointer-events-none" />
+                  <Mail size={16} className="absolute left-3.5 text-slate-500 pointer-events-none" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email address"
-                    className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all font-medium"
+                    className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all font-medium"
                   />
                 </div>
               </div>
@@ -182,27 +182,27 @@ export default function LoginPage() {
               {/* Password */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-700">
+                  <label className="text-xs font-bold text-slate-300">
                     Password
                   </label>
-                  <span className="text-[11px] text-indigo-600 font-semibold cursor-pointer hover:text-indigo-700">
+                  <span className="text-[11px] text-indigo-400 font-semibold cursor-pointer hover:text-indigo-300">
                     Forgot?
                   </span>
                 </div>
                 <div className="relative flex items-center">
-                  <Lock size={16} className="absolute left-3.5 text-slate-400 pointer-events-none" />
+                  <Lock size={16} className="absolute left-3.5 text-slate-500 pointer-events-none" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-10 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all font-medium"
+                    className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl pl-10 pr-10 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all font-medium"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 text-slate-400 hover:text-slate-600 p-1 cursor-pointer transition-colors"
+                    className="absolute right-3 text-slate-500 hover:text-slate-300 p-1 cursor-pointer transition-colors"
                   >
                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
@@ -213,7 +213,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || !email.trim() || !password.trim()}
-                className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white text-xs font-bold shadow-md shadow-indigo-200 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
+                className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white text-xs font-bold shadow-lg shadow-indigo-950/50 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
               >
                 {loading ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
