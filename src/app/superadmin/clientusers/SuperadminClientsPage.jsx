@@ -138,17 +138,17 @@ export default function SuperadminClientsPage() {
       {/* Top Headline Banner */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 py-1">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
             Client Organizations & Admins
           </h1>
-          <p className="text-xs md:text-sm text-slate-500 max-w-2xl">
+          <p className="text-xs md:text-sm text-slate-400 max-w-2xl">
             Super Administrator console to provision enterprise client organizations and strictly manage Client Administrator accounts.
           </p>
         </div>
 
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-indigo-200 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shrink-0"
+          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-blue-500/20 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shrink-0"
         >
           <UserPlus size={16} />
           <span>Add Client User</span>
@@ -159,19 +159,19 @@ export default function SuperadminClientsPage() {
       <ClientStatCards clients={clients} />
 
       {/* Search & Filter Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-xs">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-[var(--bg-card)] p-3.5 rounded-2xl border border-[var(--border-color)] shadow-xs">
         {/* Search */}
-        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
+        <div className="flex items-center bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
           <Search size={16} className="text-slate-400 shrink-0" />
           <input
             type="text"
             placeholder="Search company, client admin name, email, or location..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent border-none text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-slate-400"
+            className="bg-transparent border-none text-xs font-medium text-white w-full outline-hidden placeholder:text-slate-500"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+            <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-white cursor-pointer">
               <X size={14} />
             </button>
           )}
@@ -183,8 +183,8 @@ export default function SuperadminClientsPage() {
             onClick={() => setStatusFilter('all')}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               statusFilter === 'all'
-                ? 'bg-slate-900 text-white shadow-xs'
-                : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
             }`}
           >
             All Accounts ({clients.length})
@@ -195,7 +195,7 @@ export default function SuperadminClientsPage() {
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               statusFilter === 'active'
                 ? 'bg-emerald-600 text-white shadow-xs'
-                : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+                : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
             }`}
           >
             Active ({clients.filter((c) => c.status === 'active').length})
@@ -206,7 +206,7 @@ export default function SuperadminClientsPage() {
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               statusFilter === 'invited'
                 ? 'bg-amber-600 text-white shadow-xs'
-                : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+                : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
             }`}
           >
             Invited ({clients.filter((c) => c.status === 'invited').length})
@@ -217,7 +217,7 @@ export default function SuperadminClientsPage() {
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               statusFilter === 'no_admin'
                 ? 'bg-rose-600 text-white shadow-xs'
-                : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+                : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
             }`}
           >
             No Admin ({clients.filter((c) => c.status === 'no_admin').length})
@@ -226,7 +226,7 @@ export default function SuperadminClientsPage() {
           <button
             onClick={fetchClientUsers}
             disabled={loading}
-            className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors ml-1 cursor-pointer"
+            className="p-2 rounded-xl border border-[var(--border-color)] text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-1 cursor-pointer"
             title="Refresh Client Users"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />

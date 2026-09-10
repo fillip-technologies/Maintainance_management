@@ -111,21 +111,21 @@ export default function Overview() {
         </div>
       )}
 
-      {/* Header — Title, Tab switcher moved upward, and Live status */}
+      {/* Header — Title, Tab switcher, and Live status */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-1">
         <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
             Dashboard
           </h1>
 
-          {/* Tab nav — moved upward */}
-          <div className="flex items-center bg-slate-100 rounded-2xl p-1.5 gap-1 shadow-inner">
+          {/* Tab nav */}
+          <div className="flex items-center bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-1.5 gap-1 shadow-inner">
             <button
               onClick={() => setActiveTab('analytics')}
               className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer
                 ${activeTab === 'analytics'
-                  ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
-                  : 'text-slate-500 hover:text-slate-700'}`}
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                  : 'text-slate-400 hover:text-white'}`}
             >
               <BarChart2 size={16} />
               Analytics
@@ -134,8 +134,8 @@ export default function Overview() {
               onClick={() => setActiveTab('zone')}
               className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer
                 ${activeTab === 'zone'
-                  ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
-                  : 'text-slate-500 hover:text-slate-700'}`}
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                  : 'text-slate-400 hover:text-white'}`}
             >
               <LayoutGrid size={16} />
               Zone View
@@ -147,8 +147,8 @@ export default function Overview() {
           <span
             className={`inline-flex items-center gap-1.5 font-semibold px-2.5 py-1 rounded-full border ${
               isLive
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                : 'bg-slate-100 text-slate-500 border-slate-200'
+                ? 'bg-emerald-950/50 text-emerald-400 border-emerald-800/60'
+                : 'bg-slate-800 text-slate-400 border-slate-700'
             }`}
           >
             {isLive ? <Wifi size={13} className="animate-pulse" /> : <WifiOff size={13} />}
@@ -161,7 +161,7 @@ export default function Overview() {
           )}
           <button
             onClick={fetchOverview}
-            className="inline-flex items-center gap-1.5 bg-white border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-indigo-600 font-semibold px-2.5 py-1 rounded-lg shadow-xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-blue-500/50 hover:bg-[var(--bg-card-hover)] text-slate-300 hover:text-white font-semibold px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer"
           >
             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
             Refresh
@@ -171,7 +171,7 @@ export default function Overview() {
 
       {/* Error banner — analytics only */}
       {activeTab === 'analytics' && error && !loading && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-xl px-4 py-3 text-xs font-semibold flex items-center gap-2">
+        <div className="bg-rose-950/40 border border-rose-800/60 text-rose-300 rounded-xl px-4 py-3 text-xs font-semibold flex items-center gap-2">
           <AlertTriangle size={16} className="shrink-0" />
           <span>{error}</span>
         </div>
@@ -182,18 +182,18 @@ export default function Overview() {
         <div className="flex flex-col gap-5">
           {/* Client selector */}
           <div className="flex items-center gap-3">
-            <span className="text-xs font-bold text-slate-500 shrink-0">Client</span>
+            <span className="text-xs font-bold text-slate-400 shrink-0">Client</span>
             <div className="relative">
               <select
                 value={selectedClientId}
                 onChange={(e) => setSelectedClientId(e.target.value)}
-                className="appearance-none pl-3.5 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 cursor-pointer shadow-xs"
+                className="appearance-none pl-3.5 pr-8 py-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] text-sm font-semibold text-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-xs"
               >
                 {clients.length === 0 && (
                   <option value="">Loading clients…</option>
                 )}
                 {clients.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                  <option key={c.id} value={c.id} className="bg-slate-900 text-white">{c.name}</option>
                 ))}
               </select>
               <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -252,9 +252,9 @@ export default function Overview() {
           ].map((item) => (
             <div
               key={item.label}
-              className="bg-white border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col shadow-xs"
+              className="bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-[var(--border-hover)] rounded-xl px-3 py-2.5 flex flex-col shadow-xs transition-all"
             >
-              <span className="text-lg font-extrabold text-slate-900">{item.value}</span>
+              <span className="text-lg font-extrabold text-white">{item.value}</span>
               <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
                 {item.label}
               </span>

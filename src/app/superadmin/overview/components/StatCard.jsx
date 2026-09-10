@@ -9,28 +9,28 @@ export default function StatCard({
   const getIconColorClass = () => {
     switch (iconBg) {
       case 'success':
-        return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
       case 'cyan':
-        return 'bg-sky-50 text-sky-600 border-sky-200';
+        return 'bg-sky-500/10 text-sky-400 border-sky-500/20';
       case 'purple':
-        return 'bg-purple-50 text-purple-600 border-purple-200';
+        return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
       default:
-        return 'bg-indigo-50 text-indigo-600 border-indigo-200';
+        return 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
     }
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-xs hover:shadow-md hover:border-slate-300 transition-all">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-[var(--border-hover)] hover:bg-[var(--bg-card-hover)] rounded-2xl p-5 flex items-center justify-between shadow-md hover:shadow-lg transition-all duration-200 group">
       <div className="flex flex-col gap-1">
         <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
           {title}
         </span>
-        <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
+        <span className="text-3xl font-extrabold text-white tracking-tight">
           {value}
         </span>
       </div>
 
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center border shadow-xs ${getIconColorClass()}`}>
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center border shadow-xs transition-transform duration-200 group-hover:scale-105 ${getIconColorClass()}`}>
         {Icon && <Icon size={22} />}
       </div>
     </div>

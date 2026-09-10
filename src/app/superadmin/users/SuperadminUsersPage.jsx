@@ -103,17 +103,17 @@ export default function SuperadminUsersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 py-1">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
             Team Management
           </h1>
-          <p className="text-xs md:text-sm text-slate-500 max-w-2xl">
+          <p className="text-xs md:text-sm text-slate-400 max-w-2xl">
             Create and manage all users — client admins, zone in-charges, and zone staff — across any organization.
           </p>
         </div>
         {selectedClientId && (
           <button
             onClick={() => setIsCreateOpen(true)}
-            className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-indigo-200 transition-all cursor-pointer shrink-0"
+            className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-indigo-500/20 transition-all cursor-pointer shrink-0"
           >
             <UserPlus size={16} /> Add User
           </button>
@@ -121,20 +121,20 @@ export default function SuperadminUsersPage() {
       </div>
 
       {/* Organization selector */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row sm:items-center gap-3">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-md flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex items-center gap-2 shrink-0">
-          <Building2 size={15} className="text-indigo-500" />
-          <span className="text-xs font-bold text-slate-700">Organization:</span>
+          <Building2 size={15} className="text-indigo-400" />
+          <span className="text-xs font-bold text-slate-300">Organization:</span>
         </div>
         <select
           value={selectedClientId}
           onChange={(e) => setSelected(e.target.value)}
           disabled={loadingClients}
-          className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer disabled:opacity-60"
+          className="flex-1 px-3.5 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 cursor-pointer disabled:opacity-60"
         >
-          <option value="">{loadingClients ? 'Loading…' : '— select an organization —'}</option>
+          <option value="" className="bg-slate-900 text-white">{loadingClients ? 'Loading…' : '— select an organization —'}</option>
           {clients.map((c) => (
-            <option key={c.id} value={c.id}>
+            <option key={c.id} value={c.id} className="bg-slate-900 text-white">
               {c.facilityName ?? c.name}{c.location ? ` · ${c.location}` : ''}
             </option>
           ))}
@@ -143,7 +143,7 @@ export default function SuperadminUsersPage() {
           <button
             onClick={() => fetchUsers(selectedClientId)}
             disabled={loading}
-            className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+            className="p-2 rounded-xl border border-[var(--border-color)] text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50 shrink-0"
             title="Refresh"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
@@ -153,9 +153,9 @@ export default function SuperadminUsersPage() {
 
       {/* No org selected */}
       {!selectedClientId && !loadingClients && (
-        <div className="flex flex-col items-center gap-3 p-16 bg-white rounded-2xl border border-slate-200 text-center">
-          <Users size={28} className="text-slate-300" />
-          <p className="text-sm font-semibold text-slate-500">Select an organization above to manage its users.</p>
+        <div className="flex flex-col items-center gap-3 p-16 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] text-center">
+          <Users size={28} className="text-slate-500" />
+          <p className="text-sm font-semibold text-slate-400">Select an organization above to manage its users.</p>
         </div>
       )}
 
@@ -165,18 +165,18 @@ export default function SuperadminUsersPage() {
           <UserStatCards users={allUsers} />
 
           {/* Search + role filter */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-xs">
-            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-[var(--bg-card)] p-3.5 rounded-2xl border border-[var(--border-color)] shadow-md">
+            <div className="flex items-center bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
               <Search size={16} className="text-slate-400 shrink-0" />
               <input
                 type="text"
                 placeholder="Search by name, email, or zone…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-slate-400"
+                className="bg-transparent text-xs font-medium text-white w-full outline-hidden placeholder:text-slate-500"
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+                <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-white cursor-pointer">
                   <X size={14} />
                 </button>
               )}
@@ -189,8 +189,8 @@ export default function SuperadminUsersPage() {
                   onClick={() => setSelectedRole(tab.id)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                     selectedRole === tab.id
-                      ? 'bg-indigo-600 text-white shadow-xs'
-                      : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80'
+                      ? 'bg-indigo-600 text-white font-bold shadow-xs'
+                      : 'bg-slate-800/90 text-slate-300 border border-slate-700/60 hover:bg-slate-700 hover:text-white'
                   }`}
                 >
                   {tab.label}
@@ -201,9 +201,9 @@ export default function SuperadminUsersPage() {
 
           {/* User table */}
           {loading && allUsers.length === 0 ? (
-            <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 flex flex-col items-center gap-3">
-              <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-              <span className="text-xs font-semibold text-slate-500">Loading users…</span>
+            <div className="p-12 text-center bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] flex flex-col items-center gap-3">
+              <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+              <span className="text-xs font-semibold text-slate-400">Loading users…</span>
             </div>
           ) : (
             <UserTable users={filteredUsers} onEditUser={(u) => setEditingUser(u)} />

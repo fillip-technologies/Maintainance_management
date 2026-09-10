@@ -29,37 +29,37 @@ export default function FacilityOverviewTable({ facilities, loading, onNotify })
   });
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-2xl p-6 flex flex-col gap-4 shadow-xs">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 flex flex-col gap-4 shadow-md">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2.5">
-            <h3 className="text-base font-bold text-slate-900">Client Facility Portfolio & Workload</h3>
-            <span className="text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-full">
+            <h3 className="text-base font-bold text-white">Client Facility Portfolio & Workload</h3>
+            <span className="text-[11px] font-bold bg-purple-950/50 text-purple-300 border border-purple-800/60 px-2 py-0.5 rounded-full">
               {loading ? '—' : `${rows.length} Clients`}
             </span>
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-400">
             Multi-tenant device fleet and open work-order load per client
           </p>
         </div>
 
         {/* Search and Filters */}
         <div className="flex items-center gap-2.5 flex-wrap">
-          <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 gap-2 text-xs">
+          <div className="flex items-center bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-2.5 py-1.5 gap-2 text-xs">
             <Search size={14} className="text-slate-400" />
             <input
               type="text"
               placeholder="Filter client or company..."
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
-              className="bg-transparent border-none text-slate-900 outline-hidden w-32 sm:w-44 text-xs placeholder:text-slate-400"
+              className="bg-transparent border-none text-white outline-hidden w-32 sm:w-44 text-xs placeholder:text-slate-500"
             />
           </div>
 
-          <div className="flex bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-xs">
+          <div className="flex bg-[var(--bg-main)] p-0.5 rounded-xl border border-[var(--border-color)] text-xs">
             <button
               className={`px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
-                statusFilter === 'all' ? 'bg-white text-indigo-700 font-bold shadow-xs' : 'text-slate-600'
+                statusFilter === 'all' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-400 hover:text-white'
               }`}
               onClick={() => setStatusFilter('all')}
             >
@@ -67,7 +67,7 @@ export default function FacilityOverviewTable({ facilities, loading, onNotify })
             </button>
             <button
               className={`px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
-                statusFilter === 'optimal' ? 'bg-white text-indigo-700 font-bold shadow-xs' : 'text-slate-600'
+                statusFilter === 'optimal' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-400 hover:text-white'
               }`}
               onClick={() => setStatusFilter('optimal')}
             >
@@ -75,7 +75,7 @@ export default function FacilityOverviewTable({ facilities, loading, onNotify })
             </button>
             <button
               className={`px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
-                statusFilter === 'warning' ? 'bg-white text-indigo-700 font-bold shadow-xs' : 'text-slate-600'
+                statusFilter === 'warning' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-400 hover:text-white'
               }`}
               onClick={() => setStatusFilter('warning')}
             >
@@ -85,7 +85,7 @@ export default function FacilityOverviewTable({ facilities, loading, onNotify })
 
           <a
             href="#/superadmin/clients"
-            className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:underline"
+            className="inline-flex items-center gap-1 text-xs font-bold text-blue-400 hover:text-blue-300 hover:underline"
           >
             <span>Manage All</span>
             <ExternalLink size={14} />
@@ -93,10 +93,10 @@ export default function FacilityOverviewTable({ facilities, loading, onNotify })
         </div>
       </div>
 
-      <div className="overflow-x-auto border border-slate-200 rounded-xl bg-white">
+      <div className="overflow-x-auto border border-[var(--border-color)] rounded-xl bg-[var(--bg-card)]">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <tr className="bg-[var(--bg-main)]/80 border-b border-[var(--border-color)] text-[11px] font-bold uppercase tracking-wider text-slate-400">
               <th className="py-3 px-4">Client & Company</th>
               <th className="py-3 px-4">Zones</th>
               <th className="py-3 px-4">Devices</th>
@@ -106,7 +106,7 @@ export default function FacilityOverviewTable({ facilities, loading, onNotify })
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 text-xs">
+          <tbody className="divide-y divide-[var(--border-color)]/60 text-xs text-slate-300">
             {loading ? (
               <tr>
                 <td colSpan={7} className="py-8 px-4 text-center text-slate-400">Loading facilities…</td>
@@ -117,35 +117,35 @@ export default function FacilityOverviewTable({ facilities, loading, onNotify })
               </tr>
             ) : (
               filtered.map((fac) => (
-                <tr key={fac.clientId} className="hover:bg-slate-50/80 transition-colors group">
+                <tr key={fac.clientId} className="hover:bg-[var(--bg-main)]/50 transition-colors group">
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <div className="w-8 h-8 rounded-lg bg-purple-950/50 border border-purple-800/60 text-purple-400 flex items-center justify-center group-hover:scale-105 transition-transform">
                         <Building size={16} />
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                        <span className="font-bold text-white group-hover:text-blue-400 transition-colors">
                           {fac.name}
                         </span>
                         <span className="text-[11px] text-slate-400">{fac.companyName || '—'}</span>
                       </div>
                     </div>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-600 font-medium">{fac.zones}</td>
-                  <td className="py-3.5 px-4 text-slate-600 font-medium">{fac.devices}</td>
+                  <td className="py-3.5 px-4 text-slate-300 font-medium">{fac.zones}</td>
+                  <td className="py-3.5 px-4 text-slate-300 font-medium">{fac.devices}</td>
                   <td className="py-3.5 px-4">
                     <span
                       className={`font-bold px-2 py-0.5 rounded-full text-[11px] border ${
                         fac.faultyDevices > 0
-                          ? 'bg-rose-50 text-rose-700 border-rose-200'
-                          : 'bg-slate-50 text-slate-500 border-slate-200'
+                          ? 'bg-rose-950/60 text-rose-300 border-rose-800/60'
+                          : 'bg-slate-800 text-slate-400 border-slate-700'
                       }`}
                     >
                       {fac.faultyDevices}
                     </span>
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className="font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full text-[11px]">
+                    <span className="font-bold bg-indigo-950/60 text-indigo-300 border border-indigo-800/60 px-2 py-0.5 rounded-full text-[11px]">
                       {fac.openIssues} Active
                     </span>
                   </td>
@@ -153,8 +153,8 @@ export default function FacilityOverviewTable({ facilities, loading, onNotify })
                     <span
                       className={`font-semibold px-2 py-0.5 rounded-full text-[11px] border ${
                         fac.status === 'optimal'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-amber-50 text-amber-700 border-amber-200'
+                          ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60'
+                          : 'bg-amber-950/60 text-amber-300 border-amber-800/60'
                       }`}
                     >
                       {fac.status === 'optimal' ? 'Healthy' : 'Needs Review'}
@@ -163,7 +163,7 @@ export default function FacilityOverviewTable({ facilities, loading, onNotify })
                   <td className="py-3.5 px-4 text-right">
                     <button
                       onClick={() => onNotify?.(`Opening ${fac.name}`)}
-                      className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                      className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                       title="Client Options"
                     >
                       <MoreVertical size={16} />

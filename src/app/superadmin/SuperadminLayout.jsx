@@ -28,7 +28,7 @@ export default function SuperadminLayout() {
           onToggleMobileSidebar={() => setIsMobileOpen(!isMobileOpen)}
         />
 
-        <main className="flex-1 p-3.5 sm:p-6 md:p-8 max-w-[1600px] w-full mx-auto bg-[var(--bg-main)]">
+        <main className="flex-1 p-3.5 sm:p-6 md:p-8 max-w-[1600px] w-full mx-auto bg-[var(--bg-main)] text-slate-100">
           <Outlet />
         </main>
       </div>

@@ -52,20 +52,190 @@
   input[class*="text-slate-300"],
   input[class*="bg-[var(--bg-card)"],
   input[class*="bg-[var(--bg-sidebar)"],
+  input[class*="bg-[var(--bg-main)"],
   select[class*="bg-[var(--bg-card)"],
-  select[class*="bg-[var(--bg-sidebar)"] {
+  select[class*="bg-[var(--bg-sidebar)"],
+  select[class*="bg-[var(--bg-main)"],
+  textarea[class*="bg-[var(--bg-main)"],
+  textarea[class*="bg-[var(--bg-card)"] {
     color: #ffffff;
   }
 
   /* Page headline contrast safeguard for dark website layout */
   main > div > div > h1,
-  main > div > div > div > h1 {
+  main > div > div > div > h1,
+  main h1 {
     color: var(--text-main);
   }
 
-  .bg-white h1,
-  [class*="bg-white"] h1 {
-    color: #0f172a;
+  /* Universal Dark Theme Adaptations for Superadmin & Portal Content */
+  main .bg-white,
+  .fixed.inset-0 .bg-white {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+  }
+
+  main [class*="bg-slate-50"],
+  main [class*="bg-slate-100"],
+  main [class*="bg-slate-200"],
+  .fixed.inset-0 [class*="bg-slate-50"],
+  .fixed.inset-0 [class*="bg-slate-100"],
+  .fixed.inset-0 [class*="bg-slate-200"] {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: var(--border-color) !important;
+  }
+
+  /* Unselected tab/pill buttons with slate backgrounds */
+  main button[class*="bg-slate-100"],
+  main button[class*="bg-slate-200"],
+  .fixed.inset-0 button[class*="bg-slate-100"],
+  .fixed.inset-0 button[class*="bg-slate-200"] {
+    background-color: #1e293b !important;
+    color: #cbd5e1 !important;
+    border: 1px solid var(--border-color) !important;
+  }
+
+  main button[class*="bg-slate-100"]:hover,
+  main button[class*="bg-slate-200"]:hover,
+  .fixed.inset-0 button[class*="bg-slate-100"]:hover,
+  .fixed.inset-0 button[class*="bg-slate-200"]:hover {
+    background-color: #334155 !important;
+    color: #ffffff !important;
+  }
+
+  /* Tab bar groups with active white tabs inside slate containers */
+  main [class*="bg-slate-100"] > button,
+  main [class*="bg-slate-50"] > button,
+  main [class*="bg-slate-200"] > button {
+    color: #94a3b8;
+  }
+
+  main [class*="bg-slate-100"] > button.bg-white,
+  main [class*="bg-slate-100"] > button[class*="bg-white"],
+  main [class*="bg-slate-200"] > button.bg-white,
+  main [class*="bg-slate-200"] > button[class*="bg-white"],
+  main [class*="bg-slate-50"] > button.bg-white,
+  main [class*="bg-slate-50"] > button[class*="bg-white"] {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3) !important;
+  }
+
+  main .text-slate-900,
+  main .text-slate-800,
+  .fixed.inset-0 .text-slate-900,
+  .fixed.inset-0 .text-slate-800 {
+    color: #ffffff !important;
+  }
+
+  main .text-slate-700,
+  main .text-slate-600,
+  .fixed.inset-0 .text-slate-700,
+  .fixed.inset-0 .text-slate-600 {
+    color: #cbd5e1 !important;
+  }
+
+  main .text-slate-500,
+  .fixed.inset-0 .text-slate-500 {
+    color: #94a3b8 !important;
+  }
+
+  main .border-slate-200,
+  main .border-slate-100,
+  main .border-slate-300,
+  .fixed.inset-0 .border-slate-200,
+  .fixed.inset-0 .border-slate-100 {
+    border-color: var(--border-color) !important;
+  }
+
+  main .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+  main .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+  .fixed.inset-0 .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--border-color) !important;
+  }
+
+  /* Hover states in dark mode */
+  main .hover\:bg-slate-50:hover,
+  main .hover\:bg-slate-50\/50:hover,
+  main .hover\:bg-slate-50\/60:hover,
+  main .hover\:bg-slate-100:hover,
+  .fixed.inset-0 .hover\:bg-slate-50:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
+
+  main .focus-within\:bg-white:focus-within,
+  main .focus\:bg-white:focus,
+  .fixed.inset-0 .focus-within\:bg-white:focus-within,
+  .fixed.inset-0 .focus\:bg-white:focus {
+    background-color: var(--bg-main) !important;
+  }
+
+  /* Tables in dark theme */
+  main table thead th {
+    background-color: var(--bg-main) !important;
+    color: var(--text-muted) !important;
+    border-color: var(--border-color) !important;
+  }
+
+  main table td {
+    border-color: var(--border-color) !important;
+  }
+
+  /* Inputs, selects and textareas in main and modals */
+  main input:not([type="checkbox"]):not([type="radio"]),
+  main select,
+  main textarea,
+  .fixed.inset-0 input:not([type="checkbox"]):not([type="radio"]),
+  .fixed.inset-0 select,
+  .fixed.inset-0 textarea {
+    background-color: var(--bg-main) !important;
+    border-color: var(--border-color) !important;
+    color: #ffffff !important;
+  }
+
+  main select option,
+  .fixed.inset-0 select option {
+    background-color: var(--bg-card);
+    color: #ffffff;
+  }
+
+  main input::placeholder,
+  main textarea::placeholder,
+  .fixed.inset-0 input::placeholder,
+  .fixed.inset-0 textarea::placeholder {
+    color: #64748b !important;
+  }
+
+  /* Status badge & alert chip dark contrast tuning */
+  main .bg-indigo-50, .fixed.inset-0 .bg-indigo-50 {
+    background-color: rgba(99, 102, 241, 0.15) !important;
+    border-color: rgba(99, 102, 241, 0.3) !important;
+    color: #a5b4fc !important;
+  }
+  main .bg-amber-50, .fixed.inset-0 .bg-amber-50 {
+    background-color: rgba(245, 158, 11, 0.15) !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+    color: #fcd34d !important;
+  }
+  main .bg-emerald-50, .fixed.inset-0 .bg-emerald-50 {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+    color: #6ee7b7 !important;
+  }
+  main .bg-rose-50, .fixed.inset-0 .bg-rose-50 {
+    background-color: rgba(244, 63, 94, 0.15) !important;
+    border-color: rgba(244, 63, 94, 0.3) !important;
+    color: #fda4af !important;
+  }
+  main .bg-blue-50, .fixed.inset-0 .bg-blue-50 {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+    color: #93c5fd !important;
+  }
+  main .bg-purple-50, .fixed.inset-0 .bg-purple-50 {
+    background-color: rgba(168, 85, 247, 0.15) !important;
+    border-color: rgba(168, 85, 247, 0.3) !important;
+    color: #d8b4fe !important;
   }
 }
 

@@ -361,28 +361,28 @@ export default function IssuesPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 flex flex-wrap items-center gap-3 shadow-xs">
-        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex-1 min-w-[200px]">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 flex flex-wrap items-center gap-3 shadow-md">
+        <div className="flex items-center gap-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-3 py-2 flex-1 min-w-[200px]">
           <Search size={14} className="text-slate-400 shrink-0" />
           <input
             type="text"
             placeholder="Search unit name, description, category…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent outline-none text-xs text-slate-900 placeholder:text-slate-400 w-full"
+            className="bg-transparent outline-none text-xs text-white placeholder:text-slate-500 w-full"
           />
           {search && (
-            <button onClick={() => setSearch('')} className="text-slate-400 hover:text-slate-700 cursor-pointer"><X size={13} /></button>
+            <button onClick={() => setSearch('')} className="text-slate-400 hover:text-white cursor-pointer"><X size={13} /></button>
           )}
         </div>
 
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold gap-0.5">
+        <div className="flex items-center bg-[var(--bg-main)] p-1 rounded-xl text-xs font-semibold gap-0.5 border border-[var(--border-color)]">
           {STATUS_TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setStatus(tab)}
               className={`px-2.5 py-1 rounded-lg capitalize transition-all cursor-pointer ${
-                statusFilter === tab ? 'bg-white text-slate-900 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'
+                statusFilter === tab ? 'bg-blue-600 text-white shadow-xs font-bold' : 'text-slate-400 hover:text-white'
               }`}
             >
               {pretty(tab) || 'all'}
@@ -390,13 +390,13 @@ export default function IssuesPage() {
           ))}
         </div>
 
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold gap-0.5">
+        <div className="flex items-center bg-[var(--bg-main)] p-1 rounded-xl text-xs font-semibold gap-0.5 border border-[var(--border-color)]">
           {PRIORITY_TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setPriority(tab)}
               className={`px-2.5 py-1 rounded-lg capitalize transition-all cursor-pointer ${
-                priorityFilter === tab ? 'bg-white text-slate-900 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'
+                priorityFilter === tab ? 'bg-blue-600 text-white shadow-xs font-bold' : 'text-slate-400 hover:text-white'
               }`}
             >
               {tab}

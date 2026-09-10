@@ -183,7 +183,7 @@ export default function InventoryLogsPage() {
         {/* Status filter tabs */}
         <div className="flex items-center gap-1.5 flex-wrap">
           {[
-            { key: 'all',               label: `All (${logs.length})`,       active: 'bg-slate-900 text-white' },
+            { key: 'all',               label: `All (${logs.length})`,       active: 'bg-blue-600 text-white' },
             { key: 'working',           label: `Working (${working})`,        active: 'bg-emerald-600 text-white' },
             { key: 'not_working',       label: `Not Working (${notWorking})`, active: 'bg-rose-600 text-white' },
             { key: 'under_maintenance', label: `Maintenance (${maintenance})`,active: 'bg-amber-600 text-white' },
@@ -192,7 +192,7 @@ export default function InventoryLogsPage() {
               key={t.key}
               onClick={() => setStatusFilter(t.key)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                statusFilter === t.key ? `${t.active} shadow-xs` : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80'
+                statusFilter === t.key ? `${t.active} shadow-xs font-bold` : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
               }`}
             >
               {t.label}

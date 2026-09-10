@@ -106,20 +106,20 @@ export default function SuperadminZonesPage() {
       </div>
 
       {/* Company selector */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row sm:items-center gap-3">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-md flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex items-center gap-2 shrink-0">
-          <Building2 size={15} className="text-indigo-500" />
-          <span className="text-xs font-bold text-slate-700">Company:</span>
+          <Building2 size={15} className="text-blue-400" />
+          <span className="text-xs font-bold text-slate-300">Company:</span>
         </div>
         <select
           value={selectedClientId}
           onChange={(e) => setSelected(e.target.value)}
           disabled={loadingClients}
-          className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer disabled:opacity-60"
+          className="flex-1 px-3.5 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-white text-xs font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer disabled:opacity-60"
         >
-          <option value="">{loadingClients ? 'Loading…' : '— choose a company —'}</option>
+          <option value="" className="bg-slate-900 text-white">{loadingClients ? 'Loading…' : '— choose a company —'}</option>
           {clients.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}{c.location ? ` · ${c.location}` : ''}</option>
+            <option key={c.id} value={c.id} className="bg-slate-900 text-white">{c.name}{c.location ? ` · ${c.location}` : ''}</option>
           ))}
         </select>
         {selectedClient?.location && (
@@ -131,9 +131,9 @@ export default function SuperadminZonesPage() {
 
       {/* No company selected */}
       {!selectedClientId && !loadingClients && (
-        <div className="flex flex-col items-center gap-3 p-16 bg-white rounded-2xl border border-slate-200 text-center">
-          <MapPin size={28} className="text-slate-300" />
-          <p className="text-sm font-semibold text-slate-500">Select a company above to view and manage its zones.</p>
+        <div className="flex flex-col items-center gap-3 p-16 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] text-center">
+          <MapPin size={28} className="text-slate-500" />
+          <p className="text-sm font-semibold text-slate-400">Select a company above to view and manage its zones.</p>
         </div>
       )}
 
@@ -142,17 +142,17 @@ export default function SuperadminZonesPage() {
         <>
           {/* Search + filter */}
           <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex items-center gap-2 flex-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
+            <div className="flex items-center gap-2 flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
               <Search size={14} className="text-slate-400 shrink-0" />
               <input
                 type="text"
                 placeholder="Search zones…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="bg-transparent text-xs font-medium text-slate-900 outline-none w-full placeholder:text-slate-400"
+                className="bg-transparent text-xs font-medium text-white outline-none w-full placeholder:text-slate-500"
               />
               {search && (
-                <button onClick={() => setSearch('')} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+                <button onClick={() => setSearch('')} className="text-slate-400 hover:text-white cursor-pointer">
                   <X size={13} />
                 </button>
               )}
@@ -168,8 +168,8 @@ export default function SuperadminZonesPage() {
                 <button key={t.key} onClick={() => setStatusFilter(t.key)}
                   className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
                     statusFilter === t.key
-                      ? 'bg-indigo-600 text-white shadow-sm'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
                   }`}>
                   {t.label}
                 </button>
@@ -178,22 +178,22 @@ export default function SuperadminZonesPage() {
           </div>
 
           {loading && (
-            <div className="flex items-center gap-3 justify-center p-16 bg-white rounded-2xl border border-slate-200">
-              <Loader2 size={20} className="animate-spin text-indigo-500" />
-              <span className="text-xs text-slate-500">Loading zones…</span>
+            <div className="flex items-center gap-3 justify-center p-16 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)]">
+              <Loader2 size={20} className="animate-spin text-blue-500" />
+              <span className="text-xs text-slate-400">Loading zones…</span>
             </div>
           )}
 
           {error && (
-            <div className="flex items-center gap-3 p-5 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-sm font-semibold">
+            <div className="flex items-center gap-3 p-5 bg-rose-950/40 border border-rose-800/60 rounded-2xl text-rose-300 text-sm font-semibold">
               <AlertTriangle size={16} /> {error}
             </div>
           )}
 
           {!loading && !error && filtered.length === 0 && (
-            <div className="flex flex-col items-center gap-3 p-16 bg-white rounded-2xl border border-slate-200">
-              <MapPin size={24} className="text-slate-300" />
-              <p className="text-sm font-semibold text-slate-500">
+            <div className="flex flex-col items-center gap-3 p-16 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)]">
+              <MapPin size={24} className="text-slate-500" />
+              <p className="text-sm font-semibold text-slate-400">
                 {zones.length === 0 ? 'No zones yet — use the Zone Management tool to create zones for this company.' : 'No zones match your search.'}
               </p>
             </div>

@@ -21,12 +21,12 @@ export default function ClientTable({ clients = [], onEditClient, onDeleteClient
 
   if (clients.length === 0) {
     return (
-      <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+      <div className="p-12 text-center bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] shadow-md flex flex-col items-center gap-3">
+        <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
           <Building2 size={24} />
         </div>
         <div className="flex flex-col">
-          <h3 className="text-sm font-bold text-slate-800">No Clients Found</h3>
+          <h3 className="text-sm font-bold text-white">No Clients Found</h3>
           <p className="text-xs text-slate-400 mt-0.5">
             Click "Add Client" above to provision a client under an organization.
           </p>
@@ -36,11 +36,11 @@ export default function ClientTable({ clients = [], onEditClient, onDeleteClient
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
+    <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] shadow-md overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <tr className="bg-[var(--bg-main)]/80 border-b border-[var(--border-color)] text-[11px] font-bold uppercase tracking-wider text-slate-400">
               <th className="py-3.5 px-6">Organization & Client</th>
               <th className="py-3.5 px-6">Client Administrator</th>
               <th className="py-3.5 px-6">Location</th>
@@ -49,26 +49,26 @@ export default function ClientTable({ clients = [], onEditClient, onDeleteClient
               <th className="py-3.5 px-6 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
+          <tbody className="divide-y divide-[var(--border-color)]/60 text-xs font-medium text-slate-300">
             {clients.map((client) => {
               const hasAdmin = !!client.adminName;
               const isActive = client.status === 'active';
               const isNoAdmin = client.status === 'no_admin';
 
               return (
-                <tr key={client.clientId} className="hover:bg-slate-50/60 transition-colors group">
+                <tr key={client.clientId} className="hover:bg-[var(--bg-main)]/50 transition-colors group">
 
                   {/* 1. Organization & Client */}
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
                         <Building2 size={20} />
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                        <span className="font-bold text-white group-hover:text-blue-400 transition-colors">
                           {client.companyName}
                         </span>
-                        <span className="text-[11px] text-slate-500 font-medium">
+                        <span className="text-[11px] text-slate-400 font-medium">
                           {client.facilityName}
                         </span>
                       </div>
@@ -83,7 +83,7 @@ export default function ClientTable({ clients = [], onEditClient, onDeleteClient
                           {getInitials(client.adminName)}
                         </div>
                         <div className="flex flex-col">
-                          <span className="font-bold text-slate-900">{client.adminName}</span>
+                          <span className="font-bold text-white">{client.adminName}</span>
                           <span className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
                             <Mail size={11} className="text-slate-400" />
                             {client.email}
@@ -100,7 +100,7 @@ export default function ClientTable({ clients = [], onEditClient, onDeleteClient
 
                   {/* 3. Location */}
                   <td className="py-4 px-6">
-                    <div className="flex items-center gap-1.5 text-slate-700">
+                    <div className="flex items-center gap-1.5 text-slate-300">
                       <MapPin size={13} className="text-slate-400 shrink-0" />
                       <span className="truncate max-w-[160px]">{client.location || '—'}</span>
                     </div>
@@ -109,15 +109,15 @@ export default function ClientTable({ clients = [], onEditClient, onDeleteClient
                   {/* 4. Status */}
                   <td className="py-4 px-6">
                     {isNoAdmin ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-rose-50 text-rose-700 border-rose-200">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-rose-950/60 text-rose-300 border-rose-800/60">
                         <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                         No Admin
                       </span>
                     ) : (
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
                         isActive
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-amber-50 text-amber-700 border-amber-200'
+                          ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60'
+                          : 'bg-amber-950/60 text-amber-300 border-amber-800/60'
                       }`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
                         {isActive ? 'Active' : 'Invited'}
@@ -127,7 +127,7 @@ export default function ClientTable({ clients = [], onEditClient, onDeleteClient
 
                   {/* 5. Created Date */}
                   <td className="py-4 px-6">
-                    <span className="text-slate-600 flex items-center gap-1.5">
+                    <span className="text-slate-400 flex items-center gap-1.5">
                       <Calendar size={13} className="text-slate-400" />
                       {formatDate(client.createdAt)}
                     </span>
@@ -139,14 +139,14 @@ export default function ClientTable({ clients = [], onEditClient, onDeleteClient
                       <button
                         onClick={() => hasAdmin && onEditClient && onEditClient(client)}
                         disabled={!hasAdmin}
-                        className="p-1.5 rounded-lg border border-slate-200 transition-colors cursor-pointer text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="p-1.5 rounded-lg border border-[var(--border-color)] transition-colors cursor-pointer text-slate-400 hover:text-blue-400 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed"
                         title={hasAdmin ? 'Edit client admin' : 'No admin to edit'}
                       >
                         <Edit3 size={14} />
                       </button>
                       <button
                         onClick={() => onDeleteClient && onDeleteClient(client)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 border border-[var(--border-color)] transition-colors cursor-pointer"
                         title="Remove client"
                       >
                         <Trash2 size={14} />

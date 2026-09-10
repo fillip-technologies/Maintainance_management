@@ -26,10 +26,10 @@ const STATUS_META = [
 ];
 
 const PRIORITY_META = [
-  { key: 'critical', label: 'Critical', cls: 'bg-rose-50 text-rose-700 border-rose-200' },
-  { key: 'high', label: 'High', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
-  { key: 'medium', label: 'Medium', cls: 'bg-sky-50 text-sky-700 border-sky-200' },
-  { key: 'low', label: 'Low', cls: 'bg-slate-50 text-slate-600 border-slate-200' }
+  { key: 'critical', label: 'Critical', cls: 'bg-rose-950/40 text-rose-300 border-rose-800/60' },
+  { key: 'high', label: 'High', cls: 'bg-amber-950/40 text-amber-300 border-amber-800/60' },
+  { key: 'medium', label: 'Medium', cls: 'bg-sky-950/40 text-sky-300 border-sky-800/60' },
+  { key: 'low', label: 'Low', cls: 'bg-slate-800 text-slate-300 border-slate-700' }
 ];
 
 export default function WorkOrderStatus({ issues, loading }) {
@@ -44,21 +44,21 @@ export default function WorkOrderStatus({ issues, loading }) {
   });
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-2xl p-6 flex flex-col gap-4 shadow-xs">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 flex flex-col gap-4 shadow-md">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2.5">
-            <h3 className="text-base font-bold text-slate-900">Work Order Real-Time Pulse</h3>
-            <span className="text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full">
+            <h3 className="text-base font-bold text-white">Work Order Real-Time Pulse</h3>
+            <span className="text-[11px] font-bold bg-indigo-950/50 text-indigo-300 border border-indigo-800/60 px-2 py-0.5 rounded-full">
               {loading ? '—' : `${issues?.open ?? 0} Open`}
             </span>
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-400">
             Live ticket lifecycle across all facilities ({total} total)
           </p>
         </div>
 
-        <a href="#/superadmin/work-orders" className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:underline">
+        <a href="#/superadmin/work-orders" className="inline-flex items-center gap-1 text-xs font-bold text-blue-400 hover:text-blue-300 hover:underline">
           <span>All Work Orders</span>
           <ArrowUpRight size={14} />
         </a>
@@ -66,7 +66,7 @@ export default function WorkOrderStatus({ issues, loading }) {
 
       {/* Distribution bar */}
       <div className="py-1">
-        <div className="h-2.5 rounded-full bg-slate-100 overflow-hidden flex gap-0.5">
+        <div className="h-2.5 rounded-full bg-slate-800/80 overflow-hidden flex gap-0.5">
           {segments.map((seg) =>
             seg.count > 0 ? (
               <div
@@ -85,16 +85,16 @@ export default function WorkOrderStatus({ issues, loading }) {
         {segments.map((status) => {
           const Icon = status.icon;
           return (
-            <div key={status.key} className="bg-slate-50 hover:bg-slate-100/70 border border-slate-200/80 rounded-xl p-3 flex flex-col gap-2 transition-colors">
-              <div className="flex items-center justify-between text-xs text-slate-500 gap-1">
+            <div key={status.key} className="bg-[var(--bg-main)]/50 hover:bg-[var(--bg-main)]/80 border border-[var(--border-color)] rounded-xl p-3 flex flex-col gap-2 transition-colors">
+              <div className="flex items-center justify-between text-xs text-slate-400 gap-1">
                 <div className="flex items-center gap-1.5 overflow-hidden">
                   <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: status.color }}></span>
                   <span className="text-[11px] font-medium truncate">{status.label}</span>
                 </div>
-                <span className="text-[10px] font-bold text-slate-400">{status.pct}%</span>
+                <span className="text-[10px] font-bold text-slate-500">{status.pct}%</span>
               </div>
               <div className="flex items-baseline justify-between">
-                <span className="text-xl font-extrabold text-slate-900">{loading ? '—' : status.count}</span>
+                <span className="text-xl font-extrabold text-white">{loading ? '—' : status.count}</span>
                 <Icon size={16} className="text-slate-400" />
               </div>
             </div>
@@ -118,16 +118,16 @@ export default function WorkOrderStatus({ issues, loading }) {
 
       {/* Today counters */}
       <div className="grid grid-cols-3 gap-2.5">
-        <div className="p-3 rounded-xl flex flex-col items-center bg-indigo-50 border border-indigo-200 text-indigo-700">
-          <span className="text-xl font-extrabold text-indigo-900">{loading ? '—' : (issues?.createdToday ?? 0)}</span>
+        <div className="p-3 rounded-xl flex flex-col items-center bg-indigo-950/40 border border-indigo-800/60 text-indigo-300">
+          <span className="text-xl font-extrabold text-indigo-200">{loading ? '—' : (issues?.createdToday ?? 0)}</span>
           <span className="text-[11px] font-semibold">Raised Today</span>
         </div>
-        <div className="p-3 rounded-xl flex flex-col items-center bg-emerald-50 border border-emerald-200 text-emerald-700">
-          <span className="text-xl font-extrabold text-emerald-900">{loading ? '—' : (issues?.resolvedToday ?? 0)}</span>
+        <div className="p-3 rounded-xl flex flex-col items-center bg-emerald-950/40 border border-emerald-800/60 text-emerald-300">
+          <span className="text-xl font-extrabold text-emerald-200">{loading ? '—' : (issues?.resolvedToday ?? 0)}</span>
           <span className="text-[11px] font-semibold">Resolved Today</span>
         </div>
-        <div className="p-3 rounded-xl flex flex-col items-center bg-slate-50 border border-slate-200 text-slate-600">
-          <span className="text-xl font-extrabold text-slate-800">{loading ? '—' : (issues?.closedToday ?? 0)}</span>
+        <div className="p-3 rounded-xl flex flex-col items-center bg-slate-800/60 border border-slate-700 text-slate-300">
+          <span className="text-xl font-extrabold text-slate-200">{loading ? '—' : (issues?.closedToday ?? 0)}</span>
           <span className="text-[11px] font-semibold">Closed Today</span>
         </div>
       </div>

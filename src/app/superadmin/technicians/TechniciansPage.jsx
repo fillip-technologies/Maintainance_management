@@ -127,30 +127,30 @@ export default function TechniciansPage() {
       </div>
 
       {/* Search */}
-      <div className="flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2 gap-2 text-xs max-w-sm shadow-xs">
+      <div className="flex items-center bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl px-3 py-2 gap-2 text-xs max-w-sm shadow-xs focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
         <Search size={15} className="text-slate-400" />
         <input
           type="text"
           placeholder="Search by name…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="bg-transparent border-none text-slate-900 outline-hidden w-full text-xs placeholder:text-slate-400"
+          className="bg-transparent border-none text-white outline-hidden w-full text-xs placeholder:text-slate-500"
         />
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col gap-4 shadow-xs">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 flex flex-col gap-4 shadow-md">
         <div className="flex items-center gap-2">
-          <h3 className="text-base font-bold text-slate-900">Registered Technicians</h3>
-          <span className="text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">
+          <h3 className="text-base font-bold text-white">Registered Technicians</h3>
+          <span className="text-[11px] font-bold bg-amber-950/60 text-amber-300 border border-amber-800/60 px-2 py-0.5 rounded-full">
             {technicians.length}
           </span>
         </div>
 
-        <div className="overflow-x-auto border border-slate-200 rounded-xl bg-white">
+        <div className="overflow-x-auto border border-[var(--border-color)] rounded-xl bg-[var(--bg-card)]">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <tr className="bg-[var(--bg-main)]/80 border-b border-[var(--border-color)] text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 <th className="py-3 px-4">Technician</th>
                 <th className="py-3 px-4">Email</th>
                 <th className="py-3 px-4">Specialization</th>
@@ -158,7 +158,7 @@ export default function TechniciansPage() {
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
+            <tbody className="divide-y divide-[var(--border-color)]/60 text-xs text-slate-300">
               {loading ? (
                 <tr>
                   <td colSpan="5" className="text-center py-12 text-slate-400">Loading technicians…</td>
@@ -171,19 +171,19 @@ export default function TechniciansPage() {
                 </tr>
               ) : (
                 technicians.map((tech) => (
-                  <tr key={tech.id} className="hover:bg-slate-50/80 transition-colors group">
+                  <tr key={tech.id} className="hover:bg-[var(--bg-main)]/50 transition-colors group">
                     {/* Name */}
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-600 to-orange-500 flex items-center justify-center font-bold text-[11px] text-white shrink-0">
                           {getInitials(tech.user?.name)}
                         </div>
-                        <span className="font-bold text-slate-900">{tech.user?.name || '—'}</span>
+                        <span className="font-bold text-white">{tech.user?.name || '—'}</span>
                       </div>
                     </td>
 
                     {/* Email */}
-                    <td className="py-3.5 px-4 text-slate-600">
+                    <td className="py-3.5 px-4 text-slate-400">
                       <div className="flex items-center gap-1.5">
                         <Mail size={13} className="text-slate-400" />
                         <span>{tech.user?.email || '—'}</span>
@@ -193,7 +193,7 @@ export default function TechniciansPage() {
                     {/* Specialization */}
                     <td className="py-3.5 px-4">
                       {tech.specialization ? (
-                        <span className="bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-md text-[11px] font-semibold">
+                        <span className="bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded-md text-[11px] font-semibold">
                           {tech.specialization}
                         </span>
                       ) : (
@@ -211,16 +211,16 @@ export default function TechniciansPage() {
                               <div key={a.id} className="flex items-center gap-1.5">
                                 {isOrg ? (
                                   <>
-                                    <Building2 size={11} className="text-emerald-500 shrink-0" />
-                                    <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded truncate">
+                                    <Building2 size={11} className="text-emerald-400 shrink-0" />
+                                    <span className="text-[11px] font-semibold text-emerald-300 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded truncate">
                                       {a.client?.name}
                                     </span>
                                     <ShieldCheck size={10} className="text-emerald-400 shrink-0" title="Entire org" />
                                   </>
                                 ) : (
                                   <>
-                                    <MapPin size={11} className="text-indigo-500 shrink-0" />
-                                    <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded truncate">
+                                    <MapPin size={11} className="text-indigo-400 shrink-0" />
+                                    <span className="text-[11px] font-semibold text-indigo-300 bg-indigo-950/60 border border-indigo-800/60 px-2 py-0.5 rounded truncate">
                                       {a.zone?.name}
                                     </span>
                                   </>
@@ -240,7 +240,7 @@ export default function TechniciansPage() {
                         <button
                           type="button"
                           onClick={() => setManagingTech(tech)}
-                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-amber-400 bg-white hover:bg-amber-50 text-slate-600 hover:text-amber-700 text-[11px] font-semibold transition-all cursor-pointer shadow-2xs"
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[var(--border-color)] hover:border-amber-400/60 bg-[var(--bg-main)] hover:bg-slate-800 text-slate-300 hover:text-white text-[11px] font-semibold transition-all cursor-pointer shadow-2xs"
                           title="Manage coverage assignments"
                         >
                           <Settings2 size={13} />
@@ -250,7 +250,7 @@ export default function TechniciansPage() {
                           type="button"
                           onClick={() => handleDelete(tech)}
                           disabled={deletingId === tech.id}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer disabled:opacity-40"
+                          className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer disabled:opacity-40"
                           title="Delete Technician"
                         >
                           <Trash2 size={15} />

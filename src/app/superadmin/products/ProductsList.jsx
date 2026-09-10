@@ -582,19 +582,19 @@ export default function ProductsList() {
       </div>
 
       {/* ── Search + Status tabs ── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
-        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex-1 min-w-[200px]">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-md">
+        <div className="flex items-center gap-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-3 py-2 flex-1 min-w-[200px]">
           <Search size={14} className="text-slate-400 shrink-0" />
           <input type="text" placeholder="Search name, code, category, org, zone…"
             value={search} onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent outline-none text-xs text-slate-900 placeholder:text-slate-400 w-full" />
-          {search && <button onClick={() => setSearch('')} className="text-slate-400 hover:text-slate-600 cursor-pointer"><X size={13} /></button>}
+            className="bg-transparent outline-none text-xs text-white placeholder:text-slate-500 w-full" />
+          {search && <button onClick={() => setSearch('')} className="text-slate-400 hover:text-white cursor-pointer"><X size={13} /></button>}
         </div>
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold gap-0.5 flex-wrap">
+        <div className="flex items-center bg-[var(--bg-main)] p-1 rounded-xl text-xs font-semibold gap-0.5 flex-wrap border border-[var(--border-color)]">
           {STATUS_TABS.map((tab) => (
             <button key={tab} onClick={() => setStatusTab(tab)}
               className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                statusTab === tab ? 'bg-white text-slate-900 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'
+                statusTab === tab ? 'bg-blue-600 text-white shadow-xs font-bold' : 'text-slate-400 hover:text-white'
               }`}>
               {tab === 'all' ? 'All' : tab === 'provisioned' ? 'In Stock' : tab === 'under_maintenance' ? 'Maintenance' : tab.replace(/_/g,' ')}
             </button>

@@ -142,16 +142,16 @@ export default function CompaniesPage() {
       {/* KPI mini-cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: 'Total Organizations', value: companies.length, color: 'text-slate-900' },
-          { label: 'Active', value: activeCount, color: 'text-emerald-600' },
-          { label: 'Inactive', value: inactiveCount, color: 'text-slate-500' }
+          { label: 'Total Organizations', value: companies.length, color: 'text-white' },
+          { label: 'Active', value: activeCount, color: 'text-emerald-400' },
+          { label: 'Inactive', value: inactiveCount, color: 'text-slate-400' }
         ].map((k) => (
-          <div key={k.label} className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-xs">
+          <div key={k.label} className="bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-[var(--border-hover)] rounded-2xl p-5 flex items-center justify-between shadow-md transition-all">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{k.label}</span>
               <span className={`text-3xl font-extrabold tracking-tight ${k.color}`}>{k.value}</span>
             </div>
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center border border-indigo-200 bg-indigo-50 text-indigo-600 shadow-xs">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 shadow-xs">
               <Building2 size={22} />
             </div>
           </div>
@@ -159,18 +159,18 @@ export default function CompaniesPage() {
       </div>
 
       {/* Search & Filter */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-xs">
-        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-[var(--bg-card)] p-3.5 rounded-2xl border border-[var(--border-color)] shadow-xs">
+        <div className="flex items-center bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
           <Search size={16} className="text-slate-400 shrink-0" />
           <input
             type="text"
             placeholder="Search organization name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent border-none text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-slate-400"
+            className="bg-transparent border-none text-xs font-medium text-white w-full outline-hidden placeholder:text-slate-500"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+            <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-white cursor-pointer">
               <X size={14} />
             </button>
           )}
@@ -178,15 +178,15 @@ export default function CompaniesPage() {
 
         <div className="flex items-center gap-1.5 flex-wrap">
           {[
-            { key: 'all', label: `All (${companies.length})`, active: 'bg-slate-900 text-white' },
+            { key: 'all', label: `All (${companies.length})`, active: 'bg-blue-600 text-white' },
             { key: 'active', label: `Active (${activeCount})`, active: 'bg-emerald-600 text-white' },
-            { key: 'inactive', label: `Inactive (${inactiveCount})`, active: 'bg-slate-600 text-white' }
+            { key: 'inactive', label: `Inactive (${inactiveCount})`, active: 'bg-slate-700 text-white' }
           ].map((t) => (
             <button
               key={t.key}
               onClick={() => setStatusFilter(t.key)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                statusFilter === t.key ? `${t.active} shadow-xs` : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+                statusFilter === t.key ? `${t.active} shadow-xs` : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
               }`}
             >
               {t.label}
@@ -195,7 +195,7 @@ export default function CompaniesPage() {
           <button
             onClick={fetchCompanies}
             disabled={loading}
-            className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors ml-1 cursor-pointer"
+            className="p-2 rounded-xl border border-[var(--border-color)] text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-1 cursor-pointer"
             title="Refresh"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
@@ -205,31 +205,31 @@ export default function CompaniesPage() {
 
       {/* Table */}
       {loading && companies.length === 0 ? (
-        <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-xs font-semibold text-slate-500">Loading organizations...</span>
+        <div className="p-12 text-center bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs font-semibold text-slate-400">Loading organizations...</span>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 text-slate-400 flex items-center justify-center">
+        <div className="p-12 text-center bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-slate-800/60 border border-slate-700 text-slate-400 flex items-center justify-center">
             <Building2 size={24} />
           </div>
-          <span className="text-sm font-bold text-slate-700">No organizations yet</span>
-          <span className="text-xs text-slate-500 max-w-sm">
+          <span className="text-sm font-bold text-white">No organizations yet</span>
+          <span className="text-xs text-slate-400 max-w-sm">
             Create your first organization to start onboarding clients and facilities.
           </span>
           <button
             onClick={openCreate}
-            className="mt-1 flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors cursor-pointer"
+            className="mt-1 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-colors cursor-pointer"
           >
             <Plus size={15} /> Add Organization
           </button>
         </div>
       ) : (
-        <div className="overflow-x-auto bg-white border border-slate-200 rounded-2xl shadow-xs">
+        <div className="overflow-x-auto bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-md">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <tr className="bg-[var(--bg-main)]/80 border-b border-[var(--border-color)] text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 <th className="py-3 px-4">Organization</th>
                 <th className="py-3 px-4">Status</th>
                 <th className="py-3 px-4">Clients</th>
@@ -237,40 +237,40 @@ export default function CompaniesPage() {
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
+            <tbody className="divide-y divide-[var(--border-color)]/60 text-xs text-slate-300">
               {filtered.map((c) => {
                 const status = c.status || 'active';
                 const count = clientCounts[c.id] || 0;
                 return (
-                  <tr key={c.id} className="hover:bg-slate-50/80 transition-colors group">
+                  <tr key={c.id} className="hover:bg-[var(--bg-main)]/50 transition-colors group">
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
                           <Building2 size={16} />
                         </div>
-                        <span className="font-bold text-slate-900">{c.name}</span>
+                        <span className="font-bold text-white group-hover:text-blue-400 transition-colors">{c.name}</span>
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
                       <span
                         className={`font-semibold px-2 py-0.5 rounded-full text-[11px] border ${
                           status === 'active'
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            : 'bg-slate-100 text-slate-500 border-slate-200'
+                            ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60'
+                            : 'bg-slate-800 text-slate-400 border-slate-700'
                         }`}
                       >
                         {status}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-600 font-medium">{count}</td>
-                    <td className="py-3.5 px-4 text-slate-500">
+                    <td className="py-3.5 px-4 text-slate-300 font-medium">{count}</td>
+                    <td className="py-3.5 px-4 text-slate-400">
                       {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '—'}
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => openEdit(c)}
-                          className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                           title="Edit organization"
                         >
                           <Pencil size={15} />
@@ -278,7 +278,7 @@ export default function CompaniesPage() {
                         <button
                           onClick={() => handleDelete(c)}
                           disabled={deletingId === c.id}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                           title="Delete organization"
                         >
                           <Trash2 size={15} />
