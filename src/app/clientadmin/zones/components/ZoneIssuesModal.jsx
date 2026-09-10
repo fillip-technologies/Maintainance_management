@@ -108,13 +108,18 @@ export default function ZoneIssuesModal({ zoneId, zoneName, onClose }) {
             const device = deviceMap[deviceId];
             const deviceIssues = issuesByDevice[deviceId] ?? [];
             const deviceName = device?.name ?? issues.find(i => (i.device?.id ?? i.deviceId) === deviceId)?.device?.name ?? 'Unknown Device';
+            const deviceImg = device?.imageUrl || deviceIssues.find(i => i.device?.imageUrl)?.device?.imageUrl || null;
 
             return (
               <div key={deviceId} className="border border-slate-200 rounded-2xl overflow-hidden">
                 {/* Device row */}
                 <div className="flex items-center gap-3 px-4 py-3 bg-rose-50/60">
-                  <div className="w-8 h-8 rounded-xl bg-rose-100 border border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
-                    <Package size={15} />
+                  <div className="w-8 h-8 rounded-xl bg-rose-100 border border-rose-200 text-rose-600 flex items-center justify-center shrink-0 overflow-hidden">
+                    {deviceImg ? (
+                      <img src={deviceImg} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <Package size={15} />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold text-slate-900 truncate">{deviceName}</p>
