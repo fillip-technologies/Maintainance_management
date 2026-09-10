@@ -17,40 +17,43 @@ function ProductCard({ product }) {
   const maintenance = product.underMaintenance ?? 0;
 
   return (
-    <div className="bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] hover:border-blue-500/50 rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between group">
-      {/* Top: Logo/SVG on left, Total count + Name on right */}
-      <div className="flex items-center gap-3.5 sm:gap-4">
-        <div className="shrink-0 flex items-center justify-center">
+    <div className="bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] hover:border-blue-500/50 rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 group">
+      {/* card -> row -> column */}
+      <div className="flex items-start gap-4 w-full">
+        {/* Row Left: Logo / Image visual */}
+        <div className="shrink-0 flex items-center justify-center pt-0.5">
           {product.imageUrl
             ? <img src={product.imageUrl} alt={product.name} className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-xl" />
             : <SvgVisual className="w-16 h-16 sm:w-20 sm:h-20" />}
         </div>
-        <div className="flex flex-col min-w-0 flex-1 justify-center">
-          <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-none">
+
+        {/* Row Right: Column with all data left-aligned */}
+        <div className="flex flex-col min-w-0 flex-1 items-start text-left gap-1">
+          <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-none text-left">
             {total}
           </span>
-          <span className="text-xs sm:text-sm font-bold text-white leading-tight break-words mt-1.5" title={product.name}>
+          <span className="text-xs sm:text-sm font-bold text-white leading-tight break-words text-left" title={product.name}>
             {product.name}
           </span>
-        </div>
-      </div>
 
-      {/* Status rows with colored indicator dots - moved to right side */}
-      <div className="mt-5 flex flex-col gap-2.5 ml-auto w-fit">
-        <div className="flex items-center gap-2 text-xs">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0 shadow-xs shadow-emerald-400/30" />
-          <span className="font-extrabold text-white min-w-[16px] text-left">{working}</span>
-          <span className="text-slate-200 font-medium">{isLink ? 'Active' : 'Online'}</span>
-        </div>
-        <div className="flex items-center gap-2 text-xs">
-          <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0 shadow-xs shadow-rose-500/30" />
-          <span className="font-extrabold text-white min-w-[16px] text-left">{faulty}</span>
-          <span className="text-slate-200 font-medium">{isLink ? 'Down' : 'Offline'}</span>
-        </div>
-        <div className="flex items-center gap-2 text-xs">
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0 shadow-xs shadow-amber-400/30" />
-          <span className="font-extrabold text-white min-w-[16px] text-left">{maintenance}</span>
-          <span className="text-slate-200 font-medium">Maintenance</span>
+          {/* Status rows left-aligned */}
+          <div className="flex flex-col gap-2 mt-2 w-full items-start text-left">
+            <div className="flex items-center gap-2 text-xs">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0 shadow-xs shadow-emerald-400/30" />
+              <span className="font-extrabold text-white min-w-[16px] text-left">{working}</span>
+              <span className="text-slate-300 font-medium">{isLink ? 'Active' : 'Online'}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0 shadow-xs shadow-rose-500/30" />
+              <span className="font-extrabold text-white min-w-[16px] text-left">{faulty}</span>
+              <span className="text-slate-300 font-medium">{isLink ? 'Down' : 'Offline'}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0 shadow-xs shadow-amber-400/30" />
+              <span className="font-extrabold text-white min-w-[16px] text-left">{maintenance}</span>
+              <span className="text-slate-300 font-medium">Maintenance</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -113,32 +116,32 @@ function ProductListRow({ product }) {
 
 function ProductCardSkeleton() {
   return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 sm:p-5 flex flex-col justify-between animate-pulse">
-      {/* Top: Icon + Title skeleton */}
-      <div className="flex items-center gap-3.5 sm:gap-4">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 sm:p-5 animate-pulse">
+      {/* card -> row -> column */}
+      <div className="flex items-start gap-4 w-full">
         <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[var(--border-color)]/60 rounded-xl shrink-0" />
-        <div className="flex flex-col gap-2 flex-1 min-w-0">
-          <div className="h-6 w-12 bg-[var(--border-color)]/80 rounded-md" />
-          <div className="h-3.5 w-24 bg-[var(--border-color)]/50 rounded-md" />
-        </div>
-      </div>
+        <div className="flex flex-col gap-1.5 flex-1 min-w-0 items-start text-left">
+          <div className="h-7 w-12 bg-[var(--border-color)]/80 rounded-md" />
+          <div className="h-4 w-28 bg-[var(--border-color)]/50 rounded-md" />
 
-      {/* Status rows skeleton */}
-      <div className="mt-5 flex flex-col gap-2.5 ml-auto w-fit">
-        <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/30 shrink-0" />
-          <div className="h-3 w-4 bg-[var(--border-color)]/50 rounded" />
-          <div className="h-3 w-12 bg-[var(--border-color)]/50 rounded" />
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-rose-500/30 shrink-0" />
-          <div className="h-3 w-4 bg-[var(--border-color)]/50 rounded" />
-          <div className="h-3 w-12 bg-[var(--border-color)]/50 rounded" />
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-amber-500/30 shrink-0" />
-          <div className="h-3 w-4 bg-[var(--border-color)]/50 rounded" />
-          <div className="h-3 w-16 bg-[var(--border-color)]/50 rounded" />
+          {/* Status rows skeleton */}
+          <div className="flex flex-col gap-2 mt-2 w-full items-start text-left">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/30 shrink-0" />
+              <div className="h-3 w-4 bg-[var(--border-color)]/50 rounded" />
+              <div className="h-3 w-12 bg-[var(--border-color)]/50 rounded" />
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-rose-500/30 shrink-0" />
+              <div className="h-3 w-4 bg-[var(--border-color)]/50 rounded" />
+              <div className="h-3 w-12 bg-[var(--border-color)]/50 rounded" />
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-amber-500/30 shrink-0" />
+              <div className="h-3 w-4 bg-[var(--border-color)]/50 rounded" />
+              <div className="h-3 w-16 bg-[var(--border-color)]/50 rounded" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

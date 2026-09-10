@@ -48,11 +48,13 @@ export default function ClientOverview() {
     return { scope: 'platform' };
   };
 
-  const fetchStats = useCallback(async () => {
+  const fetchStats = useCallback(async (isSilent = false) => {
     try {
       const scopeParams = getScope();
-      setBreakdownLoading(true);
-      setBreakdownError('');
+      if (!isSilent) {
+        setBreakdownLoading(true);
+        setBreakdownError('');
+      }
       const [data, usersData, breakdownData] = await Promise.all([
         getDashboardSummary(scopeParams),
         getUsers({ limit: 100 }),
@@ -79,42 +81,44 @@ export default function ClientOverview() {
       setLastUpdated(new Date());
     } catch (err) {
       console.error('[ClientOverview] Dashboard fetch error:', err.message);
-      setBreakdownError(err.message || 'Failed to load breakdown.');
+      if (!isSilent) {
+        setBreakdownError(err.message || 'Failed to load breakdown.');
+      }
     } finally {
-      setLoading(false);
-      setBreakdownLoading(false);
+      if (!isSilent) {
+        setLoading(false);
+        setBreakdownLoading(false);
+      }
     }
   }, [currentUser]);
 
-  // Initial load + focus & users_changed listener for live sync
+  // Initial load + users_changed / storage listener for live sync
   useEffect(() => {
-    fetchStats();
+    fetchStats(false);
 
-    const handleFocusOrStorage = () => {
-      fetchStats();
+    const handleStorageOrUsersChanged = () => {
+      fetchStats(true);
     };
 
-    window.addEventListener('focus', handleFocusOrStorage);
-    window.addEventListener('storage', handleFocusOrStorage);
-    window.addEventListener('fixly:users_changed', handleFocusOrStorage);
+    window.addEventListener('storage', handleStorageOrUsersChanged);
+    window.addEventListener('fixly:users_changed', handleStorageOrUsersChanged);
 
     return () => {
-      window.removeEventListener('focus', handleFocusOrStorage);
-      window.removeEventListener('storage', handleFocusOrStorage);
-      window.removeEventListener('fixly:users_changed', handleFocusOrStorage);
+      window.removeEventListener('storage', handleStorageOrUsersChanged);
+      window.removeEventListener('fixly:users_changed', handleStorageOrUsersChanged);
     };
   }, [fetchStats]);
 
-  // Realtime socket event listeners
+  // Realtime socket event listeners (silent background revalidation)
   useEffect(() => {
     const unsubIssueCreated = socketClient.on('issue:created', () => {
-      fetchStats();
+      fetchStats(true);
     });
     const unsubIssueUpdated = socketClient.on('issue:updated', () => {
-      fetchStats();
+      fetchStats(true);
     });
     const unsubLogSubmitted = socketClient.on('log:submitted', () => {
-      fetchStats();
+      fetchStats(true);
     });
 
     setIsLive(socketClient.isConnected);
