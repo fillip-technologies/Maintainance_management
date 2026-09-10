@@ -24,13 +24,15 @@ function ExclamationIcon({ className = 'w-6 h-6 text-white' }) {
   );
 }
 
-export default function PlatformKpiCards({ tenancy, devices, loading }) {
+export default function PlatformKpiCards({ tenancy, devices, loading, facilities }) {
   const total = devices?.total ?? 0;
   const working = devices?.working ?? 0;
   const faulty = devices?.faulty ?? 0;
   const underMaintenance = devices?.underMaintenance ?? 0;
   const organizations = tenancy?.companies ?? tenancy?.activeCompanies ?? 0;
-  const locations = tenancy?.zones ?? tenancy?.clients ?? 0;
+  const clientLocations = (facilities && facilities.length > 0)
+    ? facilities.length
+    : (tenancy?.clients ?? 0);
 
   const fmt = (n) => (loading ? '—' : (n ?? 0).toLocaleString('en-IN'));
 
@@ -50,10 +52,10 @@ export default function PlatformKpiCards({ tenancy, devices, loading }) {
     {
       id: 'locations',
       title: 'Locations',
-      value: fmt(locations),
+      value: fmt(clientLocations),
       iconType: 'pin',
       iconBg: 'bg-blue-600 shadow-md shadow-blue-600/20',
-      action: { type: 'link', href: '/superadmin/zones', label: 'View All →' }
+      action: { type: 'link', href: '/superadmin/clients', label: 'View All →' }
     },
     {
       id: 'total-devices',

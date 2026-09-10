@@ -184,6 +184,7 @@ export default function Overview() {
       <PlatformKpiCards
         tenancy={tenancy}
         devices={devices}
+        facilities={overview?.facilities}
         loading={loading}
       />
 

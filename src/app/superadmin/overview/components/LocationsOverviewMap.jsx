@@ -356,7 +356,7 @@ export default function LocationsOverviewMap({
             Locations Overview
           </h2>
           <p className="text-xs text-slate-400">
-            All registered facilities &amp; project sites ({items.length} locations)
+            All registered facilities &amp; project sites ({items.length} {items.length === 1 ? 'client' : 'clients'})
           </p>
         </div>
 
