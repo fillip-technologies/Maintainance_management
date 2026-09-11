@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, Menu, Building2, Calendar } from 'lucide-react';
+import { LogOut, Menu, Building2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { socketClient } from '../api/socketClient';
 import NotificationBell from './NotificationBell';
@@ -10,20 +10,13 @@ export default function Header({ onToggleMobileSidebar }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [isLive, setIsLive] = useState(socketClient.isConnected);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-      setIsLive(socketClient.isConnected);
-    }, 1000);
-
     const unsubConnect = socketClient.on('connect', () => setIsLive(true));
     const unsubDisconnect = socketClient.on('disconnect', () => setIsLive(false));
 
     return () => {
-      clearInterval(timer);
       unsubConnect();
       unsubDisconnect();
     };
@@ -91,17 +84,8 @@ export default function Header({ onToggleMobileSidebar }) {
         )}
       </div>
 
-      {/* Right: Date/Time clock, Online status pill, Notification bell, Logout */}
+      {/* Right: Online status pill, Notification bell, Logout */}
       <div className="flex-1 flex items-center justify-end gap-2.5">
-        {/* Live Date & Time */}
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] text-slate-300 text-xs font-semibold shadow-xs">
-          <Calendar size={14} className="text-slate-400" />
-          <span>
-            {currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-            {'  '}
-            {currentTime.toLocaleTimeString('en-US')}
-          </span>
-        </div>
 
         {/* Status badge */}
         <div className={`hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border shadow-xs ${

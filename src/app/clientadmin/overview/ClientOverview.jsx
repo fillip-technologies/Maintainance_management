@@ -152,6 +152,7 @@ export default function ClientOverview() {
             loading={breakdownLoading}
             onCategoryClick={(cat) => { setZoneInitialCat(cat); setActiveTab('zone'); }}
           />
+          {/* End of Product Cards */}
           <ClientProductHealthCards
             products={breakdown.products}
             loading={breakdownLoading}

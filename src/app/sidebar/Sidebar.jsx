@@ -17,7 +17,8 @@ import {
   Tag,
   ShieldAlert,
   X,
-  UserCog
+  UserCog,
+  Camera
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -107,6 +108,11 @@ export default function Sidebar({
           name: 'Facility Overview',
           path: '/clientadmin/overview',
           icon: LayoutDashboard
+        },
+        {
+          name: 'Camera Overview',
+          path: '/clientadmin/cameras',
+          icon: Camera
         },
         {
           name: 'Team & Roles',

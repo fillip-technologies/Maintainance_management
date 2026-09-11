@@ -33,6 +33,7 @@ import IssuesPage from './app/superadmin/issues/IssuesPage';
 // Clientadmin Layout & Views
 import ClientadminLayout from './app/clientadmin/ClientadminLayout';
 import ClientOverview from './app/clientadmin/overview/ClientOverview';
+import ClientCamerasPage from './app/clientadmin/cameras/ClientCamerasPage';
 import DailyLogsPage from './app/clientadmin/dailylogs/DailyLogsPage';
 import ClientUsersPage from './app/clientadmin/users/ClientUsersPage';
 import ClientAssetsPage from './app/clientadmin/assets/ClientAssetsPage';
@@ -112,6 +113,7 @@ function AppRoutes() {
           <Route path="/clientadmin" element={<ClientadminLayout />}>
             <Route index element={<Navigate to="/clientadmin/overview" replace />} />
             <Route path="overview" element={<ClientOverview />} />
+            <Route path="cameras" element={<ClientCamerasPage />} />
             <Route path="daily-logs" element={<DailyLogsPage />} />
             <Route path="users" element={<ClientUsersPage />} />
 <Route path="requests" element={<RaiseQueryPage />} />

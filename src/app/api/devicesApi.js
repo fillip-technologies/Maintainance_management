@@ -23,6 +23,26 @@ export async function getDevices({ zoneId, status, hardwareTypeId, search, page 
   return res?.data ?? { items: [], page: 1, limit: 20, totalItems: 0, totalPages: 0 };
 }
 
+/**
+ * Fetch all devices across pagination pages (up to maxPages).
+ */
+export async function getAllDevices({ zoneId, status, hardwareTypeId, search, maxPages = 10 } = {}) {
+  let page = 1;
+  const allItems = [];
+  let totalPages = 1;
+
+  while (page <= totalPages && page <= maxPages) {
+    const res = await getDevices({ zoneId, status, hardwareTypeId, search, page, limit: 100 });
+    const items = res?.items ?? [];
+    allItems.push(...items);
+    totalPages = res?.totalPages ?? res?.meta?.totalPages ?? 1;
+    if (items.length === 0 || page >= totalPages) break;
+    page++;
+  }
+
+  return allItems;
+}
+
 export async function getDeviceById(id) {
   const res = await apiClient.request(`/devices/${id}`, { method: 'GET' });
   return res?.data ?? null;
