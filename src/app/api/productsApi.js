@@ -28,7 +28,7 @@ function toUnit(d) {
     unitPrice: d.unitPrice != null ? Number(d.unitPrice) : null,
     purchaseDate: d.purchaseDate ? String(d.purchaseDate).slice(0, 10) : '',
     installationDate: d.installDate ? String(d.installDate).slice(0, 10) : '',
-    imageUrl: d.imageUrl || null,
+    imageUrl: d.imageUrl || d.productType?.imageUrl || d.category?.imageUrl || null,
     createdAt: d.createdAt ?? null,
     addedByName: d.addedBy?.name ?? null,
   };

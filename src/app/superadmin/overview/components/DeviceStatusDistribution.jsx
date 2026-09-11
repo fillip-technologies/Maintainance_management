@@ -1,4 +1,5 @@
 import React from 'react';
+import { HEALTH_SEGMENTS } from '../../../../tokens';
 
 export default function DeviceStatusDistribution({ devices, loading, className = '' }) {
   const total = devices?.total ?? 0;
@@ -53,7 +54,7 @@ export default function DeviceStatusDistribution({ devices, loading, className =
               cy="70"
               r={radius}
               fill="transparent"
-              stroke="#10b981"
+              stroke={HEALTH_SEGMENTS.working.color}
               strokeWidth={strokeWidth}
               strokeDasharray={`${onlineLen} ${circumference}`}
               strokeDashoffset={onlineOffset}
@@ -67,7 +68,7 @@ export default function DeviceStatusDistribution({ devices, loading, className =
               cy="70"
               r={radius}
               fill="transparent"
-              stroke="#ef4444"
+              stroke={HEALTH_SEGMENTS.faulty.color}
               strokeWidth={strokeWidth}
               strokeDasharray={`${offlineLen} ${circumference}`}
               strokeDashoffset={offlineOffset}
@@ -81,7 +82,7 @@ export default function DeviceStatusDistribution({ devices, loading, className =
               cy="70"
               r={radius}
               fill="transparent"
-              stroke="#f59e0b"
+              stroke={HEALTH_SEGMENTS.underMaintenance.color}
               strokeWidth={strokeWidth}
               strokeDasharray={`${maintLen} ${circumference}`}
               strokeDashoffset={maintOffset}

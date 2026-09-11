@@ -5,13 +5,9 @@ import {
 } from 'lucide-react';
 import { getDailyLogs } from '../../api/dailyLogsApi';
 import { getZones } from '../../api/zonesApi';
+import { DEVICE_STATUS_BADGE } from '../../../tokens';
 
-const STATUS_META = {
-  working:           { label: 'Working',      color: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
-  not_working:       { label: 'Not Working',  color: 'bg-rose-50 text-rose-700 border-rose-200',          dot: 'bg-rose-500' },
-  under_maintenance: { label: 'Maintenance',  color: 'bg-amber-50 text-amber-700 border-amber-200',       dot: 'bg-amber-500' },
-  needs_attention:   { label: 'Attention',    color: 'bg-orange-50 text-orange-700 border-orange-200',    dot: 'bg-orange-400' },
-};
+const STATUS_META = DEVICE_STATUS_BADGE;
 
 function StatusBadge({ status }) {
   const m = STATUS_META[status] ?? STATUS_META.needs_attention;

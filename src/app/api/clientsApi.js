@@ -72,8 +72,7 @@ export async function getClientDependents(id) {
 
 export async function downloadClientExport(id, clientName) {
   const token = apiClient.getAccessToken();
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
-  const res = await fetch(`${BASE_URL}/clients/${id}/export`, {
+  const res = await fetch(`${apiClient.baseUrl}/clients/${id}/export`, {
     method: 'GET',
     headers: { Authorization: `Bearer ${token}` },
   });

@@ -1,42 +1,43 @@
 import React, { useState } from 'react';
 import { Shield, UserCheck, Wrench, ArrowRight } from 'lucide-react';
+import { HEALTH_SEGMENTS as HEALTH_COLORS } from '../../../../tokens';
 
 const HEALTH_SEGMENTS = [
   {
     key: 'working',
     label: 'Active',
     subLabel: 'Online & operational',
-    color: '#22c55e',
-    hoverColor: '#16a34a',
+    color: HEALTH_COLORS.working.color,
+    hoverColor: HEALTH_COLORS.working.hoverColor,
     dotClass: 'bg-emerald-500',
-    textClass: 'text-emerald-700',
+    textClass: 'text-emerald-400',
   },
   {
     key: 'faulty',
     label: 'Down',
     subLabel: 'Offline or reporting faults',
-    color: '#ef4444',
-    hoverColor: '#dc2626',
+    color: HEALTH_COLORS.faulty.color,
+    hoverColor: HEALTH_COLORS.faulty.hoverColor,
     dotClass: 'bg-rose-500',
-    textClass: 'text-rose-700',
+    textClass: 'text-rose-400',
   },
   {
     key: 'underMaintenance',
     label: 'Maintenance',
     subLabel: 'Under active repair / servicing',
-    color: '#f59e0b',
-    hoverColor: '#d97706',
+    color: HEALTH_COLORS.underMaintenance.color,
+    hoverColor: HEALTH_COLORS.underMaintenance.hoverColor,
     dotClass: 'bg-amber-400',
-    textClass: 'text-amber-700',
+    textClass: 'text-amber-400',
   },
   {
     key: 'provisioned',
     label: 'In Stock',
     subLabel: 'Provisioned / awaiting zone deploy',
-    color: '#0ea5e9',
-    hoverColor: '#0284c7',
+    color: HEALTH_COLORS.provisioned.color,
+    hoverColor: HEALTH_COLORS.provisioned.hoverColor,
     dotClass: 'bg-sky-500',
-    textClass: 'text-sky-700',
+    textClass: 'text-sky-400',
   },
 ];
 

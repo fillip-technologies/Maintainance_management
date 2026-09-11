@@ -400,76 +400,56 @@ export function DefaultBadgeIcon({ className = 'w-6 h-6' }) {
 /**
  * Maps category name to colored round badge styles & icons
  */
+import { CATEGORY_COLORS } from '../../../../tokens';
+
+const CATEGORY_BG_MAP = {
+  cameras:       'bg-emerald-500',
+  nvr:           'bg-blue-600',
+  switches:      'bg-purple-600',
+  routers:       'bg-teal-500',
+  fiber:         'bg-amber-500',
+  ups:           'bg-rose-500',
+  accessControl: 'bg-indigo-600',
+  default:       'bg-blue-600',
+};
+
+const CATEGORY_ICON_MAP = {
+  cameras:       CameraBadgeIcon,
+  nvr:           NvrBadgeIcon,
+  switches:      SwitchBadgeIcon,
+  routers:       RouterBadgeIcon,
+  fiber:         FiberBadgeIcon,
+  ups:           UpsBadgeIcon,
+  accessControl: AccessBadgeIcon,
+  default:       DefaultBadgeIcon,
+};
+
+const CATEGORY_LABEL_MAP = {
+  cameras:       'Total Cameras',
+  nvr:           'NVR / DVR',
+  switches:      'Network Switches',
+  routers:       'Routers',
+  fiber:         'Fiber Links',
+  ups:           'UPS / Power',
+  accessControl: 'Access Control',
+};
+
 export function getCategoryBadgeConfig(name = '') {
   const n = (name || '').toLowerCase();
-  if (n.includes('camera') || n.includes('cctv')) {
-    return {
-      bgClass: 'bg-emerald-500',
-      color: '#10b981',
-      Icon: CameraBadgeIcon,
-      defaultLabel: 'Total Cameras',
-      isLink: false,
-    };
-  }
-  if (n.includes('nvr') || n.includes('dvr') || n.includes('recorder') || n.includes('storage')) {
-    return {
-      bgClass: 'bg-blue-600',
-      color: '#2563eb',
-      Icon: NvrBadgeIcon,
-      defaultLabel: 'NVR / DVR',
-      isLink: false,
-    };
-  }
-  if (n.includes('switch') || n.includes('lan')) {
-    return {
-      bgClass: 'bg-purple-600',
-      color: '#8b5cf6',
-      Icon: SwitchBadgeIcon,
-      defaultLabel: 'Network Switches',
-      isLink: false,
-    };
-  }
-  if (n.includes('router') || n.includes('wifi') || n.includes('gateway')) {
-    return {
-      bgClass: 'bg-teal-500',
-      color: '#06b6d4',
-      Icon: RouterBadgeIcon,
-      defaultLabel: 'Routers',
-      isLink: false,
-    };
-  }
-  if (n.includes('fiber') || n.includes('optical') || n.includes('link') || n.includes('cable')) {
-    return {
-      bgClass: 'bg-amber-500',
-      color: '#f59e0b',
-      Icon: FiberBadgeIcon,
-      defaultLabel: 'Fiber Links',
-      isLink: true,
-    };
-  }
-  if (n.includes('ups') || n.includes('power') || n.includes('battery')) {
-    return {
-      bgClass: 'bg-rose-500',
-      color: '#ef4444',
-      Icon: UpsBadgeIcon,
-      defaultLabel: 'UPS / Power',
-      isLink: false,
-    };
-  }
-  if (n.includes('access') || n.includes('door') || n.includes('entry') || n.includes('gate')) {
-    return {
-      bgClass: 'bg-indigo-600',
-      color: '#6366f1',
-      Icon: AccessBadgeIcon,
-      defaultLabel: 'Access Control',
-      isLink: false,
-    };
-  }
+  let key = 'default';
+  if (n.includes('camera') || n.includes('cctv'))          key = 'cameras';
+  else if (n.includes('nvr') || n.includes('dvr') || n.includes('recorder') || n.includes('storage')) key = 'nvr';
+  else if (n.includes('switch') || n.includes('lan'))       key = 'switches';
+  else if (n.includes('router') || n.includes('wifi') || n.includes('gateway')) key = 'routers';
+  else if (n.includes('fiber') || n.includes('optical') || n.includes('link') || n.includes('cable')) key = 'fiber';
+  else if (n.includes('ups') || n.includes('power') || n.includes('battery'))  key = 'ups';
+  else if (n.includes('access') || n.includes('door') || n.includes('entry') || n.includes('gate')) key = 'accessControl';
+
   return {
-    bgClass: 'bg-blue-600',
-    color: '#3b82f6',
-    Icon: DefaultBadgeIcon,
-    defaultLabel: name || 'Equipment',
-    isLink: false,
+    bgClass: CATEGORY_BG_MAP[key],
+    color: CATEGORY_COLORS[key].bg,
+    Icon: CATEGORY_ICON_MAP[key],
+    defaultLabel: CATEGORY_LABEL_MAP[key] || name || 'Equipment',
+    isLink: key === 'fiber',
   };
 }

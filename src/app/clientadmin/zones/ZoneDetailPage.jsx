@@ -12,6 +12,7 @@ import ZoneIssuesModal from './components/ZoneIssuesModal';
 import RaiseQueryModal from '../../common/RaiseQueryModal';
 import CreateZoneModal from './components/CreateZoneModal';
 import ManageZoneModal from './components/ManageZoneModal';
+import StatusHistoryLocationBadge from '../../common/components/StatusHistoryLocationBadge';
 
 // ── Activity log colour per transition ───────────────────────────────────
 const ACTIVITY_STYLE = {
@@ -111,6 +112,12 @@ function ActivityFeed({ zoneId }) {
               {item.notes && (
                 <p className="text-[11px] text-slate-500 mt-0.5 italic">"{item.notes}"</p>
               )}
+
+              {/* Coordinates / Location Display */}
+              <StatusHistoryLocationBadge
+                latitude={item.latitude}
+                longitude={item.longitude}
+              />
 
               <div className="flex items-center gap-1.5 mt-1">
                 <User size={10} className="text-slate-400" />

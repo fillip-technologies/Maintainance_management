@@ -1,6 +1,7 @@
 // Centralized API Client matching Maintenance Management API Specification (v1)
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
+const rawApiUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1').trim().replace(/\/+$/, '');
+const BASE_URL = rawApiUrl.endsWith('/api/v1') ? rawApiUrl : `${rawApiUrl}/api/v1`;
 
 export const TOKEN_STORAGE_KEY = 'fixly_access_token';
 export const REFRESH_TOKEN_STORAGE_KEY = 'fixly_refresh_token';

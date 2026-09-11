@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Building2, MapPin, Check, Wrench } from 'lucide-react';
+import { DEVICE_STATUS } from '../../../../tokens';
 
 function CctvCameraIcon({ className = 'w-6 h-6 text-white' }) {
   return (

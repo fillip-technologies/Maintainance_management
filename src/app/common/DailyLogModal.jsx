@@ -39,9 +39,13 @@ function DeviceRow({ device, entry, onChange, existingLog }) {
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         {/* Device info */}
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border overflow-hidden
             ${!existingLog ? 'bg-amber-100 border-amber-200 text-amber-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`}>
-            <Package size={14} />
+            {(device.imageUrl || existingLog?.deviceImageUrl) ? (
+              <img src={device.imageUrl || existingLog?.deviceImageUrl} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <Package size={14} />
+            )}
           </div>
           <div className="min-w-0">
             <p className="text-xs font-bold text-slate-900 truncate">{device.name}</p>

@@ -19,9 +19,9 @@ export default function SubzoneCard({ sz, color }) {
       label: "Not Working",
       value: sz.notWorking,
       Icon: XCircle,
-      valueCls: "text-rose-600",
-      iconCls:  "text-rose-500",
-      bg:       "bg-rose-50 border-rose-100",
+      valueCls: "text-rose-400 font-extrabold",
+      iconCls:  "text-rose-400",
+      bg:       "bg-rose-500/10 border-rose-500/25",
     },
     {
       label: "Maintenance",

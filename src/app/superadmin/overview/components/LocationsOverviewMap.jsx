@@ -12,15 +12,9 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-const DEFAULT_PIN_COLORS = [
-  '#ef4444',
-  '#2563eb',
-  '#10b981',
-  '#8b5cf6',
-  '#ea580c',
-  '#06b6d4',
-  '#ec4899',
-];
+import { CHART_PALETTE, TEXT } from '../../../../tokens';
+
+const DEFAULT_PIN_COLORS = CHART_PALETTE;
 
 export function mapCoordsToGps(mapX, mapY) {
   if (mapX == null || mapY == null || mapX === '' || mapY === '') return { lat: null, lng: null };
@@ -246,7 +240,7 @@ export default function LocationsOverviewMap({
           }).addTo(map);
 
           marker.bindTooltip(
-            `<b>${name}</b><br/><span style="font-size: 10px; color: #94a3b8;">${loc.devices ?? 0} Devices</span>`,
+            `<b>${name}</b><br/><span style="font-size: 10px; color: ${TEXT.secondary};">${loc.devices ?? 0} Devices</span>`,
             {
               permanent: false,
               direction: 'top',
@@ -346,7 +340,7 @@ export default function LocationsOverviewMap({
       className={`bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 sm:p-6 flex flex-col gap-4 shadow-md transition-all duration-300 h-full min-h-[440px] xl:min-h-0 ${
         isFullscreen
           ? 'fixed inset-4 z-50 overflow-auto bg-slate-950/95 backdrop-blur-xl'
-          : ''
+          : 'relative z-0 isolate'
       } ${className}`}
     >
       {/* Header */}
@@ -401,8 +395,8 @@ export default function LocationsOverviewMap({
       {/* Main Content Grid: Real Map (Left) + Locations List (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch flex-1 min-h-0">
         {/* Real-World Map Canvas Container (7 cols on lg) */}
-        <div className="lg:col-span-7 relative rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex flex-col justify-center select-none shadow-inner group min-h-[280px] lg:min-h-0 h-full">
-          <div ref={mapContainerRef} className="w-full h-full min-h-[280px]" />
+        <div className="lg:col-span-7 relative z-0 isolate rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex flex-col justify-center select-none shadow-inner group min-h-[280px] lg:min-h-0 h-full">
+          <div ref={mapContainerRef} className="w-full h-full min-h-[280px] relative z-0" />
 
           {/* Floating Fit All Action Button */}
           {itemsWithGps.length > 1 && (

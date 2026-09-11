@@ -91,23 +91,23 @@ export default function ZonesPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200">
+    <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 text-slate-100">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Zones</h1>
-          <p className="text-xs text-slate-500 mt-0.5">Click "Not Working" on any card to see active issues. Click "Raise Issue" to log a new defect.</p>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight">Zones</h1>
+          <p className="text-xs text-slate-400 mt-0.5">Click "Not Working" on any card to see active issues. Click "Raise Issue" to log a new defect.</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setCreateModal(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors cursor-pointer shadow-sm shadow-indigo-200"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors cursor-pointer shadow-sm shadow-indigo-900/30"
           >
             <Plus size={14} /> Create Zone
           </button>
           <button onClick={load} disabled={loading}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50">
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[var(--border-color)] text-slate-300 hover:text-white bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] text-xs font-bold transition-colors cursor-pointer disabled:opacity-50">
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
           </button>
         </div>
@@ -115,23 +115,23 @@ export default function ZonesPage() {
 
       {/* Search + filter */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex items-center gap-2 flex-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
+        <div className="flex items-center gap-2 flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
           <Search size={14} className="text-slate-400 shrink-0" />
           <input
             type="text"
             placeholder="Search zones…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-xs font-medium text-slate-900 outline-none w-full placeholder:text-slate-400"
+            className="bg-transparent text-xs font-medium text-white outline-none w-full placeholder:text-slate-500"
           />
           {search && (
-            <button onClick={() => setSearch('')} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+            <button onClick={() => setSearch('')} className="text-slate-400 hover:text-slate-200 cursor-pointer">
               <X size={13} />
             </button>
           )}
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
           {[
             { key: 'all', label: `All (${counts.all})` },
             { key: 'active', label: `Active (${counts.active})` },
@@ -142,7 +142,7 @@ export default function ZonesPage() {
               className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
                 statusFilter === t.key
                   ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  : 'bg-[var(--bg-card)] border border-[var(--border-color)] text-slate-300 hover:text-white hover:bg-[var(--bg-card-hover)]'
               }`}>
               {t.label}
             </button>
@@ -152,22 +152,22 @@ export default function ZonesPage() {
 
       {/* States */}
       {loading && (
-        <div className="flex items-center gap-3 justify-center p-16 bg-white rounded-2xl border border-slate-200">
-          <Loader2 size={20} className="animate-spin text-indigo-500" />
-          <span className="text-xs text-slate-500">Loading zones…</span>
+        <div className="flex items-center gap-3 justify-center p-16 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)]">
+          <Loader2 size={20} className="animate-spin text-indigo-400" />
+          <span className="text-xs text-slate-400">Loading zones…</span>
         </div>
       )}
 
       {error && (
-        <div className="flex items-center gap-3 p-5 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-sm font-semibold">
+        <div className="flex items-center gap-3 p-5 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-300 text-sm font-semibold">
           <AlertTriangle size={16} /> {error}
         </div>
       )}
 
       {!loading && !error && filtered.length === 0 && (
-        <div className="flex flex-col items-center gap-3 p-16 bg-white rounded-2xl border border-slate-200">
-          <MapPin size={24} className="text-slate-300" />
-          <p className="text-sm font-semibold text-slate-500">
+        <div className="flex flex-col items-center gap-3 p-16 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)]">
+          <MapPin size={24} className="text-slate-500" />
+          <p className="text-sm font-semibold text-slate-400">
             {zones.length === 0 ? 'No zones yet — ask your administrator to create zones.' : 'No zones match your search.'}
           </p>
         </div>

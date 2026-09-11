@@ -53,3 +53,18 @@ export async function updateDeviceStatus(id, status) {
   });
   return res?.data ?? null;
 }
+
+export async function uploadDeviceImage(id, file) {
+  const form = new FormData();
+  form.append('file', file);
+  const token = apiClient.getAccessToken();
+  const res = await fetch(`${apiClient.baseUrl}/devices/${id}/image`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.message || 'Image upload failed');
+  return json?.data ?? null;
+}
+

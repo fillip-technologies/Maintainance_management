@@ -9,27 +9,30 @@ import {
   RotateCcw,
   ArrowUpRight
 } from 'lucide-react';
+import { ISSUE_STATUS, PRIORITY } from '../../../../tokens';
 
-/**
- * Work-order (issue) real-time pulse — backed by GET /dashboard/overview `issues`:
- *   { open, byStatus:{7 states}, byPriority:{...}, createdToday, resolvedToday, closedToday }
- * Every value is a live count; there are no fabricated SLA / preventive metrics.
- */
-const STATUS_META = [
-  { key: 'open', label: 'Open', color: '#6366f1', icon: Clock },
-  { key: 'assigned', label: 'Assigned', color: '#0ea5e9', icon: PieIcon },
-  { key: 'in_progress', label: 'In Progress', color: '#8b5cf6', icon: PlayCircle },
-  { key: 'on_hold', label: 'On Hold', color: '#f59e0b', icon: PauseCircle },
-  { key: 'resolved', label: 'Resolved', color: '#10b981', icon: CheckCircle2 },
-  { key: 'reopened', label: 'Reopened', color: '#f43f5e', icon: RotateCcw },
-  { key: 'closed', label: 'Closed', color: '#64748b', icon: CheckCircle2 }
-];
+const STATUS_ICONS = {
+  open: Clock,
+  assigned: PieIcon,
+  in_progress: PlayCircle,
+  on_hold: PauseCircle,
+  resolved: CheckCircle2,
+  reopened: RotateCcw,
+  closed: CheckCircle2,
+};
+
+const STATUS_META = Object.entries(ISSUE_STATUS).map(([key, val]) => ({
+  key,
+  label: val.label,
+  color: val.solid,
+  icon: STATUS_ICONS[key],
+}));
 
 const PRIORITY_META = [
   { key: 'critical', label: 'Critical', cls: 'bg-rose-950/40 text-rose-300 border-rose-800/60' },
   { key: 'high', label: 'High', cls: 'bg-amber-950/40 text-amber-300 border-amber-800/60' },
   { key: 'medium', label: 'Medium', cls: 'bg-sky-950/40 text-sky-300 border-sky-800/60' },
-  { key: 'low', label: 'Low', cls: 'bg-slate-800 text-slate-300 border-slate-700' }
+  { key: 'low', label: 'Low', cls: 'bg-slate-800 text-slate-300 border-slate-700' },
 ];
 
 export default function WorkOrderStatus({ issues, loading }) {
