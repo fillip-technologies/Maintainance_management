@@ -3,10 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, MapPin, Layers, Package, CheckCircle2, XCircle,
   Wrench, Loader2, AlertTriangle, RefreshCw, Clock, User,
-  ChevronRight, Plus, Activity, Trash2, Settings
+  ChevronRight, Plus, Activity, Trash2, Settings, ArrowUpRight
 } from 'lucide-react';
 import { getZoneById, getZoneDescendants, getZoneActivity, deleteZone } from '../../api/zonesApi';
-import { getDashboardSummary } from '../../api/dashboardApi';
+import { getDashboardSummary, getZoneBreakdown } from '../../api/dashboardApi';
+import { getDevices } from '../../api/devicesApi';
 import { useAuth } from '../../context/AuthContext';
 import ZoneIssuesModal from './components/ZoneIssuesModal';
 import RaiseQueryModal from '../../common/RaiseQueryModal';
@@ -143,81 +144,185 @@ function ActivityFeed({ zoneId }) {
   );
 }
 
-// ── Sub-zone row ──────────────────────────────────────────────────────────
-function SubzoneRow({ zone, depth = 0, allZones, onDeleted, backRoute }) {
+// ── Status config ────────────────────────────────────────────────────────
+const STATUS_CONFIG = {
+  active:            { dot: 'bg-emerald-500', ring: 'ring-emerald-500/30', label: 'Working',     text: 'text-emerald-400',  bg: 'bg-emerald-500/10  border-emerald-500/25' },
+  faulty:            { dot: 'bg-rose-500',    ring: 'ring-rose-500/30',    label: 'Faulty',      text: 'text-rose-400',     bg: 'bg-rose-500/10     border-rose-500/25' },
+  under_maintenance: { dot: 'bg-amber-500',   ring: 'ring-amber-500/30',   label: 'Maintenance', text: 'text-amber-400',    bg: 'bg-amber-500/10    border-amber-500/25' },
+  provisioned:       { dot: 'bg-slate-500',   ring: 'ring-slate-500/30',   label: 'Provisioned', text: 'text-slate-400',    bg: 'bg-slate-700/40    border-slate-600' },
+  retired:           { dot: 'bg-slate-600',   ring: 'ring-slate-600/20',   label: 'Retired',     text: 'text-slate-500',    bg: 'bg-slate-800/60    border-slate-700' },
+};
+
+// ── Device list (shown when zone has no sub-zones) ────────────────────────
+function DeviceList({ devices, onRaiseIssue }) {
+  if (devices.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-2 py-14 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl text-slate-400">
+        <Package size={22} className="text-slate-600" />
+        <p className="text-xs font-semibold">No devices deployed in this zone yet.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">
+        {devices.length} Device{devices.length !== 1 ? 's' : ''} in this zone
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {devices.map((device) => {
+          const cfg = STATUS_CONFIG[device.status] ?? STATUS_CONFIG.provisioned;
+          return (
+            <div
+              key={device.id}
+              className={`flex items-center gap-3 px-4 py-3 rounded-2xl border ${cfg.bg} transition-all`}
+            >
+              {/* Status dot */}
+              <span className={`w-3 h-3 rounded-full shrink-0 ${cfg.dot} ring-4 ${cfg.ring}`} />
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-bold text-white truncate">{device.name}</p>
+                <p className="text-[10px] text-slate-400 font-medium truncate">
+                  {device.code ?? '—'}
+                  {device.productType?.name ? ` · ${device.productType.name}` : ''}
+                </p>
+              </div>
+
+              {/* Status badge */}
+              <span className={`shrink-0 text-[10px] font-extrabold ${cfg.text}`}>
+                {cfg.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Sub-zone card ─────────────────────────────────────────────────────────
+function SubzoneCard({ zone, stats = {}, onDeleted, onRaiseIssue, backRoute }) {
   const navigate = useNavigate();
-  const children = allZones.filter((z) => z.parentZoneId === zone.id);
   const [deleting, setDeleting] = useState(false);
-  const hasChildren = children.length > 0;
+  const hasChildren = (zone._count?.children ?? 0) > 0;
+
+  const total    = stats.total    ?? 0;
+  const working  = stats.working  ?? 0;
+  const faulty   = (stats.faulty ?? 0) + (stats.underMaintenance ?? 0);
+  const notWorking = faulty;
+  const workPct  = total > 0 ? Math.round((working / total) * 100) : 0;
 
   const handleDelete = async (e) => {
     e.stopPropagation();
-    if (hasChildren) {
-      alert('Delete all sub-zones inside this zone first.');
-      return;
-    }
-    if (!confirm(`Delete zone "${zone.name}"? This cannot be undone.`)) return;
+    if (hasChildren) { alert('Delete all sub-zones inside this zone first.'); return; }
+    if (!confirm(`Delete "${zone.name}"?`)) return;
     setDeleting(true);
-    try {
-      await deleteZone(zone.id);
-      onDeleted(zone.id);
-    } catch (ex) {
-      alert(ex.message || 'Failed to delete zone.');
-    } finally {
-      setDeleting(false);
-    }
+    try { await deleteZone(zone.id); onDeleted(zone.id); }
+    catch (ex) { alert(ex.message || 'Failed to delete.'); }
+    finally { setDeleting(false); }
   };
 
   return (
-    <div>
-      <div
-        className="flex items-center gap-2 py-2 px-3 rounded-xl hover:bg-indigo-50/60 transition-colors group"
-        style={{ paddingLeft: `${12 + depth * 16}px` }}
-      >
-        {depth > 0 && <ChevronRight size={12} className="text-slate-300 shrink-0" />}
-        <MapPin size={13} className="text-indigo-400 shrink-0" />
+    <div className="group flex flex-col bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl hover:border-indigo-500/40 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 overflow-hidden">
 
-        {/* Name — navigate on click */}
-        <span
-          onClick={() => navigate(`${backRoute}/${zone.id}`)}
-          className="text-xs font-semibold text-slate-800 flex-1 truncate group-hover:text-indigo-700 cursor-pointer"
-        >
-          {zone.name}
-        </span>
-
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
-          zone.status === 'active'   ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-          zone.status === 'inactive' ? 'bg-slate-100 text-slate-500 border-slate-200' :
-                                       'bg-amber-50 text-amber-700 border-amber-200'
+      {/* Header */}
+      <div className="px-4 pt-4 pb-3 flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
+            <MapPin size={14} className="text-indigo-400" />
+          </div>
+          <div className="min-w-0">
+            <h4
+              onClick={() => navigate(`${backRoute}/${zone.id}`)}
+              className="text-[13px] font-extrabold text-white group-hover:text-indigo-400 transition-colors cursor-pointer leading-tight truncate"
+            >
+              {zone.name}
+            </h4>
+            {hasChildren && (
+              <p className="text-[10px] text-slate-500 font-medium mt-0.5">
+                {zone._count?.children ?? 0} sub-zones
+              </p>
+            )}
+          </div>
+        </div>
+        <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+          zone.status === 'active'   ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25' :
+          zone.status === 'inactive' ? 'bg-slate-700 text-slate-400 border-slate-600' :
+                                       'bg-amber-500/10 text-amber-400 border-amber-500/25'
         }`}>{zone.status}</span>
-
-        <span className="text-[10px] text-slate-400 shrink-0">L{(zone.depth ?? depth) + 1}</span>
-
-        {/* Delete */}
-        <button
-          onClick={handleDelete}
-          disabled={deleting || hasChildren}
-          title={hasChildren ? 'Remove sub-zones first' : 'Delete zone'}
-          className={`p-1.5 rounded-lg transition-colors shrink-0 disabled:opacity-30 ${
-            hasChildren
-              ? 'text-slate-300 cursor-not-allowed'
-              : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer'
-          }`}
-        >
-          {deleting ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
-        </button>
       </div>
 
-      {children.map((ch) => (
-        <SubzoneRow
-          key={ch.id}
-          zone={ch}
-          depth={depth + 1}
-          allZones={allZones}
-          onDeleted={onDeleted}
-          backRoute={backRoute}
-        />
-      ))}
+      {/* Device stats */}
+      <div className="px-4 pb-3 flex flex-col gap-2">
+        {/* Total + progress bar */}
+        <div className="flex items-center justify-between mb-0.5">
+          <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
+            <Package size={11} /> Total Devices
+          </span>
+          <span className="text-sm font-black text-white">{total}</span>
+        </div>
+
+        {total > 0 && (
+          <div className="h-1.5 w-full rounded-full bg-slate-700 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${
+                workPct === 100 ? 'bg-emerald-500' :
+                workPct >= 70   ? 'bg-emerald-500' :
+                workPct >= 40   ? 'bg-amber-500'   : 'bg-rose-500'
+              }`}
+              style={{ width: `${workPct}%` }}
+            />
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-2 mt-1">
+          <div className="flex flex-col gap-0.5 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+            <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wide flex items-center gap-1">
+              <CheckCircle2 size={10} /> Working
+            </span>
+            <span className="text-lg font-black text-emerald-400 leading-none">{working}</span>
+          </div>
+          <div className={`flex flex-col gap-0.5 px-3 py-2 rounded-xl border ${
+            notWorking > 0
+              ? 'bg-rose-500/10 border-rose-500/20'
+              : 'bg-slate-700/30 border-slate-700'
+          }`}>
+            <span className={`text-[10px] font-bold uppercase tracking-wide flex items-center gap-1 ${notWorking > 0 ? 'text-rose-400' : 'text-slate-500'}`}>
+              <XCircle size={10} /> Faulty
+            </span>
+            <span className={`text-lg font-black leading-none ${notWorking > 0 ? 'text-rose-400' : 'text-slate-500'}`}>{notWorking}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="px-4 py-2.5 mt-auto border-t border-[var(--border-color)] flex items-center justify-between gap-2">
+        <button
+          onClick={() => onRaiseIssue?.(zone.id)}
+          className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer transition-colors"
+        >
+          <Plus size={10} /> Raise Issue
+        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleDelete}
+            disabled={deleting || hasChildren}
+            title={hasChildren ? 'Remove sub-zones first' : 'Delete'}
+            className={`p-1 rounded-lg transition-colors disabled:opacity-30 ${
+              hasChildren ? 'text-slate-700 cursor-not-allowed' : 'text-slate-500 hover:text-rose-400 cursor-pointer'
+            }`}
+          >
+            {deleting ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+          </button>
+          <button
+            onClick={() => navigate(`${backRoute}/${zone.id}`)}
+            className="flex items-center gap-1 text-[10px] font-bold text-slate-400 hover:text-indigo-400 transition-colors cursor-pointer"
+          >
+            View <ArrowUpRight size={11} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -229,15 +334,17 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
   const { currentUser } = useAuth();
   const clientId = currentUser?.clientId;
 
-  const [zone, setZone]         = useState(null);
-  const [stats, setStats]       = useState(null);
-  const [descendants, setDesc]  = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState('');
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'activity'
+  const [zone, setZone]           = useState(null);
+  const [stats, setStats]         = useState(null);
+  const [descendants, setDesc]    = useState([]);
+  const [subzoneStats, setSubzoneStats] = useState({});
+  const [devices, setDevices]     = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState('');
+  const [activeTab, setActiveTab] = useState('overview');
 
   const [issuesModal, setIssuesModal]       = useState(false);
-  const [raiseModal, setRaiseModal]         = useState(false);
+  const [raiseModal, setRaiseModal]         = useState(null); // null | { zoneId }
   const [createSubzoneModal, setCreateSubzoneModal] = useState(false);
   const [manageModal, setManageModal]       = useState(false);
 
@@ -245,14 +352,20 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
     if (!zoneId) return;
     setLoading(true); setError('');
     try {
-      const [z, st, desc] = await Promise.all([
+      const [z, st, desc, breakdown, devData] = await Promise.all([
         getZoneById(zoneId),
         getDashboardSummary({ scope: 'zone', id: zoneId, includeSubzones: true }),
         getZoneDescendants(zoneId),
+        getZoneBreakdown({ scope: 'zone', id: zoneId }),
+        getDevices({ zoneId, limit: 100 }),
       ]);
       setZone(z);
       setStats(st);
       setDesc(Array.isArray(desc) ? desc.filter((d) => d.id !== zoneId) : []);
+      const map = {};
+      (breakdown ?? []).forEach((s) => { map[s.zoneId] = s; });
+      setSubzoneStats(map);
+      setDevices(devData?.items ?? []);
     } catch (ex) {
       setError(ex.message || 'Could not load zone.');
     } finally {
@@ -315,7 +428,7 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 text-xs font-bold transition-colors cursor-pointer">
             <Settings size={12} /> Manage Zone
           </button>
-          <button onClick={() => setRaiseModal(true)}
+          <button onClick={() => setRaiseModal({ zoneId })}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors cursor-pointer">
             <Plus size={12} /> Raise Issue
           </button>
@@ -377,25 +490,21 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
 
       {/* Tab content */}
       {activeTab === 'overview' && (
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <>
           {descendants.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 py-14 text-slate-400">
-              <Layers size={22} className="text-slate-300" />
-              <p className="text-xs font-semibold">No sub-zones under this zone.</p>
-            </div>
+            <DeviceList devices={devices} onRaiseIssue={(zid) => setRaiseModal({ zoneId: zid ?? zoneId })} />
           ) : (
-            <div className="py-2 px-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {descendants
                 .filter((d) => !d.parentZoneId || d.parentZoneId === zoneId)
                 .map((z) => (
-                  <SubzoneRow
+                  <SubzoneCard
                     key={z.id}
                     zone={z}
-                    depth={0}
-                    allZones={descendants}
+                    stats={subzoneStats[z.id] ?? {}}
                     backRoute={backRoute}
+                    onRaiseIssue={(zid) => setRaiseModal({ zoneId: zid })}
                     onDeleted={(deletedId) => {
-                      // Remove the zone and all its descendants from local state
                       setDesc((prev) => {
                         const removedIds = new Set();
                         const collect = (id) => {
@@ -410,7 +519,7 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
                 ))}
             </div>
           )}
-        </div>
+        </>
       )}
 
       {activeTab === 'activity' && (
@@ -430,9 +539,9 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
       {raiseModal && (
         <RaiseQueryModal
           isOpen
-          initialZoneId={zoneId}
-          onClose={() => setRaiseModal(false)}
-          onCreated={() => { setRaiseModal(false); load(); }}
+          initialZoneId={raiseModal.zoneId ?? zoneId}
+          onClose={() => setRaiseModal(null)}
+          onCreated={() => { setRaiseModal(null); load(); }}
         />
       )}
       <CreateZoneModal
