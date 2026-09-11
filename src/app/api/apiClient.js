@@ -1,11 +1,18 @@
 // Centralized API Client matching Maintenance Management API Specification (v1)
 
-const rawApiUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1').trim().replace(/\/+$/, '');
-const BASE_URL = rawApiUrl.endsWith('/api/v1') ? rawApiUrl : `${rawApiUrl}/api/v1`;
+const rawApiUrl = (
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://fixly-backend.fillipsoftware.com/api/v1"
+)
+  .trim()
+  .replace(/\/+$/, "");
+const BASE_URL = rawApiUrl.endsWith("/api/v1")
+  ? rawApiUrl
+  : `${rawApiUrl}/api/v1`;
 
-export const TOKEN_STORAGE_KEY = 'fixly_access_token';
-export const REFRESH_TOKEN_STORAGE_KEY = 'fixly_refresh_token';
-export const USER_STORAGE_KEY = 'fixly_user_data';
+export const TOKEN_STORAGE_KEY = "fixly_access_token";
+export const REFRESH_TOKEN_STORAGE_KEY = "fixly_refresh_token";
+export const USER_STORAGE_KEY = "fixly_user_data";
 
 class ApiClient {
   constructor(baseUrl) {
@@ -23,7 +30,8 @@ class ApiClient {
 
   setTokens(accessToken, refreshToken) {
     if (accessToken) localStorage.setItem(TOKEN_STORAGE_KEY, accessToken);
-    if (refreshToken) localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refreshToken);
+    if (refreshToken)
+      localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refreshToken);
   }
 
   clearAuth() {
@@ -39,15 +47,15 @@ class ApiClient {
     // For multipart/form-data requests (file uploads), omit Content-Type so the
     // browser sets it automatically with the correct boundary string.
     const headers = {
-      ...(options._multipart ? {} : { 'Content-Type': 'application/json' }),
+      ...(options._multipart ? {} : { "Content-Type": "application/json" }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     };
 
     try {
-      const response = await fetch(url,  {
+      const response = await fetch(url, {
         ...options,
-        headers
+        headers,
       });
 
       // Status 204 No Content
@@ -65,13 +73,13 @@ class ApiClient {
         }
         // Refresh failed or no refresh token — session is dead, kick to login
         this.clearAuth();
-        window.location.href = '/login';
+        window.location.href = "/login";
         return;
       }
 
       if (!response.ok) {
-        const error = new Error(resData.message || 'API request failed');
-        error.code = resData.code || 'HTTP_ERROR';
+        const error = new Error(resData.message || "API request failed");
+        error.code = resData.code || "HTTP_ERROR";
         error.status = response.status;
         error.details = resData.details || [];
         throw error;
@@ -94,8 +102,8 @@ class ApiClient {
       if (!refreshToken) return null;
       try {
         const res = await fetch(`${this.baseUrl}/auth/refresh`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ refreshToken }),
         });
         const data = await res.json();
@@ -103,7 +111,7 @@ class ApiClient {
           this.setTokens(data.data.accessToken, data.data.refreshToken);
           return data.data.accessToken;
         }
-        if (res.status === 401 && data.code === 'REFRESH_INVALID') {
+        if (res.status === 401 && data.code === "REFRESH_INVALID") {
           this.clearAuth();
         }
         return null;
@@ -120,9 +128,9 @@ class ApiClient {
 
   // Auth endpoints
   async login(email, password) {
-    return this.request('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email: email.trim().toLowerCase(), password })
+    return this.request("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
     });
   }
 
@@ -130,9 +138,9 @@ class ApiClient {
     const refreshToken = this.getRefreshToken();
     try {
       if (refreshToken) {
-        await this.request('/auth/logout', {
-          method: 'POST',
-          body: JSON.stringify({ refreshToken })
+        await this.request("/auth/logout", {
+          method: "POST",
+          body: JSON.stringify({ refreshToken }),
         });
       }
     } finally {
@@ -141,7 +149,7 @@ class ApiClient {
   }
 
   async getMe() {
-    return this.request('/auth/me', { method: 'GET' });
+    return this.request("/auth/me", { method: "GET" });
   }
 }
 

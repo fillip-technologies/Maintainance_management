@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 import { TOKEN_STORAGE_KEY, REFRESH_TOKEN_STORAGE_KEY } from './apiClient';
 
-const rawApiBase = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1').trim().replace(/\/+$/, '');
+const rawApiBase = (import.meta.env.VITE_API_BASE_URL || 'https://fixly-backend.fillipsoftware.com/api/v1').trim().replace(/\/+$/, '');
 const API_BASE = rawApiBase.endsWith('/api/v1') ? rawApiBase : `${rawApiBase}/api/v1`;
 const SOCKET_URL = (import.meta.env.VITE_SOCKET_URL || rawApiBase.replace(/\/api\/v1\/?$/, '') || 'http://localhost:3000').trim().replace(/\/+$/, '');
 
