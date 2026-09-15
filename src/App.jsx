@@ -113,7 +113,7 @@ function AppRoutes() {
           <Route path="/clientadmin" element={<ClientadminLayout />}>
             <Route index element={<Navigate to="/clientadmin/overview" replace />} />
             <Route path="overview" element={<ClientOverview />} />
-            <Route path="cameras" element={<ClientCamerasPage />} />
+            <Route path="products" element={<ClientCamerasPage />} />
             <Route path="daily-logs" element={<DailyLogsPage />} />
             <Route path="users" element={<ClientUsersPage />} />
 <Route path="requests" element={<RaiseQueryPage />} />

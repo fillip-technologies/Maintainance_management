@@ -110,8 +110,8 @@ export default function Sidebar({
           icon: LayoutDashboard
         },
         {
-          name: 'Camera Overview',
-          path: '/clientadmin/cameras',
+          name: 'Product Overview',
+          path: '/clientadmin/products',
           icon: Camera
         },
         {

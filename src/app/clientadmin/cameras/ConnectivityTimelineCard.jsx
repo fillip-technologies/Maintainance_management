@@ -1,349 +1,411 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
-  LayoutGrid,
+  AlertTriangle,
+  CheckCircle2,
   Video,
   Bell,
   ChevronDown,
   ChevronRight,
-  Layers,
-  AlertTriangle,
-  ExternalLink,
-  ShieldAlert,
-  CheckCircle2,
-  XCircle
 } from 'lucide-react';
 
-export default function ConnectivityTimelineCard({
-  zoneGroups = [],
-  onOpenReportIssue,
-  onOpenAlerts,
-  onCreateAlert
-}) {
-  const [hoveredCell, setHoveredCell] = useState(null); // { productName, code, subzoneName, status, ip, incident, x, y }
-  const [collapsedZones, setCollapsedZones] = useState({});
+// ── Health ring ───────────────────────────────────────────────────────────────
+function HealthRing({ online, total }) {
+  const pct = total > 0 ? Math.round((online / total) * 100) : 0;
+  const r = 18;
+  const circ = 2 * Math.PI * r;
+  const color =
+    pct === 100 ? '#22c55e' : pct >= 75 ? '#f59e0b' : '#ef4444';
+  const S = 44;
+  return (
+    <div className="relative flex items-center justify-center shrink-0" style={{ width: S, height: S }}>
+      <svg width={S} height={S} style={{ position: 'absolute', inset: 0 }}>
+        <circle cx={S/2} cy={S/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3.5" />
+        <circle
+          cx={S/2} cy={S/2} r={r}
+          fill="none" stroke={color} strokeWidth="3.5" strokeLinecap="round"
+          strokeDasharray={circ}
+          strokeDashoffset={circ * (1 - pct / 100)}
+          transform={`rotate(-90 ${S/2} ${S/2})`}
+        />
+      </svg>
+      <span className="relative text-[11px] font-bold font-mono" style={{ color }}>{pct}%</span>
+    </div>
+  );
+}
 
-  const toggleZone = (zoneId) => {
-    setCollapsedZones((prev) => ({
-      ...prev,
-      [zoneId]: !prev[zoneId]
-    }));
-  };
+// ── Single camera block ───────────────────────────────────────────────────────
+function CamBlock({ cam, onMouseEnter, onMouseLeave, onClick }) {
+  const online = cam.status === 'online';
+  return (
+    <button
+      type="button"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={onClick}
+      title={`${cam.code} — ${online ? 'Active' : 'Offline'}`}
+      className={[
+        'w-[18px] h-[14px] rounded-[3px] flex items-center justify-center border-0 p-0 shrink-0',
+        'transition-transform duration-100 hover:scale-125 hover:z-10',
+        online
+          ? 'bg-emerald-500 shadow-[0_0_5px_rgba(34,197,94,0.4)] cursor-default'
+          : 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.55)] cursor-pointer animate-[pulse_2s_ease-in-out_infinite]',
+      ].join(' ')}
+    >
+      <Video size={8} className="text-white/70" />
+    </button>
+  );
+}
 
-  const renderSubzoneRow = (subzone, parentName) => {
-    const { id, name, products = [] } = subzone;
-    const onlineCount = products.filter((p) => p.status === 'online').length;
-    const offlineCount = products.filter((p) => p.status === 'offline').length;
-    const alertCount = products.filter((p) => p.hasAlert).length;
-    const allWorking = products.length > 0 && onlineCount === products.length;
-
-    return (
-      <div
-        key={id}
-        className={`flex flex-col md:flex-row md:items-center px-4 py-3 hover:bg-slate-800/40 transition-colors border-b border-slate-800/50 group gap-3 ${
-          offlineCount > 0 ? 'bg-red-950/10' : ''
-        }`}
-      >
-        {/* Left Column: Subzone Info */}
-        <div className="w-full md:w-64 shrink-0 flex items-center gap-3 overflow-hidden">
-          <div
-            className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-all ${
-              allWorking
-                ? 'bg-slate-900 border-slate-800 text-slate-400 group-hover:text-emerald-400 group-hover:border-emerald-500/40'
-                : 'bg-red-950/40 border-red-800/60 text-red-400 shadow-red-900/30'
-            }`}
-          >
-            <Layers size={16} />
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <h4 className="text-xs sm:text-sm font-semibold text-slate-100 group-hover:text-blue-300 transition-colors truncate">
-              {name}
-            </h4>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              {parentName && (
-                <>
-                  <span className="text-[10px] text-slate-400 font-medium truncate max-w-[120px]">
-                    {parentName}
-                  </span>
-                  <span className="text-slate-600 text-[9px]">•</span>
-                </>
-              )}
-              <span className="text-[10px] font-mono text-slate-400">
-                {products.length} {products.length === 1 ? 'product' : 'products'}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Center: Product Blocks (Green for working, Red for not working) */}
-        <div className="flex-1 flex flex-wrap items-center gap-2 py-1">
-          {products.map((prod, idx) => {
-            const isOnline = prod.status === 'online';
-            return (
-              <button
-                key={prod.id || idx}
-                type="button"
-                onMouseEnter={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  setHoveredCell({
-                    productName: prod.name,
-                    rawName: prod.rawName,
-                    code: prod.code,
-                    subzoneName: `${parentName ? `${parentName} › ` : ''}${name}`,
-                    status: prod.status,
-                    ip: prod.ip,
-                    incident: prod.alertDetails?.message,
-                    x: rect.left + rect.width / 2,
-                    y: rect.top
-                  });
-                }}
-                onMouseLeave={() => setHoveredCell(null)}
-                onClick={() => {
-                  if (!isOnline) {
-                    if (onCreateAlert && !prod.hasAlert) {
-                      onCreateAlert(prod);
-                    } else if (onOpenAlerts) {
-                      onOpenAlerts(id);
-                    }
-                  }
-                }}
-                className={`min-w-[46px] h-8 px-2.5 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-150 transform hover:scale-105 select-none ${
-                  isOnline
-                    ? 'bg-[#22c55e] text-white shadow-xs shadow-emerald-500/30 cursor-default'
-                    : 'bg-[#ef4444] hover:bg-[#dc2626] text-white shadow-xs shadow-red-500/50 animate-pulse cursor-pointer'
-                }`}
-                title={`${prod.name} - ${isOnline ? 'Active (Working)' : 'Not Active (Offline) - Click to raise alert'}`}
-              >
-                <Video size={13} className="shrink-0" />
-                <span className="text-[11px] font-mono font-bold tracking-tight">
-                  {prod.code ? prod.code.replace('CAM-', '#') : `#${idx + 1}`}
-                </span>
-              </button>
-            );
-          })}
-
-          {products.length === 0 && (
-            <span className="text-xs text-slate-500 italic">No products registered in this subzone</span>
-          )}
-        </div>
-
-        {/* Alert Bell / Action Column */}
-        <div className="shrink-0 flex items-center gap-2 pl-2">
-          {alertCount > 0 ? (
-            <button
-              type="button"
-              onClick={() => onOpenAlerts && onOpenAlerts(id)}
-              className="relative p-1.5 rounded-full text-amber-400 hover:text-amber-300 transition-all cursor-pointer group/bell"
-              title={`${alertCount} alert(s) in this subzone - Click to open Zone Alerts`}
-            >
-              <span className="absolute inset-0 rounded-full bg-amber-500/30 blur-xs animate-ping" />
-              <span className="absolute inset-0 rounded-full bg-amber-500/20 blur-sm" />
-              <Bell size={18} className="relative z-10 fill-amber-400 text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
-            </button>
-          ) : offlineCount > 0 ? (
-            <button
-              type="button"
-              onClick={() => {
-                const offCam = products.find((p) => p.status === 'offline');
-                if (offCam) {
-                  onCreateAlert ? onCreateAlert(offCam) : onOpenReportIssue?.(offCam);
-                }
-              }}
-              className="px-2 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 text-[10px] font-bold cursor-pointer transition-colors flex items-center gap-1"
-              title="Raise alert for inactive product"
-            >
-              <AlertTriangle size={11} />
-              Raise Alert
-            </button>
-          ) : (
-            <div className="w-6 h-6" />
-          )}
-        </div>
-
-        {/* Right Column: Subzone Working Ratio Badge */}
-        <div className="w-full md:w-36 shrink-0 flex md:flex-col md:items-end justify-between md:justify-center gap-1 pr-2">
-          <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold uppercase tracking-wide ${
-              allWorking
-                ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/80 shadow-xs shadow-emerald-900/30'
-                : 'bg-red-950/90 text-red-400 border border-red-800/90 shadow-xs shadow-red-900/40 animate-pulse'
-            }`}
-          >
-            <span className={`w-1.5 h-1.5 rounded-full ${allWorking ? 'bg-emerald-400' : 'bg-red-400'}`} />
-            {onlineCount}/{products.length} Working
-          </span>
-          <span className="text-[10px] text-slate-400 font-medium">
-            {allWorking ? 'All Active' : `${offlineCount} Not Active`}
-          </span>
-        </div>
+// ── Camera block grid + offline list ─────────────────────────────────────────
+function CamGrid({ cameras, zoneId, onOpenAlerts, onCreateAlert, onShowTooltip, onHideTooltip }) {
+  const offlineCams = cameras.filter((c) => c.status === 'offline');
+  return (
+    <div>
+      <div className="flex flex-wrap gap-[4px]">
+        {cameras.map((cam, i) => (
+          <CamBlock
+            key={cam.id || i}
+            cam={cam}
+            onMouseEnter={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              onShowTooltip(cam, rect.left + rect.width / 2, rect.top);
+            }}
+            onMouseLeave={onHideTooltip}
+            onClick={() => {
+              if (cam.status !== 'online') {
+                cam.hasAlert ? onOpenAlerts?.(zoneId) : onCreateAlert?.(cam);
+              }
+            }}
+          />
+        ))}
       </div>
-    );
-  };
+      {offlineCams.length > 0 && (
+        <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+          <AlertTriangle size={10} className="text-red-400 shrink-0" />
+          <span className="text-[10px] text-red-400 font-semibold shrink-0">
+            {offlineCams.length} offline:
+          </span>
+          <span className="text-[10px] font-mono text-red-300/70 truncate">
+            {offlineCams.slice(0, 5).map((c) => c.code).join(', ')}
+            {offlineCams.length > 5 && ` +${offlineCams.length - 5}`}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Nested zone mini-card (only shows zone name, no parent repeat) ────────────
+function NestedZoneCard({ zone, onOpenAlerts, onCreateAlert, onShowTooltip, onHideTooltip }) {
+  const { id, name, cameras } = zone;
+  const offline = cameras.filter((c) => c.status === 'offline').length;
+  const online = cameras.filter((c) => c.status === 'online').length;
+  const hasOffline = offline > 0;
 
   return (
-    <div className="relative bg-[#0c1427] border border-slate-800/90 rounded-2xl shadow-xl overflow-hidden text-slate-100">
-      
-      {/* ── CARD HEADER ──────────────────────────────────────────────────── */}
-      <div className="px-5 py-4 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0c1427]">
-        
-        {/* Left: Icon + Title */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
-            <LayoutGrid size={18} />
+    <div
+      className={[
+        'flex flex-col rounded-xl border overflow-hidden bg-[#0b1628]',
+        hasOffline
+          ? 'border-red-800/35 shadow-[0_0_12px_rgba(239,68,68,0.06)]'
+          : 'border-slate-700/30',
+      ].join(' ')}
+    >
+      {/* Sub-card header */}
+      <div className="px-3 pt-3 pb-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div
+              className={[
+                'w-6 h-6 rounded-md flex items-center justify-center shrink-0',
+                hasOffline ? 'bg-red-500/15 text-red-400' : 'bg-emerald-500/12 text-emerald-400',
+              ].join(' ')}
+            >
+              <Video size={12} />
+            </div>
+            <span className="text-[12px] font-semibold text-slate-100 truncate leading-tight">
+              {name}
+            </span>
           </div>
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              Zone & Product Connectivity Overview
-            </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Live product status across subzones (Green = Working, Red = Not Working)
-            </p>
-          </div>
-        </div>
-
-        {/* Right: Legend (Green = Working, Red = Not Working) */}
-        <div className="flex items-center gap-4 text-xs font-semibold text-slate-300">
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-[3px] bg-[#22c55e] shadow-xs shadow-emerald-500/30" />
-            <span className="text-slate-200">Working Product</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-[3px] bg-[#ef4444] shadow-xs shadow-red-500/30" />
-            <span className="text-slate-200">Not Working Product</span>
-          </div>
+          <span className="text-[10px] font-mono text-slate-500 shrink-0">
+            {online}/{cameras.length}
+          </span>
         </div>
       </div>
 
-      {/* ── MAIN ZONES & SUBZONES CONTAINER ──────────────────────────────── */}
-      <div className="divide-y divide-slate-800/70">
-        {zoneGroups.map((group) => {
-          const isCollapsed = !!collapsedZones[group.id];
-          const hasIssues = group.totalOffline > 0;
+      {/* Camera blocks */}
+      <div className="px-3 pb-2 flex-1">
+        <CamGrid
+          cameras={cameras}
+          zoneId={id}
+          onOpenAlerts={onOpenAlerts}
+          onCreateAlert={onCreateAlert}
+          onShowTooltip={onShowTooltip}
+          onHideTooltip={onHideTooltip}
+        />
+      </div>
 
-          return (
-            <div key={group.id} className="bg-slate-900/10">
-              
-              {/* Main Zone Partition Header */}
-              <div
-                className={`w-full flex items-center justify-between px-4 py-3 border-y border-slate-800/80 transition-colors ${
-                  hasIssues ? 'bg-slate-900/80 hover:bg-slate-800/80' : 'bg-slate-900/60 hover:bg-slate-800/60'
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => toggleZone(group.id)}
-                  className="flex items-center gap-2.5 text-left cursor-pointer group/zbtn flex-1"
-                >
-                  {isCollapsed ? (
-                    <ChevronRight size={16} className="text-slate-400 group-hover/zbtn:text-white shrink-0" />
-                  ) : (
-                    <ChevronDown size={16} className="text-slate-400 group-hover/zbtn:text-white shrink-0" />
-                  )}
-                  <div>
-                    <span className="text-xs sm:text-sm font-bold text-white tracking-wide uppercase group-hover/zbtn:text-blue-300">
-                      {group.name}
-                    </span>
-                    <span className="text-[11px] font-medium text-slate-400 ml-2">
-                      ({group.subzones.length} {group.subzones.length === 1 ? 'subzone' : 'subzones'} • {group.totalProducts} cameras)
-                    </span>
-                  </div>
-                </button>
-
-                {/* Main Zone Status Badges */}
-                <div className="flex items-center gap-3 text-xs">
-                  <span className="inline-flex items-center gap-1 font-mono text-emerald-400 font-bold">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-xs shadow-emerald-500" />
-                    {group.totalOnline} Working
-                  </span>
-                  {group.totalOffline > 0 && (
-                    <span className="inline-flex items-center gap-1 font-mono text-red-400 font-bold">
-                      <span className="w-2 h-2 rounded-full bg-red-500 shadow-xs shadow-red-500 animate-pulse" />
-                      {group.totalOffline} Not Working
-                    </span>
-                  )}
-                  {group.totalAlerts > 0 && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenAlerts?.(group.id);
-                      }}
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-bold hover:bg-amber-500/30 transition-colors cursor-pointer"
-                      title="Open Zone Alerts"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-                      {group.totalAlerts} Alerts
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Subzone Rows */}
-              {!isCollapsed && (
-                <div className="divide-y divide-slate-800/40 bg-slate-950/20">
-                  {group.subzones.map((subzone) => renderSubzoneRow(subzone, group.name))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        {zoneGroups.length === 0 && (
-          <div className="p-12 text-center text-slate-400">
-            <p className="text-sm font-semibold">No zones or subzones match the current filter criteria.</p>
-            <p className="text-xs text-slate-400 mt-1">Try clearing your search query or selecting "All Facilities".</p>
-          </div>
+      {/* Status footer */}
+      <div
+        className={[
+          'px-3 py-1.5 flex items-center gap-1.5 border-t text-[10px] mt-auto',
+          hasOffline
+            ? 'bg-red-950/25 border-red-800/25 text-red-400'
+            : 'bg-emerald-950/15 border-emerald-900/20 text-emerald-400',
+        ].join(' ')}
+      >
+        {hasOffline ? (
+          <>
+            <AlertTriangle size={9} className="shrink-0" />
+            <span className="font-semibold">{offline} Offline</span>
+            <button
+              type="button"
+              onClick={() => onOpenAlerts?.(id)}
+              className="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/12 border border-amber-500/25 text-amber-300 text-[9px] font-bold hover:bg-amber-500/20 transition-colors cursor-pointer"
+            >
+              <Bell size={8} /> Alert
+            </button>
+          </>
+        ) : (
+          <>
+            <CheckCircle2 size={9} className="shrink-0" />
+            <span className="font-semibold">All Active</span>
+          </>
         )}
       </div>
+    </div>
+  );
+}
 
-      {/* ── FLOATING TOOLTIP ON PRODUCT HOVER ─────────────────────────────── */}
-      {hoveredCell && (
-        <div
-          className="fixed z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full -mt-2 bg-slate-900/95 border border-slate-700 text-white rounded-xl px-3 py-2.5 shadow-2xl backdrop-blur-md text-xs animate-in fade-in zoom-in-95 duration-100 max-w-xs"
-          style={{
-            left: `${hoveredCell.x}px`,
-            top: `${hoveredCell.y}px`,
-            minWidth: '210px'
-          }}
-        >
-          <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-1.5 mb-1.5">
-            <span className="font-bold text-slate-200 truncate">{hoveredCell.productName}</span>
-            <span className="text-[10px] font-mono font-bold text-blue-400 shrink-0">{hoveredCell.code}</span>
-          </div>
+// ── Top-level zone card (outer box) ──────────────────────────────────────────
+function TopLevelZoneCard({
+  section,
+  collapsed,
+  onToggle,
+  onOpenAlerts,
+  onCreateAlert,
+  onShowTooltip,
+  onHideTooltip,
+}) {
+  const { header, cards } = section;
+  const { id, name, cameras: directCams, stats } = header;
+  const hasDirectCams = directCams.length > 0;
+  const hasNested = cards.length > 0;
+  const isCollapsed = !!collapsed[id];
+  const hasOffline = stats.offline > 0;
 
-          <div className="space-y-1 text-[11px]">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-slate-400">Subzone:</span>
-              <span className="text-slate-200 font-medium truncate max-w-[130px]">{hoveredCell.subzoneName}</span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-slate-400">Product Status:</span>
-              <span
-                className={`font-bold ${
-                  hoveredCell.status === 'online' ? 'text-emerald-400' : 'text-red-400'
-                }`}
-              >
-                {hoveredCell.status === 'online' ? 'Working (Green)' : 'Not Working (Red)'}
+  return (
+    <div
+      className={[
+        'flex flex-col rounded-2xl border overflow-hidden',
+        'bg-[#0c1427]',
+        hasOffline
+          ? 'border-red-800/40 shadow-[0_0_20px_rgba(239,68,68,0.07)]'
+          : 'border-slate-700/50 shadow-[0_4px_24px_rgba(0,0,0,0.35)]',
+      ].join(' ')}
+    >
+      {/* ── Top-level zone header ─────────────────────────────────────── */}
+      <button
+        type="button"
+        onClick={() => (hasNested || hasDirectCams) && onToggle(id)}
+        className={[
+          'w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors border-b',
+          hasOffline
+            ? 'bg-gradient-to-r from-red-950/60 to-[#0a1120] border-red-800/40'
+            : 'bg-gradient-to-r from-blue-950/60 to-[#0a1120] border-slate-800/60',
+          (hasNested || hasDirectCams) ? 'cursor-pointer' : 'cursor-default',
+        ].join(' ')}
+      >
+        {/* Left accent bar */}
+        <span className={`w-1 self-stretch rounded-full shrink-0 ${hasOffline ? 'bg-red-500' : 'bg-blue-500'}`} />
+
+        {/* Chevron */}
+        {(hasNested || hasDirectCams) && (
+          <span className="text-slate-400 shrink-0">
+            {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+          </span>
+        )}
+
+        {/* Name + stats */}
+        <div className="flex-1 min-w-0">
+          <span className={`block text-[14px] font-extrabold uppercase tracking-widest truncate ${hasOffline ? 'text-red-300' : 'text-white'}`}>
+            {name}
+          </span>
+          <div className="flex items-center gap-3 mt-0.5 text-[10px] font-mono">
+            <span className="text-slate-500">{stats.total} products</span>
+            {hasNested && (
+              <span className="text-slate-500">
+                {cards.length} subzone{cards.length !== 1 ? 's' : ''}
               </span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-slate-400">IP Address:</span>
-              <span className="font-mono text-slate-300">{hoveredCell.ip}</span>
-            </div>
+            )}
+            <span className="text-emerald-400 font-bold">●{stats.online}</span>
+            {stats.offline > 0 && (
+              <span className="text-red-400 font-bold animate-pulse">○{stats.offline}</span>
+            )}
           </div>
+        </div>
 
-          {hoveredCell.incident && (
-            <div className="mt-2 pt-1.5 border-t border-slate-800 text-[10px] text-amber-300 italic leading-tight">
-              ⚠️ {hoveredCell.incident}
+        {/* Health ring */}
+        <HealthRing online={stats.online} total={stats.total} />
+      </button>
+
+      {/* ── Body (collapsible) ────────────────────────────────────────── */}
+      {!isCollapsed && (
+        <div className="flex-1">
+
+          {/* Direct cameras on this top-level zone */}
+          {hasDirectCams && (
+            <div className={['px-4 py-3', hasNested ? 'border-b border-slate-800/50' : ''].join(' ')}>
+              <p className="text-[10px] text-slate-500 font-medium mb-2 uppercase tracking-wide">
+                Direct Products
+              </p>
+              <CamGrid
+                cameras={directCams}
+                zoneId={id}
+                onOpenAlerts={onOpenAlerts}
+                onCreateAlert={onCreateAlert}
+                onShowTooltip={onShowTooltip}
+                onHideTooltip={onHideTooltip}
+              />
             </div>
           )}
 
-          <div className="mt-2 pt-1.5 border-t border-slate-800/80 text-[10px] text-blue-400 font-semibold text-center">
-            Click product to inspect live stream & specs →
-          </div>
+          {/* Nested zone sub-cards — 2 per row */}
+          {hasNested && (
+            <div className="grid grid-cols-2 gap-3 p-3">
+              {cards.map((zone) => (
+                <NestedZoneCard
+                  key={zone.id}
+                  zone={zone}
+                  onOpenAlerts={onOpenAlerts}
+                  onCreateAlert={onCreateAlert}
+                  onShowTooltip={onShowTooltip}
+                  onHideTooltip={onHideTooltip}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Empty zone */}
+          {!hasDirectCams && !hasNested && (
+            <div className="px-4 py-6 text-center text-[11px] text-slate-600">
+              No cameras match current filter.
+            </div>
+          )}
         </div>
       )}
 
+      {isCollapsed && (
+        <div className="px-4 py-2.5 text-[11px] text-slate-600 italic">
+          {stats.total} cameras hidden — click to expand
+        </div>
+      )}
     </div>
+  );
+}
+
+// ── Floating tooltip ──────────────────────────────────────────────────────────
+function CamTooltip({ tooltip }) {
+  if (!tooltip) return null;
+  const { cam, x, y } = tooltip;
+  const online = cam.status === 'online';
+  return (
+    <div
+      className="fixed z-[9999] pointer-events-none bg-[#0d1626]/98 border border-slate-700/60 rounded-xl px-3 py-2.5 shadow-2xl text-xs backdrop-blur-sm animate-in fade-in zoom-in-95 duration-100"
+      style={{ left: x, top: y - 10, transform: 'translate(-50%,-100%)', minWidth: 210 }}
+    >
+      <div className="flex items-center justify-between gap-3 pb-1.5 mb-1.5 border-b border-slate-800">
+        <span className="font-bold text-white truncate">{cam.name}</span>
+        <span className="font-mono text-blue-400 text-[10px] shrink-0">{cam.code}</span>
+      </div>
+      <div className="space-y-1 text-[11px]">
+        <div className="flex justify-between gap-3">
+          <span className="text-slate-400">Status</span>
+          <span className={online ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}>
+            {online ? 'Active' : 'Offline'}
+          </span>
+        </div>
+        <div className="flex justify-between gap-3">
+          <span className="text-slate-400">IP</span>
+          <span className="font-mono text-slate-300">{cam.ip}</span>
+        </div>
+        {cam.zoneName && (
+          <div className="flex justify-between gap-3">
+            <span className="text-slate-400">Zone</span>
+            <span className="text-slate-300 truncate max-w-[130px]">{cam.zoneName}</span>
+          </div>
+        )}
+      </div>
+      {cam.alertDetails?.message && (
+        <div className="mt-1.5 pt-1.5 border-t border-slate-800 text-[10px] text-amber-300 italic leading-snug">
+          ⚠ {cam.alertDetails.message}
+        </div>
+      )}
+      {!online && (
+        <p className="mt-1.5 text-[10px] text-blue-400 font-semibold text-center">
+          Click to raise alert →
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Root component ────────────────────────────────────────────────────────────
+export default function ConnectivityTimelineCard({
+  zoneRows = [],
+  onOpenAlerts,
+  onCreateAlert,
+}) {
+  const [collapsed, setCollapsed] = useState({});
+  const [tooltip, setTooltip] = useState(null);
+
+  const toggle = (id) => setCollapsed((p) => ({ ...p, [id]: !p[id] }));
+  const showTooltip = (cam, x, y) => setTooltip({ cam, x, y });
+  const hideTooltip = () => setTooltip(null);
+
+  // Group flat DFS list into top-level sections
+  const sections = useMemo(() => {
+    const result = [];
+    let current = null;
+    for (const row of zoneRows) {
+      if (row.depth === 0) {
+        current = { header: row, cards: [] };
+        result.push(current);
+      } else if (current) {
+        current.cards.push(row);
+      }
+    }
+    return result;
+  }, [zoneRows]);
+
+  if (sections.length === 0) {
+    return (
+      <div className="bg-[#0c1427] border border-slate-800/80 rounded-2xl p-12 text-center text-slate-500 text-sm">
+        No zones match the current filter.
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {/* Masonry columns — each card ends at its own height, next starts right below */}
+      <div className="columns-1 xl:columns-2 gap-5">
+        {sections.map((section) => (
+          <div key={section.header.id} className="break-inside-avoid mb-5">
+            <TopLevelZoneCard
+              section={section}
+              collapsed={collapsed}
+              onToggle={toggle}
+              onOpenAlerts={onOpenAlerts}
+              onCreateAlert={onCreateAlert}
+              onShowTooltip={showTooltip}
+              onHideTooltip={hideTooltip}
+            />
+          </div>
+        ))}
+      </div>
+
+      <CamTooltip tooltip={tooltip} />
+    </>
   );
 }

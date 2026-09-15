@@ -15,6 +15,8 @@ export default function Header({ onToggleMobileSidebar }) {
   useEffect(() => {
     const unsubConnect = socketClient.on('connect', () => setIsLive(true));
     const unsubDisconnect = socketClient.on('disconnect', () => setIsLive(false));
+    // Sync in case socket connected between the initial render and this effect.
+    setIsLive(socketClient.isConnected);
 
     return () => {
       unsubConnect();

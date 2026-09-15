@@ -9,6 +9,7 @@ class SocketClient {
   constructor() {
     this._socket = null;
     this._listeners = {}; // eventName → Set<callback>
+    this._pendingConnect = new Set(); // connect cbs buffered before socket was ready
     this._refreshing = false;
   }
 
@@ -83,6 +84,7 @@ class SocketClient {
       this._socket.disconnect();
       this._socket = null;
       this._listeners = {};
+      this._pendingConnect.clear();
     }
   }
 
@@ -92,12 +94,18 @@ class SocketClient {
     if (this._socket?.connected) {
       this._socket.off(event, callback); // prevent duplicates if already attached
       this._socket.on(event, callback);
+    } else if (event === 'connect') {
+      // Socket not yet connected — mark as pending so _syncListeners can fire it
+      // immediately when the socket connects (the 'connect' event will have already
+      // fired by the time these listeners get registered on the socket).
+      this._pendingConnect.add(callback);
     }
     return () => this.off(event, callback);
   }
 
   off(event, callback) {
     this._listeners[event]?.delete(callback);
+    this._pendingConnect.delete(callback);
     this._socket?.off(event, callback);
   }
 
@@ -106,12 +114,21 @@ class SocketClient {
   }
 
   _syncListeners() {
+    // Snapshot which connect listeners missed the event (registered while socket
+    // was disconnected) BEFORE re-registering, so we can call them immediately.
+    const missed = new Set(this._pendingConnect);
+    this._pendingConnect.clear();
+
     for (const [event, cbs] of Object.entries(this._listeners)) {
       for (const cb of cbs) {
         this._socket.off(event, cb); // remove first to prevent duplicate firings
         this._socket.on(event, cb);
       }
     }
+
+    // Fire buffered connect listeners now — the 'connect' event already fired
+    // by the time these were registered on the socket.
+    missed.forEach(cb => cb());
   }
 }
 
