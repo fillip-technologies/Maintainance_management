@@ -152,27 +152,49 @@ function getDescendantIds(zoneId, childrenMap) {
 }
 
 function computeZoneData(allZones, filteredDevices, openIssues, childrenMap) {
-  const zoneDeviceStats = {};
+  // Raw stats keyed by the EXACT zone a device/issue is attached to.
+  const rawDeviceStats = {};
   for (const d of filteredDevices) {
     if (!d.zoneId) continue;
-    const s = zoneDeviceStats[d.zoneId] ?? (zoneDeviceStats[d.zoneId] = { working: 0, faulty: 0, underMaintenance: 0 });
+    const s = rawDeviceStats[d.zoneId] ?? (rawDeviceStats[d.zoneId] = { working: 0, faulty: 0, underMaintenance: 0 });
     if (d.status === 'active')                s.working++;
     else if (d.status === 'faulty')           s.faulty++;
     else if (d.status === 'under_maintenance') s.underMaintenance++;
   }
 
-  const zoneIssueDevices = {};
+  const rawIssueDevices = {};
   for (const i of openIssues) {
     const zId = i.device?.zone?.id;
     const dId = i.device?.id;
     if (zId && dId) {
-      if (!zoneIssueDevices[zId]) zoneIssueDevices[zId] = new Set();
-      zoneIssueDevices[zId].add(dId);
+      if (!rawIssueDevices[zId]) rawIssueDevices[zId] = new Set();
+      rawIssueDevices[zId].add(dId);
     }
   }
-  const zoneIssueCount = Object.fromEntries(
-    Object.entries(zoneIssueDevices).map(([zId, set]) => [zId, set.size]),
-  );
+
+  // Zones are commonly displayed at a parent level (e.g. "Herbivore Retiring
+  // Room") while devices/issues live on their sub-zones (e.g. "Block-C") —
+  // roll counts up through the whole subtree so a parent zone's card/row
+  // reflects everything under it, not just what's attached to it directly.
+  const zoneDeviceStats = {};
+  const zoneIssueCount = {};
+  for (const z of allZones) {
+    const subtreeIds = [z.id, ...getDescendantIds(z.id, childrenMap)];
+    const totals = { working: 0, faulty: 0, underMaintenance: 0 };
+    const issueDeviceIds = new Set();
+    for (const id of subtreeIds) {
+      const s = rawDeviceStats[id];
+      if (s) {
+        totals.working += s.working;
+        totals.faulty += s.faulty;
+        totals.underMaintenance += s.underMaintenance;
+      }
+      const issSet = rawIssueDevices[id];
+      if (issSet) for (const devId of issSet) issueDeviceIds.add(devId);
+    }
+    zoneDeviceStats[z.id] = totals;
+    zoneIssueCount[z.id] = issueDeviceIds.size;
+  }
 
   const deviceIssueIds = new Set(openIssues.map((i) => i.device?.id).filter(Boolean));
 
