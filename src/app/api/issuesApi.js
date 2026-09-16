@@ -38,6 +38,26 @@ export async function getIssues({ deviceId, status, priority, zoneId, assignedTo
   return res?.data ?? { items: [], page: 1, limit: 20, totalItems: 0, totalPages: 0 };
 }
 
+/**
+ * Fetch all issues across pagination pages (the backend caps page size at 100).
+ */
+export async function getAllIssues({ deviceId, status, priority, zoneId, assignedTo, maxPages = 10 } = {}) {
+  let page = 1;
+  const allItems = [];
+  let totalPages = 1;
+
+  while (page <= totalPages && page <= maxPages) {
+    const res = await getIssues({ deviceId, status, priority, zoneId, assignedTo, page, limit: 100 });
+    const items = res?.items ?? [];
+    allItems.push(...items);
+    totalPages = res?.totalPages ?? 1;
+    if (items.length === 0 || page >= totalPages) break;
+    page++;
+  }
+
+  return allItems;
+}
+
 export async function getIssueById(id) {
   const res = await apiClient.request(`/issues/${id}`, { method: 'GET' });
   return res?.data ?? null;

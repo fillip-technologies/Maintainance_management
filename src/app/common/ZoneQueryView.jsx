@@ -5,9 +5,9 @@ import {
   Building2, Users, Car, Cross, Compass, Shield, DoorOpen,
   Camera, Check, X, Maximize2, Minimize2,
 } from 'lucide-react';
-import { getZones } from '../api/zonesApi';
-import { getDevices } from '../api/devicesApi';
-import { getIssues } from '../api/issuesApi';
+import { getAllZones } from '../api/zonesApi';
+import { getAllDevices } from '../api/devicesApi';
+import { getAllIssues } from '../api/issuesApi';
 import { getEquipmentVisual } from '../clientadmin/overview/components/equipmentIcons';
 import mapImage from '../../assets/map-image.png';
 
@@ -315,14 +315,26 @@ export default function ZoneQueryView({ clientId, initialCat } = {}) {
     setLoading(true);
     setError('');
     try {
-      const [zonesRes, devicesRes, issuesRes] = await Promise.all([
-        getZones({ limit: 100, ...(clientId ? { clientId } : {}) }),
-        getDevices({ limit: 100 }),
-        getIssues({ limit: 100 }),
+      // Page through ALL results — the backend caps page size at 100, and this
+      // client can easily have more than 100 zones/devices (capped-at-100 bug).
+      const [zones, allDevs, allIssues] = await Promise.all([
+        getAllZones({ clientId }),
+        getAllDevices(),
+        getAllIssues(),
       ]);
-      const zones   = zonesRes?.items  ?? [];
-      const devs    = devicesRes?.items ?? [];
-      const issues  = (issuesRes?.items ?? []).filter((i) => OPEN_STATUSES.has(i.status));
+      // Neither /devices nor /issues supports a `clientId` filter server-side
+      // (only /zones does) — a super-admin viewing a specific client otherwise
+      // gets the same platform-wide device/issue slice for every client. Scope
+      // them here to zones that belong to the selected client's zone tree.
+      // (When clientId is unset — the client-admin's own view — the backend
+      // already scopes everything to their client via the auth token, so no
+      // extra filtering is needed.)
+      const zoneIdSet = clientId ? new Set(zones.map((z) => z.id)) : null;
+      const devs = zoneIdSet ? allDevs.filter((d) => d.zoneId && zoneIdSet.has(d.zoneId)) : allDevs;
+      const scopedIssues = zoneIdSet
+        ? allIssues.filter((i) => i.device?.zone?.id && zoneIdSet.has(i.device.zone.id))
+        : allIssues;
+      const issues  = scopedIssues.filter((i) => OPEN_STATUSES.has(i.status));
       const map     = buildChildrenMap(zones);
       setAllZones(zones);
       setAllDevices(devs);
@@ -381,8 +393,7 @@ export default function ZoneQueryView({ clientId, initialCat } = {}) {
       setDevLoading(true);
       setDevices([]);
       try {
-        const res = await getDevices({ zoneId: zone.id, limit: 100 });
-        const all = res?.items ?? [];
+        const all = await getAllDevices({ zoneId: zone.id });
         // Show only the selected category's devices so the drill-down is consistent
         const filtered = selectedCat
           ? selectedCat.categoryId
