@@ -2,11 +2,11 @@ import React, { useState, useMemo } from 'react';
 import {
   AlertTriangle,
   CheckCircle2,
-  Video,
   Bell,
   ChevronDown,
   ChevronRight,
 } from 'lucide-react';
+import BulletCameraIcon from './BulletCameraIcon';
 
 // ── Health ring ───────────────────────────────────────────────────────────────
 function HealthRing({ online, total }) {
@@ -33,25 +33,25 @@ function HealthRing({ online, total }) {
   );
 }
 
-// ── Single camera block ───────────────────────────────────────────────────────
+// ── Single camera bullet icon (no border, shape of camera only) ──────────────
 function CamBlock({ cam, onMouseEnter, onMouseLeave, onClick }) {
-  const online = cam.status === 'online';
+  const isWorking = cam.status === 'online'; // working / right
   return (
     <button
       type="button"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onClick={onClick}
-      title={`${cam.code} — ${online ? 'Active' : 'Offline'}`}
+      title={`${cam.code} — ${isWorking ? 'Working (Right)' : 'Faulty / Inactive'}`}
       className={[
-        'w-[18px] h-[14px] rounded-[3px] flex items-center justify-center border-0 p-0 shrink-0',
-        'transition-transform duration-100 hover:scale-125 hover:z-10',
-        online
-          ? 'bg-emerald-500 shadow-[0_0_4px_rgba(34,197,94,0.4)] cursor-default'
-          : 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.55)] cursor-pointer animate-[pulse_2s_ease-in-out_infinite]',
+        'p-0.5 bg-transparent border-0 shrink-0 cursor-pointer',
+        'transition-transform duration-100 hover:scale-125 hover:z-10 focus:outline-none',
+        isWorking
+          ? 'text-emerald-400 hover:text-emerald-300 drop-shadow-[0_0_5px_rgba(52,211,153,0.55)]'
+          : 'text-red-500 hover:text-red-400 drop-shadow-[0_0_6px_rgba(239,68,68,0.75)] animate-[pulse_2s_ease-in-out_infinite]',
       ].join(' ')}
     >
-      <Video size={8} className="text-white/80" />
+      <BulletCameraIcon className="w-5 h-5" />
     </button>
   );
 }
@@ -61,7 +61,7 @@ function CamGrid({ cameras, zoneId, onOpenAlerts, onCreateAlert, onShowTooltip, 
   const offlineCams = cameras.filter((c) => c.status === 'offline');
   return (
     <div>
-      <div className="flex flex-wrap gap-[4px]">
+      <div className="flex flex-wrap gap-1.5">
         {cameras.map((cam, i) => (
           <CamBlock
             key={cam.id || i}
@@ -191,7 +191,7 @@ function TopLevelZoneCard({
                   <>
                     <div className="flex items-center gap-1 font-semibold">
                       <AlertTriangle size={11} className="shrink-0" />
-                      <span>{stats.offline} Offline</span>
+                      <span>{stats.offline} Faulty</span>
                     </div>
                     <button
                       type="button"
@@ -204,7 +204,7 @@ function TopLevelZoneCard({
                 ) : (
                   <div className="flex items-center gap-1 font-semibold">
                     <CheckCircle2 size={11} className="shrink-0" />
-                    <span>All Cameras Active</span>
+                    <span>All Cameras Working</span>
                   </div>
                 )}
               </div>
@@ -244,7 +244,7 @@ function CamTooltip({ tooltip }) {
         <div className="flex justify-between gap-3">
           <span className="text-slate-400">Status</span>
           <span className={online ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}>
-            {online ? 'Active' : 'Offline'}
+            {online ? 'Working (Right)' : 'Faulty / Inactive'}
           </span>
         </div>
         <div className="flex justify-between gap-3">

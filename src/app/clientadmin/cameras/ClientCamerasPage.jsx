@@ -63,11 +63,11 @@ export default function ClientCamerasPage() {
           console.warn('[ClientCamerasPage] Error fetching zones:', err);
           return [];
         }),
-        getAllDevices({ limit: 100 }).catch((err) => {
+        getAllDevices({ limit: 1000 }).catch((err) => {
           console.warn('[ClientCamerasPage] Error fetching devices:', err);
           return [];
         }),
-        getIssues({ status: 'open,assigned,in_progress,on_hold,reopened', limit: 100 }).catch((err) => {
+        getIssues({ status: 'open,assigned,in_progress,on_hold,reopened', limit: 1000 }).catch((err) => {
           console.warn('[ClientCamerasPage] Error fetching issues:', err);
           return { items: [] };
         }),
