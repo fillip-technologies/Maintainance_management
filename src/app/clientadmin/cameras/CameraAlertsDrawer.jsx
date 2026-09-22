@@ -51,14 +51,14 @@ export default function CameraAlertsDrawer({
     return cameras.filter((c) => c.hasAlert && c.alertDetails);
   }, [cameras]);
 
-  // Group alerts by zone
+  // Group alerts by parent zone
   const alertsByZone = useMemo(() => {
     const map = {};
     for (const cam of alertCameras) {
-      const zId = cam.zoneId;
+      const zId = cam.parentZoneId || cam.rootZoneId || cam.zoneId;
       if (!map[zId]) {
-        const zoneObj = zones.find((z) => z.id === zId) || { name: cam.subzoneName || cam.zoneName, id: zId };
-        const allZoneCams = cameras.filter((c) => c.zoneId === zId);
+        const zoneObj = zones.find((z) => z.id === zId) || { name: cam.parentZoneName || cam.zoneName, id: zId };
+        const allZoneCams = cameras.filter((c) => (c.parentZoneId || c.rootZoneId || c.zoneId) === zId);
         const onlineCount = allZoneCams.filter((c) => c.status === 'online').length;
         const offlineCount = allZoneCams.filter((c) => c.status === 'offline').length;
         

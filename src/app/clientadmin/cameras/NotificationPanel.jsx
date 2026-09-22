@@ -29,11 +29,11 @@ export default function NotificationPanel({ cameras = [], openIssues = [], onOpe
     .map((cam) => ({
       id: cam.id,
       name: cam.name || cam.code,
-      zone: cam.subzoneName || cam.zoneName,
+      zone: cam.parentZoneName || cam.zoneName,
       code: cam.code,
       severity: cam.alertDetails?.severity || (cam.status === 'offline' ? 'high' : 'low'),
       time: cam.alertDetails?.timestamp || cam.rawDevice?.updatedAt,
-      zoneId: cam.zoneId,
+      zoneId: cam.parentZoneId || cam.zoneId,
     }))
     .sort((a, b) => (SEV_ORDER[a.severity] ?? 4) - (SEV_ORDER[b.severity] ?? 4));
 

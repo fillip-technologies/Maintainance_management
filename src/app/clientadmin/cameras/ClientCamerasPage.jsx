@@ -93,11 +93,26 @@ export default function ClientCamerasPage() {
       setIssueCategories(categoriesList);
 
       // Map raw devices to camera items with zone relationships
+      const zoneMap = new Map(normalizedZones.map((z) => [z.id, z]));
+
+      const getTopLevelZone = (zoneId) => {
+        if (!zoneId) return null;
+        let curr = zoneMap.get(zoneId);
+        if (!curr) return null;
+        const visited = new Set();
+        while (curr.parentZoneId && !visited.has(curr.id)) {
+          visited.add(curr.id);
+          const parent = zoneMap.get(curr.parentZoneId);
+          if (!parent) break;
+          curr = parent;
+        }
+        return curr;
+      };
+
       const mappedCameras = (devicesList || []).map((device, idx) => {
-        const subzoneObj = normalizedZones.find((z) => z.id === device.zoneId);
-        const subzoneName = subzoneObj?.name || device.zoneName || device.zone?.name || 'Unassigned Subzone';
-        const parentZoneObj = normalizedZones.find((z) => z.id === subzoneObj?.parentZoneId);
-        const parentZoneName = parentZoneObj?.name || 'Main Campus';
+        const rootZoneObj = getTopLevelZone(device.zoneId);
+        const parentZoneId = rootZoneObj?.id || device.zoneId || null;
+        const parentZoneName = rootZoneObj?.name || 'Main Campus';
 
         // Check if device has an open issue in backend
         const openIssue = issuesList.find((iss) => iss.deviceId === device.id);
@@ -124,7 +139,7 @@ export default function ClientCamerasPage() {
             type: 'Device Inactive / Outage',
             severity: device.status === 'faulty' ? 'critical' : 'high',
             timestamp: device.updatedAt || device.createdAt,
-            message: `Device status is "${device.status.replace('_', ' ')}". Hardware telemetry lost in ${subzoneName}.`,
+            message: `Device status is "${device.status.replace('_', ' ')}". Hardware telemetry lost in ${parentZoneName}.`,
             isBackendIssue: false,
           };
         }
@@ -138,11 +153,11 @@ export default function ClientCamerasPage() {
           name: device.name,
           rawName: device.name,
           zoneId: device.zoneId || 'unassigned',
-          subzoneName,
-          parentZoneId: subzoneObj?.parentZoneId || null,
+          rootZoneId: parentZoneId,
+          parentZoneId,
           parentZoneName,
-          zoneName: `${parentZoneName} › ${subzoneName}`,
-          location: device.location || `${subzoneName} - Deployed Camera`,
+          zoneName: parentZoneName,
+          location: device.location || `${parentZoneName} - Deployed Camera`,
           type: device.productType?.name || device.hardwareType?.name || device.categoryName || 'Unknown',
           hardwareTypeId: device.hardwareTypeId || device.productTypeId || null,
           hardwareTypeName: device.hardwareType?.name || device.productType?.name || device.categoryName || 'Unknown',
@@ -206,7 +221,7 @@ export default function ClientCamerasPage() {
       setNotificationToast({
         title: 'Defect Alert Raised',
         message: `High priority alert logged for ${camera.name} in ${camera.zoneName}. Device moved to maintenance.`,
-        zoneId: camera.zoneId,
+        zoneId: camera.parentZoneId || camera.zoneId,
       });
 
       await fetchApiData();
@@ -244,9 +259,10 @@ export default function ClientCamerasPage() {
         if (key !== selectedHardwareType) return false;
       }
 
-      // 1. Zone filter
+      // 1. Zone filter (matches top-level parent zone or direct zone)
       if (selectedZone !== 'all') {
-        if (cam.parentZoneId !== selectedZone && cam.zoneId !== selectedZone) return false;
+        const rootId = cam.rootZoneId || cam.parentZoneId || cam.zoneId;
+        if (rootId !== selectedZone && cam.parentZoneId !== selectedZone && cam.zoneId !== selectedZone) return false;
       }
 
       // 2. Status filter
@@ -270,55 +286,67 @@ export default function ClientCamerasPage() {
     });
   }, [cameras, selectedHardwareType, selectedZone, statusFilter, searchQuery]);
 
-  // ── Build flat DFS zone tree for the UI ──────────────────────────────────
+  // ── Build parent zone rows: only parent zones with all descendant cameras aggregated ──
   const zoneRows = useMemo(() => {
+    const zoneMap = new Map(allZones.map((z) => [z.id, z]));
+    const getRootZoneId = (zId) => {
+      if (!zId) return null;
+      let curr = zoneMap.get(zId);
+      if (!curr) return null;
+      const visited = new Set();
+      while (curr.parentZoneId && !visited.has(curr.id)) {
+        visited.add(curr.id);
+        const parent = zoneMap.get(curr.parentZoneId);
+        if (!parent) break;
+        curr = parent;
+      }
+      return curr.id;
+    };
+
+    const topZones = allZones.filter((z) => !z.parentZoneId);
     const rows = [];
 
-    const countDescendants = (zoneId) => {
-      const direct = filteredCameras.filter((c) => c.zoneId === zoneId);
-      let total = direct.length;
-      let online = direct.filter((c) => c.status === 'online').length;
-      let offline = direct.filter((c) => c.status === 'offline').length;
-      let alerts = direct.filter((c) => c.hasAlert).length;
-      for (const child of allZones.filter((z) => z.parentZoneId === zoneId)) {
-        const s = countDescendants(child.id);
-        total += s.total;
-        online += s.online;
-        offline += s.offline;
-        alerts += s.alerts;
-      }
-      return { total, online, offline, alerts };
-    };
-
-    const traverse = (zoneId, depth, ancestorIds, ancestorNames) => {
-      const zone = allZones.find((z) => z.id === zoneId);
-      if (!zone) return;
-      const stats = countDescendants(zone.id);
-      if (stats.total === 0) return;
-      const directCams = filteredCameras.filter((c) => c.zoneId === zone.id);
-      const children = allZones.filter((z) => z.parentZoneId === zone.id);
-      rows.push({
-        id: zone.id,
-        name: zone.name,
-        depth,
-        ancestorIds,
-        ancestorNames,
-        cameras: directCams,
-        hasChildren: children.length > 0,
-        stats,
+    for (const pZone of topZones) {
+      // Aggregate all cameras belonging to this parent zone (direct or through any descendant subzone)
+      const cams = filteredCameras.filter((c) => {
+        const rootId = c.rootZoneId || getRootZoneId(c.zoneId);
+        return rootId === pZone.id || c.parentZoneId === pZone.id || c.zoneId === pZone.id;
       });
-      for (const child of children) {
-        traverse(
-          child.id,
-          depth + 1,
-          [...ancestorIds, zone.id],
-          ancestorNames ? `${ancestorNames} › ${zone.name}` : zone.name
-        );
-      }
-    };
 
-    for (const zone of allZones.filter((z) => !z.parentZoneId)) {
-      traverse(zone.id, 0, [], null);
+      if (cams.length === 0) continue;
+
+      const online = cams.filter((c) => c.status === 'online').length;
+      const offline = cams.filter((c) => c.status === 'offline').length;
+      const alerts = cams.filter((c) => c.hasAlert).length;
+
+      rows.push({
+        id: pZone.id,
+        name: pZone.name,
+        cameras: cams,
+        stats: {
+          total: cams.length,
+          online,
+          offline,
+          alerts,
+        },
+      });
+    }
+
+    // Handle any unassigned or orphan cameras
+    const assignedIds = new Set(rows.flatMap((r) => r.cameras.map((c) => c.id)));
+    const orphanCams = filteredCameras.filter((c) => !assignedIds.has(c.id));
+    if (orphanCams.length > 0) {
+      rows.push({
+        id: 'unassigned',
+        name: 'General / Unassigned',
+        cameras: orphanCams,
+        stats: {
+          total: orphanCams.length,
+          online: orphanCams.filter((c) => c.status === 'online').length,
+          offline: orphanCams.filter((c) => c.status === 'offline').length,
+          alerts: orphanCams.filter((c) => c.hasAlert).length,
+        },
+      });
     }
 
     return rows;
@@ -414,7 +442,7 @@ export default function ClientCamerasPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search cameras by code (e.g. CAM-000100), name, or subzone..."
+              placeholder="Search cameras by code (e.g. CAM-000100), name, or zone..."
               className="w-full pl-9 pr-14 py-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-blue-500/60 transition-colors font-normal"
               style={{
                 '--color-text-tertiary': 'rgba(148, 163, 184, 0.45)',

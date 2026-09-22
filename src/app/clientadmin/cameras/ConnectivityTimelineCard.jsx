@@ -11,24 +11,24 @@ import {
 // ── Health ring ───────────────────────────────────────────────────────────────
 function HealthRing({ online, total }) {
   const pct = total > 0 ? Math.round((online / total) * 100) : 0;
-  const r = 18;
+  const r = 16;
   const circ = 2 * Math.PI * r;
   const color =
     pct === 100 ? '#22c55e' : pct >= 75 ? '#f59e0b' : '#ef4444';
-  const S = 44;
+  const S = 40;
   return (
     <div className="relative flex items-center justify-center shrink-0" style={{ width: S, height: S }}>
       <svg width={S} height={S} style={{ position: 'absolute', inset: 0 }}>
-        <circle cx={S/2} cy={S/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3.5" />
+        <circle cx={S/2} cy={S/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
         <circle
           cx={S/2} cy={S/2} r={r}
-          fill="none" stroke={color} strokeWidth="3.5" strokeLinecap="round"
+          fill="none" stroke={color} strokeWidth="3" strokeLinecap="round"
           strokeDasharray={circ}
           strokeDashoffset={circ * (1 - pct / 100)}
           transform={`rotate(-90 ${S/2} ${S/2})`}
         />
       </svg>
-      <span className="relative text-[11px] font-bold font-mono" style={{ color }}>{pct}%</span>
+      <span className="relative text-[10px] font-bold font-mono" style={{ color }}>{pct}%</span>
     </div>
   );
 }
@@ -47,11 +47,11 @@ function CamBlock({ cam, onMouseEnter, onMouseLeave, onClick }) {
         'w-[18px] h-[14px] rounded-[3px] flex items-center justify-center border-0 p-0 shrink-0',
         'transition-transform duration-100 hover:scale-125 hover:z-10',
         online
-          ? 'bg-emerald-500 shadow-[0_0_5px_rgba(34,197,94,0.4)] cursor-default'
+          ? 'bg-emerald-500 shadow-[0_0_4px_rgba(34,197,94,0.4)] cursor-default'
           : 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.55)] cursor-pointer animate-[pulse_2s_ease-in-out_infinite]',
       ].join(' ')}
     >
-      <Video size={8} className="text-white/70" />
+      <Video size={8} className="text-white/80" />
     </button>
   );
 }
@@ -80,12 +80,12 @@ function CamGrid({ cameras, zoneId, onOpenAlerts, onCreateAlert, onShowTooltip, 
         ))}
       </div>
       {offlineCams.length > 0 && (
-        <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+        <div className="flex items-center gap-1.5 mt-2 flex-wrap">
           <AlertTriangle size={10} className="text-red-400 shrink-0" />
           <span className="text-[10px] text-red-400 font-semibold shrink-0">
             {offlineCams.length} offline:
           </span>
-          <span className="text-[10px] font-mono text-red-300/70 truncate">
+          <span className="text-[10px] font-mono text-red-300/80 truncate">
             {offlineCams.slice(0, 5).map((c) => c.code).join(', ')}
             {offlineCams.length > 5 && ` +${offlineCams.length - 5}`}
           </span>
@@ -95,91 +95,9 @@ function CamGrid({ cameras, zoneId, onOpenAlerts, onCreateAlert, onShowTooltip, 
   );
 }
 
-// ── Nested zone mini-card (only shows zone name, no parent repeat) ────────────
-function NestedZoneCard({ zone, onOpenAlerts, onCreateAlert, onShowTooltip, onHideTooltip }) {
-  const { id, name, cameras } = zone;
-  const offline = cameras.filter((c) => c.status === 'offline').length;
-  const online = cameras.filter((c) => c.status === 'online').length;
-  const hasOffline = offline > 0;
-
-  return (
-    <div
-      className={[
-        'flex flex-col rounded-xl border overflow-hidden bg-[#0b1628]',
-        hasOffline
-          ? 'border-red-800/35 shadow-[0_0_12px_rgba(239,68,68,0.06)]'
-          : 'border-slate-700/30',
-      ].join(' ')}
-    >
-      {/* Sub-card header */}
-      <div className="px-3 pt-3 pb-2">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <div
-              className={[
-                'w-6 h-6 rounded-md flex items-center justify-center shrink-0',
-                hasOffline ? 'bg-red-500/15 text-red-400' : 'bg-emerald-500/12 text-emerald-400',
-              ].join(' ')}
-            >
-              <Video size={12} />
-            </div>
-            <span className="text-[12px] font-semibold text-slate-100 truncate leading-tight">
-              {name}
-            </span>
-          </div>
-          <span className="text-[10px] font-mono text-slate-500 shrink-0">
-            {online}/{cameras.length}
-          </span>
-        </div>
-      </div>
-
-      {/* Camera blocks */}
-      <div className="px-3 pb-2 flex-1">
-        <CamGrid
-          cameras={cameras}
-          zoneId={id}
-          onOpenAlerts={onOpenAlerts}
-          onCreateAlert={onCreateAlert}
-          onShowTooltip={onShowTooltip}
-          onHideTooltip={onHideTooltip}
-        />
-      </div>
-
-      {/* Status footer */}
-      <div
-        className={[
-          'px-3 py-1.5 flex items-center gap-1.5 border-t text-[10px] mt-auto',
-          hasOffline
-            ? 'bg-red-950/25 border-red-800/25 text-red-400'
-            : 'bg-emerald-950/15 border-emerald-900/20 text-emerald-400',
-        ].join(' ')}
-      >
-        {hasOffline ? (
-          <>
-            <AlertTriangle size={9} className="shrink-0" />
-            <span className="font-semibold">{offline} Offline</span>
-            <button
-              type="button"
-              onClick={() => onOpenAlerts?.(id)}
-              className="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/12 border border-amber-500/25 text-amber-300 text-[9px] font-bold hover:bg-amber-500/20 transition-colors cursor-pointer"
-            >
-              <Bell size={8} /> Alert
-            </button>
-          </>
-        ) : (
-          <>
-            <CheckCircle2 size={9} className="shrink-0" />
-            <span className="font-semibold">All Active</span>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── Top-level zone card (outer box) ──────────────────────────────────────────
+// ── Top-level zone card (showcases top level heading & all cameras inside it) ─
 function TopLevelZoneCard({
-  section,
+  zone,
   collapsed,
   onToggle,
   onOpenAlerts,
@@ -187,12 +105,10 @@ function TopLevelZoneCard({
   onShowTooltip,
   onHideTooltip,
 }) {
-  const { header, cards } = section;
-  const { id, name, cameras: directCams, stats } = header;
-  const hasDirectCams = directCams.length > 0;
-  const hasNested = cards.length > 0;
+  const { id, name, cameras = [], stats = {} } = zone;
+  const hasCameras = cameras.length > 0;
   const isCollapsed = !!collapsed[id];
-  const hasOffline = stats.offline > 0;
+  const hasOffline = (stats.offline ?? 0) > 0;
 
   return (
     <div
@@ -200,95 +116,101 @@ function TopLevelZoneCard({
         'flex flex-col rounded-2xl border overflow-hidden',
         'bg-[#0c1427]',
         hasOffline
-          ? 'border-red-800/40 shadow-[0_0_20px_rgba(239,68,68,0.07)]'
-          : 'border-slate-700/50 shadow-[0_4px_24px_rgba(0,0,0,0.35)]',
+          ? 'border-red-800/40 shadow-[0_0_18px_rgba(239,68,68,0.07)]'
+          : 'border-slate-700/50 shadow-[0_4px_20px_rgba(0,0,0,0.3)]',
       ].join(' ')}
     >
       {/* ── Top-level zone header ─────────────────────────────────────── */}
       <button
         type="button"
-        onClick={() => (hasNested || hasDirectCams) && onToggle(id)}
+        onClick={() => hasCameras && onToggle(id)}
         className={[
-          'w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors border-b',
+          'w-full flex items-center gap-2.5 px-3.5 py-3 text-left transition-colors border-b',
           hasOffline
             ? 'bg-gradient-to-r from-red-950/60 to-[#0a1120] border-red-800/40'
             : 'bg-gradient-to-r from-blue-950/60 to-[#0a1120] border-slate-800/60',
-          (hasNested || hasDirectCams) ? 'cursor-pointer' : 'cursor-default',
+          hasCameras ? 'cursor-pointer' : 'cursor-default',
         ].join(' ')}
       >
         {/* Left accent bar */}
         <span className={`w-1 self-stretch rounded-full shrink-0 ${hasOffline ? 'bg-red-500' : 'bg-blue-500'}`} />
 
         {/* Chevron */}
-        {(hasNested || hasDirectCams) && (
+        {hasCameras && (
           <span className="text-slate-400 shrink-0">
-            {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+            {isCollapsed ? <ChevronRight size={13} /> : <ChevronDown size={13} />}
           </span>
         )}
 
         {/* Name + stats */}
         <div className="flex-1 min-w-0">
-          <span className={`block text-[14px] font-extrabold uppercase tracking-widest truncate ${hasOffline ? 'text-red-300' : 'text-white'}`}>
+          <span className={`block text-[13px] font-extrabold uppercase tracking-wide truncate ${hasOffline ? 'text-red-300' : 'text-white'}`}>
             {name}
           </span>
-          <div className="flex items-center gap-3 mt-0.5 text-[10px] font-mono">
-            <span className="text-slate-500">{stats.total} products</span>
-            {hasNested && (
-              <span className="text-slate-500">
-                {cards.length} subzone{cards.length !== 1 ? 's' : ''}
-              </span>
-            )}
-            <span className="text-emerald-400 font-bold">●{stats.online}</span>
-            {stats.offline > 0 && (
-              <span className="text-red-400 font-bold animate-pulse">○{stats.offline}</span>
+          <div className="flex items-center gap-2 mt-0.5 text-[10px] font-mono">
+            <span className="text-slate-400">
+              {stats.total ?? cameras.length} {(stats.total ?? cameras.length) === 1 ? 'product' : 'products'}
+            </span>
+            <span className="text-emerald-400 font-bold">● {stats.online ?? 0}</span>
+            {(stats.offline ?? 0) > 0 && (
+              <span className="text-red-400 font-bold animate-pulse">○ {stats.offline}</span>
             )}
           </div>
         </div>
 
         {/* Health ring */}
-        <HealthRing online={stats.online} total={stats.total} />
+        <HealthRing online={stats.online ?? 0} total={stats.total ?? cameras.length} />
       </button>
 
       {/* ── Body (collapsible) ────────────────────────────────────────── */}
       {!isCollapsed && (
-        <div className="flex-1">
-
-          {/* Direct cameras on this top-level zone */}
-          {hasDirectCams && (
-            <div className={['px-4 py-3', hasNested ? 'border-b border-slate-800/50' : ''].join(' ')}>
-              <p className="text-[10px] text-slate-500 font-medium mb-2 uppercase tracking-wide">
-                Direct Products
-              </p>
-              <CamGrid
-                cameras={directCams}
-                zoneId={id}
-                onOpenAlerts={onOpenAlerts}
-                onCreateAlert={onCreateAlert}
-                onShowTooltip={onShowTooltip}
-                onHideTooltip={onHideTooltip}
-              />
-            </div>
-          )}
-
-          {/* Nested zone sub-cards — 2 per row */}
-          {hasNested && (
-            <div className="grid grid-cols-2 gap-3 p-3">
-              {cards.map((zone) => (
-                <NestedZoneCard
-                  key={zone.id}
-                  zone={zone}
+        <div className="flex-1 flex flex-col">
+          {hasCameras ? (
+            <>
+              <div className="p-3.5 flex-1">
+                <CamGrid
+                  cameras={cameras}
+                  zoneId={id}
                   onOpenAlerts={onOpenAlerts}
                   onCreateAlert={onCreateAlert}
                   onShowTooltip={onShowTooltip}
                   onHideTooltip={onHideTooltip}
                 />
-              ))}
-            </div>
-          )}
+              </div>
 
-          {/* Empty zone */}
-          {!hasDirectCams && !hasNested && (
-            <div className="px-4 py-6 text-center text-[11px] text-slate-600">
+              {/* Status footer */}
+              <div
+                className={[
+                  'px-3.5 py-2 flex items-center justify-between border-t text-[10px] mt-auto',
+                  hasOffline
+                    ? 'bg-red-950/25 border-red-800/30 text-red-400'
+                    : 'bg-emerald-950/15 border-emerald-900/20 text-emerald-400',
+                ].join(' ')}
+              >
+                {hasOffline ? (
+                  <>
+                    <div className="flex items-center gap-1 font-semibold">
+                      <AlertTriangle size={11} className="shrink-0" />
+                      <span>{stats.offline} Offline</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onOpenAlerts?.(id)}
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[9px] font-bold hover:bg-amber-500/25 transition-colors cursor-pointer"
+                    >
+                      <Bell size={9} /> Alerts
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-1 font-semibold">
+                    <CheckCircle2 size={11} className="shrink-0" />
+                    <span>All Cameras Active</span>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="px-3.5 py-5 text-center text-[11px] text-slate-600">
               No cameras match current filter.
             </div>
           )}
@@ -296,8 +218,8 @@ function TopLevelZoneCard({
       )}
 
       {isCollapsed && (
-        <div className="px-4 py-2.5 text-[11px] text-slate-600 italic">
-          {stats.total} cameras hidden — click to expand
+        <div className="px-3.5 py-2 text-[10px] text-slate-600 italic">
+          {stats.total ?? cameras.length} cameras hidden — click to expand
         </div>
       )}
     </div>
@@ -363,19 +285,19 @@ export default function ConnectivityTimelineCard({
   const showTooltip = (cam, x, y) => setTooltip({ cam, x, y });
   const hideTooltip = () => setTooltip(null);
 
-  // Group flat DFS list into top-level sections
+  // Normalize zone items (support direct parent zone objects or legacy header-card objects)
   const sections = useMemo(() => {
-    const result = [];
-    let current = null;
-    for (const row of zoneRows) {
-      if (row.depth === 0) {
-        current = { header: row, cards: [] };
-        result.push(current);
-      } else if (current) {
-        current.cards.push(row);
+    return zoneRows.map((item) => {
+      if (item.header) {
+        return {
+          id: item.header.id,
+          name: item.header.name,
+          cameras: item.header.cameras || [],
+          stats: item.header.stats || {},
+        };
       }
-    }
-    return result;
+      return item;
+    });
   }, [zoneRows]);
 
   if (sections.length === 0) {
@@ -388,20 +310,19 @@ export default function ConnectivityTimelineCard({
 
   return (
     <>
-      {/* Masonry columns — each card ends at its own height, next starts right below */}
-      <div className="columns-1 xl:columns-2 gap-5">
-        {sections.map((section) => (
-          <div key={section.header.id} className="break-inside-avoid mb-5">
-            <TopLevelZoneCard
-              section={section}
-              collapsed={collapsed}
-              onToggle={toggle}
-              onOpenAlerts={onOpenAlerts}
-              onCreateAlert={onCreateAlert}
-              onShowTooltip={showTooltip}
-              onHideTooltip={hideTooltip}
-            />
-          </div>
+      {/* 3 boxes in one line on desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+        {sections.map((zone) => (
+          <TopLevelZoneCard
+            key={zone.id}
+            zone={zone}
+            collapsed={collapsed}
+            onToggle={toggle}
+            onOpenAlerts={onOpenAlerts}
+            onCreateAlert={onCreateAlert}
+            onShowTooltip={showTooltip}
+            onHideTooltip={hideTooltip}
+          />
         ))}
       </div>
 
