@@ -3,8 +3,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   Bell,
-  ChevronDown,
-  ChevronRight,
 } from 'lucide-react';
 import BulletCameraIcon from './BulletCameraIcon';
 
@@ -33,25 +31,56 @@ function HealthRing({ online, total }) {
   );
 }
 
-// ── Single camera bullet icon (no border, shape of camera only) ──────────────
+// ── Single camera bullet icon (renders backend icon if available, falls back to camera svg) ──
 function CamBlock({ cam, onMouseEnter, onMouseLeave, onClick }) {
   const isWorking = cam.status === 'online'; // working / right
+  const [imgFailed, setImgFailed] = useState(false);
+
+  // Icon coming from backend (device imageUrl, category imageUrl, productType imageUrl, etc.)
+  const backendIcon =
+    !imgFailed &&
+    (cam.imageUrl ||
+      cam.icon ||
+      cam.categoryImageUrl ||
+      cam.productTypeImageUrl ||
+      cam.category?.imageUrl ||
+      cam.productType?.imageUrl ||
+      cam.rawDevice?.imageUrl ||
+      cam.rawDevice?.categoryImageUrl ||
+      cam.rawDevice?.category?.imageUrl ||
+      cam.rawDevice?.productType?.imageUrl ||
+      null);
+
   return (
     <button
       type="button"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onClick={onClick}
-      title={`${cam.code} — ${isWorking ? 'Working (Right)' : 'Faulty / Inactive'}`}
+      title={`${cam.code} — ${cam.name} (${isWorking ? 'Working (Right)' : 'Faulty / Inactive'})`}
       className={[
-        'p-0.5 bg-transparent border-0 shrink-0 cursor-pointer',
+        'p-0.5 bg-transparent border-0 shrink-0 cursor-pointer relative flex items-center justify-center',
         'transition-transform duration-100 hover:scale-125 hover:z-10 focus:outline-none',
         isWorking
           ? 'text-emerald-400 hover:text-emerald-300 drop-shadow-[0_0_5px_rgba(52,211,153,0.55)]'
           : 'text-red-500 hover:text-red-400 drop-shadow-[0_0_6px_rgba(239,68,68,0.75)] animate-[pulse_2s_ease-in-out_infinite]',
       ].join(' ')}
     >
-      <BulletCameraIcon className="w-5 h-5" />
+      {backendIcon ? (
+        <img
+          src={backendIcon}
+          alt={cam.name || cam.code}
+          className={[
+            'w-5 h-5 object-contain rounded-xs select-none pointer-events-none transition-all',
+            isWorking
+              ? 'filter drop-shadow-[0_0_4px_rgba(52,211,153,0.65)]'
+              : 'filter drop-shadow-[0_0_5px_rgba(239,68,68,0.85)] brightness-90 contrast-125',
+          ].join(' ')}
+          onError={() => setImgFailed(true)}
+        />
+      ) : (
+        <BulletCameraIcon className="w-5 h-5" />
+      )}
     </button>
   );
 }
@@ -60,8 +89,9 @@ function CamBlock({ cam, onMouseEnter, onMouseLeave, onClick }) {
 function CamGrid({ cameras, zoneId, onOpenAlerts, onCreateAlert, onShowTooltip, onHideTooltip }) {
   const offlineCams = cameras.filter((c) => c.status === 'offline');
   return (
-    <div>
-      <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-col h-full justify-between gap-2">
+      {/* All camera icons displayed fully with natural wrapping and NO scrollbar */}
+      <div className="flex flex-wrap content-start gap-1.5">
         {cameras.map((cam, i) => (
           <CamBlock
             key={cam.id || i}
@@ -80,7 +110,7 @@ function CamGrid({ cameras, zoneId, onOpenAlerts, onCreateAlert, onShowTooltip, 
         ))}
       </div>
       {offlineCams.length > 0 && (
-        <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+        <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-800/60 flex-wrap">
           <AlertTriangle size={10} className="text-red-400 shrink-0" />
           <span className="text-[10px] text-red-400 font-semibold shrink-0">
             {offlineCams.length} offline:
@@ -105,7 +135,7 @@ function TopLevelZoneCard({
   onShowTooltip,
   onHideTooltip,
 }) {
-  const { id, name, cameras = [], stats = {} } = zone;
+  const { id, name, cameras = [], stats = {}, logoUrl } = zone;
   const hasCameras = cameras.length > 0;
   const isCollapsed = !!collapsed[id];
   const hasOffline = (stats.offline ?? 0) > 0;
@@ -113,7 +143,7 @@ function TopLevelZoneCard({
   return (
     <div
       className={[
-        'flex flex-col rounded-2xl border overflow-hidden',
+        'flex flex-col h-full rounded-2xl border overflow-hidden transition-all duration-200',
         'bg-[#0c1427]',
         hasOffline
           ? 'border-red-800/40 shadow-[0_0_18px_rgba(239,68,68,0.07)]'
@@ -125,21 +155,22 @@ function TopLevelZoneCard({
         type="button"
         onClick={() => hasCameras && onToggle(id)}
         className={[
-          'w-full flex items-center gap-2.5 px-3.5 py-3 text-left transition-colors border-b',
+          'w-full flex items-center gap-2.5 px-3.5 py-3 text-left transition-colors border-b shrink-0',
           hasOffline
             ? 'bg-gradient-to-r from-red-950/60 to-[#0a1120] border-red-800/40'
             : 'bg-gradient-to-r from-blue-950/60 to-[#0a1120] border-slate-800/60',
           hasCameras ? 'cursor-pointer' : 'cursor-default',
         ].join(' ')}
       >
-        {/* Left accent bar */}
-        <span className={`w-1 self-stretch rounded-full shrink-0 ${hasOffline ? 'bg-red-500' : 'bg-blue-500'}`} />
-
-        {/* Chevron */}
-        {hasCameras && (
-          <span className="text-slate-400 shrink-0">
-            {isCollapsed ? <ChevronRight size={13} /> : <ChevronDown size={13} />}
-          </span>
+        {/* Zone Logo (from backend if available) */}
+        {logoUrl && (
+          <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-slate-800/80 border border-slate-700/70 flex items-center justify-center shadow-md">
+            <img
+              src={logoUrl}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+          </div>
         )}
 
         {/* Name + stats */}
@@ -164,10 +195,10 @@ function TopLevelZoneCard({
 
       {/* ── Body (collapsible) ────────────────────────────────────────── */}
       {!isCollapsed && (
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col justify-between">
           {hasCameras ? (
             <>
-              <div className="p-3.5 flex-1">
+              <div className="p-3.5 flex-1 flex flex-col justify-between">
                 <CamGrid
                   cameras={cameras}
                   zoneId={id}
@@ -181,7 +212,7 @@ function TopLevelZoneCard({
               {/* Status footer */}
               <div
                 className={[
-                  'px-3.5 py-2 flex items-center justify-between border-t text-[10px] mt-auto',
+                  'px-3.5 py-2 flex items-center justify-between border-t text-[10px] mt-auto shrink-0',
                   hasOffline
                     ? 'bg-red-950/25 border-red-800/30 text-red-400'
                     : 'bg-emerald-950/15 border-emerald-900/20 text-emerald-400',
@@ -218,7 +249,7 @@ function TopLevelZoneCard({
       )}
 
       {isCollapsed && (
-        <div className="px-3.5 py-2 text-[10px] text-slate-600 italic">
+        <div className="px-3.5 py-3 text-[10px] text-slate-600 italic mt-auto">
           {stats.total ?? cameras.length} cameras hidden — click to expand
         </div>
       )}
@@ -231,13 +262,30 @@ function CamTooltip({ tooltip }) {
   if (!tooltip) return null;
   const { cam, x, y } = tooltip;
   const online = cam.status === 'online';
+  const backendIcon =
+    cam.imageUrl ||
+    cam.icon ||
+    cam.categoryImageUrl ||
+    cam.productTypeImageUrl ||
+    cam.category?.imageUrl ||
+    cam.productType?.imageUrl ||
+    cam.rawDevice?.imageUrl ||
+    null;
+
   return (
     <div
       className="fixed z-[9999] pointer-events-none bg-[#0d1626]/98 border border-slate-700/60 rounded-xl px-3 py-2.5 shadow-2xl text-xs backdrop-blur-sm animate-in fade-in zoom-in-95 duration-100"
-      style={{ left: x, top: y - 10, transform: 'translate(-50%,-100%)', minWidth: 210 }}
+      style={{ left: x, top: y - 10, transform: 'translate(-50%,-100%)', minWidth: 220 }}
     >
       <div className="flex items-center justify-between gap-3 pb-1.5 mb-1.5 border-b border-slate-800">
-        <span className="font-bold text-white truncate">{cam.name}</span>
+        <div className="flex items-center gap-1.5 min-w-0">
+          {backendIcon ? (
+            <img src={backendIcon} alt="" className="w-4 h-4 object-contain rounded shrink-0" />
+          ) : (
+            <BulletCameraIcon className="w-4 h-4 text-emerald-400 shrink-0" />
+          )}
+          <span className="font-bold text-white truncate">{cam.name}</span>
+        </div>
         <span className="font-mono text-blue-400 text-[10px] shrink-0">{cam.code}</span>
       </div>
       <div className="space-y-1 text-[11px]">
@@ -246,10 +294,6 @@ function CamTooltip({ tooltip }) {
           <span className={online ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}>
             {online ? 'Working (Right)' : 'Faulty / Inactive'}
           </span>
-        </div>
-        <div className="flex justify-between gap-3">
-          <span className="text-slate-400">IP</span>
-          <span className="font-mono text-slate-300">{cam.ip}</span>
         </div>
         {cam.zoneName && (
           <div className="flex justify-between gap-3">
@@ -292,6 +336,7 @@ export default function ConnectivityTimelineCard({
         return {
           id: item.header.id,
           name: item.header.name,
+          logoUrl: item.header.logoUrl || item.logoUrl || null,
           cameras: item.header.cameras || [],
           stats: item.header.stats || {},
         };
@@ -310,8 +355,8 @@ export default function ConnectivityTimelineCard({
 
   return (
     <>
-      {/* 3 boxes in one line on desktop */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+      {/* 3 boxes in one line on desktop with identical equal heights */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
         {sections.map((zone) => (
           <TopLevelZoneCard
             key={zone.id}

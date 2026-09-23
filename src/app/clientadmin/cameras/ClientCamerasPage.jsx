@@ -171,6 +171,11 @@ export default function ClientCamerasPage() {
           hasAlert,
           alertDetails,
           rawDevice: device,
+          imageUrl: device.imageUrl || device.categoryImageUrl || device.productType?.imageUrl || device.category?.imageUrl || device.iconUrl || device.icon || null,
+          categoryImageUrl: device.categoryImageUrl || device.category?.imageUrl || null,
+          productTypeImageUrl: device.productType?.imageUrl || null,
+          category: device.category || null,
+          productType: device.productType || null,
         };
       });
 
@@ -322,6 +327,7 @@ export default function ClientCamerasPage() {
       rows.push({
         id: pZone.id,
         name: pZone.name,
+        logoUrl: pZone.logoUrl || null,
         cameras: cams,
         stats: {
           total: cams.length,
