@@ -35,7 +35,7 @@ export default function ClientCamerasPage() {
 
   const [selectedHardwareType, setSelectedHardwareType] = useState(null); // null = all categories
   const [selectedZone, setSelectedZone] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'online' | 'offline' | 'alerts'
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'zone' | 'online' | 'offline' | 'alerts'
   const [searchQuery, setSearchQuery] = useState('');
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
   const [alertFilterZone, setAlertFilterZone] = useState('all');
@@ -355,8 +355,31 @@ export default function ClientCamerasPage() {
       });
     }
 
-    return rows;
+    // Zones with faulty products first (most faulty on top); stable sort keeps original order otherwise
+    return rows.sort((a, b) => b.stats.offline - a.stats.offline);
   }, [allZones, filteredCameras]);
+
+  // "All" view: every product in a single box, faulty ones first
+  const allRow = useMemo(() => {
+    if (filteredCameras.length === 0) return null;
+    const sorted = [...filteredCameras].sort(
+      (a, b) => (b.status === 'offline') - (a.status === 'offline')
+    );
+    return {
+      id: 'all',
+      name: 'All Products',
+      cameras: sorted,
+      stats: {
+        total: sorted.length,
+        online: sorted.filter((c) => c.status === 'online').length,
+        offline: sorted.filter((c) => c.status === 'offline').length,
+        alerts: sorted.filter((c) => c.hasAlert).length,
+      },
+    };
+  }, [filteredCameras]);
+
+  const isSingleBox = statusFilter === 'all';
+  const displayRows = isSingleBox ? (allRow ? [allRow] : []) : zoneRows;
 
   // Overall KPI statistics
   const stats = useMemo(() => {
@@ -364,7 +387,8 @@ export default function ClientCamerasPage() {
     const online = cameras.filter((c) => c.status === 'online').length;
     const offline = cameras.filter((c) => c.status === 'offline').length;
     const alerts = cameras.filter((c) => c.hasAlert).length;
-    return { total, online, offline, alerts };
+    const zones = new Set(cameras.map((c) => c.rootZoneId || 'unassigned')).size;
+    return { total, online, offline, alerts, zones };
   }, [cameras]);
 
   const handleOpenAlerts = (zoneId = 'all') => {
@@ -535,6 +559,14 @@ export default function ClientCamerasPage() {
                 countColor: 'text-white',
               },
               {
+                key: 'zone',
+                label: 'Zone',
+                count: stats.zones,
+                dot: null,
+                active: 'bg-indigo-600/20 border border-indigo-500/40',
+                countColor: 'text-indigo-300',
+              },
+              {
                 key: 'online',
                 label: 'Active',
                 count: stats.online,
@@ -627,9 +659,10 @@ export default function ClientCamerasPage() {
           )}
 
           {/* Zone cards */}
-          {(!hasLoaded || zoneRows.length > 0) && (
+          {(!hasLoaded || displayRows.length > 0) && (
             <ConnectivityTimelineCard
-              zoneRows={zoneRows}
+              zoneRows={displayRows}
+              singleBox={isSingleBox}
               onOpenReportIssue={handleOpenReportIssue}
               onOpenAlerts={handleOpenAlerts}
               onCreateAlert={handleCreateAlert}

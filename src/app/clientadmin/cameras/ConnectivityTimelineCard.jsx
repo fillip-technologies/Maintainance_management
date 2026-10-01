@@ -3,10 +3,23 @@ import {
   AlertTriangle,
   CheckCircle2,
   Bell,
+  Tv,
 } from 'lucide-react';
 import BulletCameraIcon from './BulletCameraIcon';
 
-// ── Single camera bullet icon (renders backend icon if available, falls back to camera svg) ──
+// TVs / displays get a TV glyph; everything else keeps the camera glyph.
+// "tv" must not be preceded by a letter so "CCTV" stays a camera.
+const CAMERA_RE = /camera|cctv|ptz|nvr|dvr/i;
+const TV_RE = /(^|[^a-z])tv|television|monitor|display|screen/i;
+
+function isTvDevice(cam) {
+  const text = [cam.type, cam.hardwareTypeName, cam.rawDevice?.categoryName, cam.name]
+    .filter(Boolean)
+    .join(' ');
+  return !CAMERA_RE.test(text) && TV_RE.test(text);
+}
+
+// ── Single camera bullet icon (renders backend icon if available, falls back to TV / camera svg) ──
 function CamBlock({ cam, onMouseEnter, onMouseLeave, onClick }) {
   const isWorking = cam.status === 'online'; // working / right
   const [imgFailed, setImgFailed] = useState(false);
@@ -53,6 +66,8 @@ function CamBlock({ cam, onMouseEnter, onMouseLeave, onClick }) {
           ].join(' ')}
           onError={() => setImgFailed(true)}
         />
+      ) : isTvDevice(cam) ? (
+        <Tv className="w-5 h-5" strokeWidth={2.25} />
       ) : (
         <BulletCameraIcon className="w-5 h-5" />
       )}
@@ -293,6 +308,7 @@ function CamTooltip({ tooltip }) {
 // ── Root component ────────────────────────────────────────────────────────────
 export default function ConnectivityTimelineCard({
   zoneRows = [],
+  singleBox = false,
   onOpenAlerts,
   onCreateAlert,
 }) {
@@ -329,8 +345,9 @@ export default function ConnectivityTimelineCard({
 
   return (
     <>
-      {/* 3 boxes in one line on desktop with identical equal heights */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+      {/* "All" view: one full-width box; zone view: 3 equal-height boxes in one line on desktop */}
+      <div className={`grid grid-cols-1 gap-4 items-stretch ${singleBox ? '' : 'md:grid-cols-2 lg:grid-cols-3'}`}>
+
         {sections.map((zone) => (
           <TopLevelZoneCard
             key={zone.id}
