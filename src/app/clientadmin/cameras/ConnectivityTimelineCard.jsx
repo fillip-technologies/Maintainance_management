@@ -6,31 +6,6 @@ import {
 } from 'lucide-react';
 import BulletCameraIcon from './BulletCameraIcon';
 
-// ── Health ring ───────────────────────────────────────────────────────────────
-function HealthRing({ online, total }) {
-  const pct = total > 0 ? Math.round((online / total) * 100) : 0;
-  const r = 16;
-  const circ = 2 * Math.PI * r;
-  const color =
-    pct === 100 ? '#22c55e' : pct >= 75 ? '#f59e0b' : '#ef4444';
-  const S = 40;
-  return (
-    <div className="relative flex items-center justify-center shrink-0" style={{ width: S, height: S }}>
-      <svg width={S} height={S} style={{ position: 'absolute', inset: 0 }}>
-        <circle cx={S/2} cy={S/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
-        <circle
-          cx={S/2} cy={S/2} r={r}
-          fill="none" stroke={color} strokeWidth="3" strokeLinecap="round"
-          strokeDasharray={circ}
-          strokeDashoffset={circ * (1 - pct / 100)}
-          transform={`rotate(-90 ${S/2} ${S/2})`}
-        />
-      </svg>
-      <span className="relative text-[10px] font-bold font-mono" style={{ color }}>{pct}%</span>
-    </div>
-  );
-}
-
 // ── Single camera bullet icon (renders backend icon if available, falls back to camera svg) ──
 function CamBlock({ cam, onMouseEnter, onMouseLeave, onClick }) {
   const isWorking = cam.status === 'online'; // working / right
@@ -135,10 +110,13 @@ function TopLevelZoneCard({
   onShowTooltip,
   onHideTooltip,
 }) {
-  const { id, name, cameras = [], stats = {}, logoUrl } = zone;
+  const { id, name, cameras = [], stats = {} } = zone;
   const hasCameras = cameras.length > 0;
   const isCollapsed = !!collapsed[id];
   const hasOffline = (stats.offline ?? 0) > 0;
+  const total = stats.total ?? cameras.length;
+  const online = stats.online ?? 0;
+  const pct = total > 0 ? Math.round((online / total) * 100) : 0;
 
   return (
     <div
@@ -162,17 +140,6 @@ function TopLevelZoneCard({
           hasCameras ? 'cursor-pointer' : 'cursor-default',
         ].join(' ')}
       >
-        {/* Zone Logo (from backend if available) */}
-        {logoUrl && (
-          <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-slate-800/80 border border-slate-700/70 flex items-center justify-center shadow-md">
-            <img
-              src={logoUrl}
-              alt=""
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-
         {/* Name + stats */}
         <div className="flex-1 min-w-0">
           <span className={`block text-[13px] font-extrabold uppercase tracking-wide truncate ${hasOffline ? 'text-red-300' : 'text-white'}`}>
@@ -180,17 +147,14 @@ function TopLevelZoneCard({
           </span>
           <div className="flex items-center gap-2 mt-0.5 text-[10px] font-mono">
             <span className="text-slate-400">
-              {stats.total ?? cameras.length} {(stats.total ?? cameras.length) === 1 ? 'product' : 'products'}
+              {total} {total === 1 ? 'product' : 'products'}
             </span>
-            <span className="text-emerald-400 font-bold">● {stats.online ?? 0}</span>
+            <span className="text-emerald-400 font-bold">● {online}</span>
             {(stats.offline ?? 0) > 0 && (
               <span className="text-red-400 font-bold animate-pulse">○ {stats.offline}</span>
             )}
           </div>
         </div>
-
-        {/* Health ring */}
-        <HealthRing online={stats.online ?? 0} total={stats.total ?? cameras.length} />
       </button>
 
       {/* ── Body (collapsible) ────────────────────────────────────────── */}
@@ -224,19 +188,29 @@ function TopLevelZoneCard({
                       <AlertTriangle size={11} className="shrink-0" />
                       <span>{stats.offline} Faulty</span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => onOpenAlerts?.(id)}
-                      className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[9px] font-bold hover:bg-amber-500/25 transition-colors cursor-pointer"
-                    >
-                      <Bell size={9} /> Alerts
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-md bg-red-500/15 border border-red-500/30 text-red-400 text-[10px] font-bold font-mono">
+                        {pct}%
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => onOpenAlerts?.(id)}
+                        className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[9px] font-bold hover:bg-amber-500/25 transition-colors cursor-pointer"
+                      >
+                        <Bell size={9} /> Alerts
+                      </button>
+                    </div>
                   </>
                 ) : (
-                  <div className="flex items-center gap-1 font-semibold">
-                    <CheckCircle2 size={11} className="shrink-0" />
-                    <span>All Cameras Working</span>
-                  </div>
+                  <>
+                    <div className="flex items-center gap-1 font-semibold">
+                      <CheckCircle2 size={11} className="shrink-0" />
+                      <span>All Cameras Working</span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold font-mono">
+                      {pct}%
+                    </span>
+                  </>
                 )}
               </div>
             </>
