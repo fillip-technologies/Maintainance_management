@@ -19,6 +19,14 @@ function isTvDevice(cam) {
   return !CAMERA_RE.test(text) && TV_RE.test(text);
 }
 
+// Convert string to title case: capitalize starting letter of each word, rest small letters
+function toTitleCase(str) {
+  if (!str) return '';
+  return String(str)
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 // ── Single camera bullet icon (renders backend icon if available, falls back to TV / camera svg) ──
 function CamBlock({ cam, onMouseEnter, onMouseLeave, onClick }) {
   const isWorking = cam.status === 'online'; // working / right
@@ -157,8 +165,11 @@ function TopLevelZoneCard({
       >
         {/* Name + stats */}
         <div className="flex-1 min-w-0">
-          <span className={`block text-[13px] font-extrabold uppercase tracking-wide truncate ${hasOffline ? 'text-red-300' : 'text-white'}`}>
-            {name}
+          <span
+            className={`block text-[13px] font-bold truncate ${hasOffline ? 'text-red-300' : 'text-white'}`}
+            title={toTitleCase(name)}
+          >
+            {toTitleCase(name)}
           </span>
           <div className="flex items-center gap-2 mt-0.5 text-[10px] font-mono">
             <span className="text-slate-400">

@@ -22,6 +22,14 @@ const ZONE_ICONS = {
   safari: Layers
 };
 
+// Convert string to title case: capitalize starting letter of each word, rest small letters
+function toTitleCase(str) {
+  if (!str) return '';
+  return String(str)
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export default function ZoneHealthGrid({
   zones = [],
   cameras = [],
@@ -101,8 +109,8 @@ export default function ZoneHealthGrid({
                     <IconComponent size={16} />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-xs font-bold text-white truncate group-hover:text-blue-300 transition-colors" title={z.name}>
-                      {z.name}
+                    <h3 className="text-xs font-bold text-white truncate group-hover:text-blue-300 transition-colors" title={toTitleCase(z.name)}>
+                      {toTitleCase(z.name)}
                     </h3>
                     <span className="text-[10px] text-slate-400 font-mono">
                       {z.total} {z.total === 1 ? 'cam' : 'cams'}

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import {
-  Search,
   Layers,
   Bell,
   Loader2,
@@ -16,6 +15,26 @@ import { getIssueCategories } from '../../api/issueCategoriesApi';
 import ConnectivityTimelineCard from './ConnectivityTimelineCard';
 import CameraAlertsDrawer from './CameraAlertsDrawer';
 import NotificationPanel from './NotificationPanel';
+
+// Matches camera devices regardless of backend naming convention
+const CAMERA_KEYWORD_RE = /camera|cctv|ptz|dome|bullet/i;
+
+function isCameraDevice(cam) {
+  if (!cam) return false;
+  const text = [
+    cam.type,
+    cam.hardwareTypeName,
+    cam.category?.name,
+    cam.categoryName,
+    cam.rawDevice?.categoryName,
+    cam.rawDevice?.category?.name,
+    cam.productType?.name,
+    cam.name,
+  ]
+    .filter(Boolean)
+    .join(' ');
+  return CAMERA_KEYWORD_RE.test(text);
+}
 
 export default function ClientCamerasPage() {
   const { currentUser } = useAuth();
@@ -33,7 +52,8 @@ export default function ClientCamerasPage() {
   const [hasLoaded, setHasLoaded] = useState(false);
   const [apiError, setApiError] = useState(null);
 
-  const [selectedHardwareType, setSelectedHardwareType] = useState(null); // null = all categories
+  const [selectedCategory, setSelectedCategory] = useState('all'); // 'all' | 'camera' | other hardwareTypeId/name
+  const [selectedCameraSubtype, setSelectedCameraSubtype] = useState(null); // null ('all') | specific camera hardwareTypeId/name
   const [selectedZone, setSelectedZone] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'zone' | 'online' | 'offline' | 'alerts'
   const [searchQuery, setSearchQuery] = useState('');
@@ -242,26 +262,51 @@ export default function ClientCamerasPage() {
     return allZones.filter((z) => !z.parentZoneId);
   }, [allZones]);
 
-  // Unique hardware types derived from loaded devices (for the category nav)
-  const hardwareTypes = useMemo(() => {
-    const map = new Map();
+  // Separate camera devices from other equipment (e.g. TV, Monitors, etc.)
+  const { cameraSubtypes, otherHardwareTypes, totalCameraCount } = useMemo(() => {
+    const camSubMap = new Map();
+    const otherMap = new Map();
+    let camCount = 0;
+
     for (const cam of cameras) {
-      const key = cam.hardwareTypeId || cam.hardwareTypeName;
-      if (key && !map.has(key)) {
-        map.set(key, { id: cam.hardwareTypeId, name: cam.hardwareTypeName, count: 0 });
+      const isCam = isCameraDevice(cam);
+      const key = cam.hardwareTypeId || cam.hardwareTypeName || 'Unknown';
+      const name = cam.hardwareTypeName || cam.type || 'Unknown';
+
+      if (isCam) {
+        camCount++;
+        if (!camSubMap.has(key)) {
+          camSubMap.set(key, { id: cam.hardwareTypeId, name, count: 0 });
+        }
+        camSubMap.get(key).count++;
+      } else {
+        if (!otherMap.has(key)) {
+          otherMap.set(key, { id: cam.hardwareTypeId, name, count: 0 });
+        }
+        otherMap.get(key).count++;
       }
-      if (key) map.get(key).count++;
     }
-    return Array.from(map.values()).sort((a, b) => b.count - a.count);
+
+    return {
+      cameraSubtypes: Array.from(camSubMap.values()).sort((a, b) => b.count - a.count),
+      otherHardwareTypes: Array.from(otherMap.values()).sort((a, b) => b.count - a.count),
+      totalCameraCount: camCount,
+    };
   }, [cameras]);
 
-  // Filtered cameras based on category, zone, status, and search query
+  // Filtered cameras based on category, subtype, zone, status, and search query
   const filteredCameras = useMemo(() => {
     return cameras.filter((cam) => {
-      // 0. Hardware type / category filter
-      if (selectedHardwareType) {
+      // 0. Category & camera subtype filter
+      if (selectedCategory === 'camera') {
+        if (!isCameraDevice(cam)) return false;
+        if (selectedCameraSubtype) {
+          const key = cam.hardwareTypeId || cam.hardwareTypeName;
+          if (key !== selectedCameraSubtype) return false;
+        }
+      } else if (selectedCategory !== 'all') {
         const key = cam.hardwareTypeId || cam.hardwareTypeName;
-        if (key !== selectedHardwareType) return false;
+        if (key !== selectedCategory) return false;
       }
 
       // 1. Zone filter (matches top-level parent zone or direct zone)
@@ -289,7 +334,7 @@ export default function ClientCamerasPage() {
 
       return true;
     });
-  }, [cameras, selectedHardwareType, selectedZone, statusFilter, searchQuery]);
+  }, [cameras, selectedCategory, selectedCameraSubtype, selectedZone, statusFilter, searchQuery]);
 
   // ── Build parent zone rows: only parent zones with all descendant cameras aggregated ──
   const zoneRows = useMemo(() => {
@@ -409,21 +454,25 @@ export default function ClientCamerasPage() {
       
       {/* ── CATEGORY NAV ─────────────────────────────────────────────────── */}
       {cameras.length > 0 && (
-        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl px-3.5 py-2.5 shadow-xs">
+        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl px-3.5 py-2.5 shadow-xs flex flex-col gap-2.5">
+          {/* Top Tier: All Products, Camera, TV, etc. */}
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
-            {/* All pill */}
+            {/* All Products pill */}
             <button
               type="button"
-              onClick={() => setSelectedHardwareType(null)}
+              onClick={() => {
+                setSelectedCategory('all');
+                setSelectedCameraSubtype(null);
+              }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
-                !selectedHardwareType
+                selectedCategory === 'all'
                   ? 'bg-blue-600 text-white shadow-sm shadow-blue-900'
                   : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-slate-400 hover:text-white hover:border-slate-600'
               }`}
             >
               All Products
               <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
-                !selectedHardwareType ? 'bg-blue-700 text-blue-100' : 'bg-slate-800 text-slate-400'
+                selectedCategory === 'all' ? 'bg-blue-700 text-blue-100' : 'bg-slate-800 text-slate-400'
               }`}>
                 {cameras.length}
               </span>
@@ -432,23 +481,49 @@ export default function ClientCamerasPage() {
             {/* Divider */}
             <span className="w-px h-5 bg-[var(--border-color)] shrink-0" />
 
-            {/* One pill per hardware type */}
-            {hardwareTypes.map((ht) => {
-              const isActive = selectedHardwareType === (ht.id || ht.name);
+            {/* Camera main pill */}
+            {totalCameraCount > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategory('camera');
+                  setSelectedCameraSubtype(null);
+                }}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                  selectedCategory === 'camera'
+                    ? 'bg-blue-600 text-white shadow-sm shadow-blue-900'
+                    : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-slate-400 hover:text-white hover:border-slate-600'
+                }`}
+              >
+                Camera
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                  selectedCategory === 'camera' ? 'bg-blue-700 text-blue-100' : 'bg-slate-800 text-slate-400'
+                }`}>
+                  {totalCameraCount}
+                </span>
+              </button>
+            )}
+
+            {/* Other hardware types (e.g. TV) */}
+            {otherHardwareTypes.map((ht) => {
+              const isActive = selectedCategory === (ht.id || ht.name);
               return (
                 <button
                   key={ht.id || ht.name}
                   type="button"
-                  onClick={() => setSelectedHardwareType(ht.id || ht.name)}
+                  onClick={() => {
+                    setSelectedCategory(ht.id || ht.name);
+                    setSelectedCameraSubtype(null);
+                  }}
                   className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                     isActive
-                      ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-900'
+                      ? 'bg-blue-600 text-white shadow-sm shadow-blue-900'
                       : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-slate-400 hover:text-white hover:border-slate-600'
                   }`}
                 >
                   {ht.name}
                   <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
-                    isActive ? 'bg-indigo-700 text-indigo-100' : 'bg-slate-800 text-slate-400'
+                    isActive ? 'bg-blue-700 text-blue-100' : 'bg-slate-800 text-slate-400'
                   }`}>
                     {ht.count}
                   </span>
@@ -456,49 +531,74 @@ export default function ClientCamerasPage() {
               );
             })}
           </div>
+
+          {/* Sub-row: Camera Subtypes (Bullet, Dome, PTZ) */}
+          {selectedCategory === 'camera' && cameraSubtypes.length > 0 && (
+            <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-color)] overflow-x-auto scrollbar-none animate-in fade-in slide-in-from-top-1 duration-150">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-0.5 shrink-0">
+                Camera Types:
+              </span>
+
+              {/* All Cameras pill */}
+              <button
+                type="button"
+                onClick={() => setSelectedCameraSubtype(null)}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                  !selectedCameraSubtype
+                    ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-900'
+                    : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-slate-400 hover:text-white hover:border-slate-600'
+                }`}
+              >
+                All Cameras
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                  !selectedCameraSubtype ? 'bg-indigo-700 text-indigo-100' : 'bg-slate-800 text-slate-400'
+                }`}>
+                  {totalCameraCount}
+                </span>
+              </button>
+
+              {/* Subtype pills (Bullet Camera, Dome Camera, PTZ Camera) */}
+              {cameraSubtypes.map((st) => {
+                const isSubActive = selectedCameraSubtype === (st.id || st.name);
+                return (
+                  <button
+                    key={st.id || st.name}
+                    type="button"
+                    onClick={() => setSelectedCameraSubtype(st.id || st.name)}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                      isSubActive
+                        ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-900'
+                        : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-slate-400 hover:text-white hover:border-slate-600'
+                    }`}
+                  >
+                    {st.name}
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                      isSubActive ? 'bg-indigo-700 text-indigo-100' : 'bg-slate-800 text-slate-400'
+                    }`}>
+                      {st.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
-      {/* ── FILTER & SEARCH CONTROLS BAR ─────────────────────────────────── */}
-      <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-3.5 flex flex-col gap-3 shadow-xs">
-        
-        {/* Top Tier: Search Bar + Facility Dropdown + Zone Alerts Drawer Trigger */}
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5">
+      {/* ── FILTER & CONTROLS BAR (Single Line) ────────────────────────── */}
+      <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-3 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           
-          {/* Search Input */}
-          <div className="relative flex-1 min-w-0">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search cameras by code (e.g. CAM-000100), name, or zone..."
-              className="w-full pl-9 pr-14 py-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-blue-500/60 transition-colors font-normal"
-              style={{
-                '--color-text-tertiary': 'rgba(148, 163, 184, 0.45)',
-              }}
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white cursor-pointer px-1.5 py-0.5 rounded bg-slate-800"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-
-          {/* Facility Selector & Zone Alerts Button */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Left Group: Facility Selector + Status Filter Buttons */}
+          <div className="flex items-center gap-2.5 flex-wrap">
             {/* Main Zone / Facility Selector */}
-            <div className="flex items-center gap-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-3 py-2 shrink-0">
+            <div className="flex items-center gap-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-3 py-1.5 shrink-0">
               <Layers size={15} className="text-slate-400 shrink-0" />
               <span className="text-xs font-bold text-slate-400 shrink-0">Facility:</span>
               <select
                 value={selectedZone}
                 onChange={(e) => setSelectedZone(e.target.value)}
-                className="bg-transparent text-xs font-semibold text-white focus:outline-none cursor-pointer max-w-[200px] truncate"
+                className="bg-transparent text-xs font-semibold text-white focus:outline-none cursor-pointer max-w-[190px] truncate"
               >
                 <option value="all" className="bg-[#0b1329] text-white">
                   All Facilities ({topLevelFacilities.length})
@@ -523,11 +623,89 @@ export default function ClientCamerasPage() {
               )}
             </div>
 
+            {/* Status Filter Buttons: All, Zone, Active, Not Active, Alerts */}
+            <div className="flex items-center p-0.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl shrink-0 overflow-x-auto">
+              {[
+                {
+                  key: 'all',
+                  label: 'All',
+                  count: stats.total,
+                  dot: null,
+                  active: 'bg-blue-600/20 border border-blue-500/40',
+                  countColor: 'text-white',
+                },
+                {
+                  key: 'zone',
+                  label: 'Zone',
+                  count: stats.zones,
+                  dot: null,
+                  active: 'bg-indigo-600/20 border border-indigo-500/40',
+                  countColor: 'text-indigo-300',
+                },
+                {
+                  key: 'online',
+                  label: 'Active',
+                  count: stats.online,
+                  dot: 'bg-emerald-400 shadow-[0_0_5px_rgba(52,211,153,0.7)]',
+                  active: 'bg-emerald-600/15 border border-emerald-500/30',
+                  countColor: 'text-emerald-400',
+                },
+                {
+                  key: 'offline',
+                  label: 'Not Active',
+                  count: stats.offline,
+                  dot: 'bg-red-400 shadow-[0_0_5px_rgba(248,113,113,0.7)] animate-pulse',
+                  active: 'bg-red-600/15 border border-red-500/30',
+                  countColor: 'text-red-400',
+                },
+                {
+                  key: 'alerts',
+                  label: 'Alerts',
+                  count: stats.alerts,
+                  dot: 'bg-amber-400 shadow-[0_0_5px_rgba(251,191,36,0.7)]',
+                  active: 'bg-amber-600/15 border border-amber-500/30',
+                  countColor: 'text-amber-400',
+                },
+              ].map(({ key, label, count, dot, active, countColor }) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setStatusFilter(key)}
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                    statusFilter === key ? active : 'hover:bg-slate-800/50'
+                  }`}
+                >
+                  {dot && <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dot}`} />}
+                  <span className="text-[11px] text-slate-500">{label}</span>
+                  <span className={`text-[12px] font-bold font-mono leading-none ${statusFilter === key ? countColor : 'text-slate-300'}`}>
+                    {count}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Group: Fleet Health & Zone Alerts Trigger Button */}
+          <div className="flex items-center gap-3 shrink-0">
+            {/* Quick Summary Pill */}
+            <div className="hidden md:flex items-center gap-1.5 text-xs font-medium text-slate-400">
+              <span className="text-slate-500">Fleet Health:</span>
+              <span className={`font-bold font-mono ${stats.offline === 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                {stats.total > 0 ? `${((stats.online / stats.total) * 100).toFixed(1)}%` : '0%'} Active
+              </span>
+              {stats.offline > 0 && (
+                <span className="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-md bg-red-950/60 border border-red-800/80 text-red-400 text-[11px] font-semibold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping" />
+                  {stats.offline} Inactive
+                </span>
+              )}
+            </div>
+
             {/* Zone Alerts Drawer Trigger Button */}
             <button
               type="button"
               onClick={() => handleOpenAlerts('all')}
-              className="relative inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 hover:border-amber-400 rounded-xl transition-all cursor-pointer shadow-xs shrink-0 whitespace-nowrap"
+              className="relative inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 hover:border-amber-400 rounded-xl transition-all cursor-pointer shadow-xs shrink-0 whitespace-nowrap"
               title="Open Zone Telemetry Alert Drawer"
             >
               <div className="relative flex items-center justify-center">
@@ -542,87 +720,7 @@ export default function ClientCamerasPage() {
               </span>
             </button>
           </div>
-        </div>
 
-        {/* Bottom Tier: Status Filters & Fleet Status Indicator */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2.5 border-t border-[var(--border-color)]/70">
-          
-          {/* Status Filter Buttons */}
-          <div className="flex items-center p-1 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl shrink-0 overflow-x-auto">
-            {[
-              {
-                key: 'all',
-                label: 'All',
-                count: stats.total,
-                dot: null,
-                active: 'bg-blue-600/20 border border-blue-500/40',
-                countColor: 'text-white',
-              },
-              {
-                key: 'zone',
-                label: 'Zone',
-                count: stats.zones,
-                dot: null,
-                active: 'bg-indigo-600/20 border border-indigo-500/40',
-                countColor: 'text-indigo-300',
-              },
-              {
-                key: 'online',
-                label: 'Active',
-                count: stats.online,
-                dot: 'bg-emerald-400 shadow-[0_0_5px_rgba(52,211,153,0.7)]',
-                active: 'bg-emerald-600/15 border border-emerald-500/30',
-                countColor: 'text-emerald-400',
-              },
-              {
-                key: 'offline',
-                label: 'Not Active',
-                count: stats.offline,
-                dot: 'bg-red-400 shadow-[0_0_5px_rgba(248,113,113,0.7)] animate-pulse',
-                active: 'bg-red-600/15 border border-red-500/30',
-                countColor: 'text-red-400',
-              },
-              {
-                key: 'alerts',
-                label: 'Alerts',
-                count: stats.alerts,
-                dot: 'bg-amber-400 shadow-[0_0_5px_rgba(251,191,36,0.7)]',
-                active: 'bg-amber-600/15 border border-amber-500/30',
-                countColor: 'text-amber-400',
-              },
-            ].map(({ key, label, count, dot, active, countColor }) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setStatusFilter(key)}
-                className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                  statusFilter === key ? active : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {dot && <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dot}`} />}
-                <span className="text-[11px] text-slate-500">{label}</span>
-                <span className={`text-[13px] font-bold font-mono leading-none ${statusFilter === key ? countColor : 'text-slate-300'}`}>
-                  {count}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          {/* Quick Summary Pill on Right */}
-          <div className="flex items-center gap-3 text-xs">
-            <div className="flex items-center gap-1.5 text-slate-400 font-medium">
-              <span className="text-slate-500">Fleet Health:</span>
-              <span className={`font-bold font-mono ${stats.offline === 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
-                {stats.total > 0 ? `${((stats.online / stats.total) * 100).toFixed(1)}%` : '0%'} Active
-              </span>
-            </div>
-            {stats.offline > 0 && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-950/60 border border-red-800/80 text-red-400 text-[11px] font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping" />
-                {stats.offline} Inactive
-              </span>
-            )}
-          </div>
         </div>
       </div>
 
