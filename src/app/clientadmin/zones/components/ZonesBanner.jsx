@@ -8,14 +8,14 @@ import { ALL_ZONES } from "../data/zonesData";
  */
 export default function ZonesBanner({ totalWorking, totalNotWorking, totalMaintenance, operationalCount }) {
   const stats = [
-    { label: "Zones",       value: ALL_ZONES.length,  Icon: Grid3x3,    iconCls: "text-indigo-300"  },
-    { label: "Working",     value: totalWorking,      Icon: CheckCircle2, iconCls: "text-emerald-300" },
-    { label: "Not Working", value: totalNotWorking,   Icon: XCircle,    iconCls: "text-rose-300"    },
-    { label: "Maintenance", value: totalMaintenance,  Icon: Wrench,     iconCls: "text-amber-300"   },
+    { label: "Zones",       value: ALL_ZONES.length,  Icon: Grid3x3,    iconCls: "text-indigo-700 dark:text-indigo-300"  },
+    { label: "Working",     value: totalWorking,      Icon: CheckCircle2, iconCls: "text-emerald-700 dark:text-emerald-300" },
+    { label: "Not Working", value: totalNotWorking,   Icon: XCircle,    iconCls: "text-rose-700 dark:text-rose-300"    },
+    { label: "Maintenance", value: totalMaintenance,  Icon: Wrench,     iconCls: "text-amber-800 dark:text-amber-300"   },
   ];
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950">
+    <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-500/10">
       {/* Decorative glows */}
       <div className="pointer-events-none absolute -top-20 -right-20 w-80 h-80 rounded-full bg-indigo-500/15 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-16 left-8 w-60 h-60 rounded-full bg-violet-500/10 blur-2xl" />
@@ -23,19 +23,19 @@ export default function ZonesBanner({ totalWorking, totalNotWorking, totalMainte
       <div className="relative z-10 p-6 md:p-8">
         {/* Tags */}
         <div className="flex items-center gap-2 flex-wrap mb-5">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30">
             <MapPin size={12} /> Zone Management
           </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
             <Activity size={12} /> {operationalCount}/{ALL_ZONES.length} Operational
           </span>
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-1">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--ink)] mb-1">
           Facility Zone Overview
         </h1>
-        <p className="text-sm text-slate-400 max-w-xl mb-6">
+        <p className="text-sm text-[var(--ink-3)] max-w-xl mb-6">
           10 zones · 10 sub-zones each — monitor product health across every area of your facility.
         </p>
 
@@ -47,8 +47,8 @@ export default function ZonesBanner({ totalWorking, totalNotWorking, totalMainte
                 <Icon size={17} className={iconCls} />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-extrabold text-white leading-tight">{value}</span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{label}</span>
+                <span className="text-xl font-extrabold text-[var(--ink)] leading-tight">{value}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-3)]">{label}</span>
               </div>
             </div>
           ))}

@@ -1,357 +1,181 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import {
-  LayoutDashboard,
-  Boxes,
-  ChevronLeft,
-  ChevronRight,
-  Wrench,
-  LogOut,
-  Building2,
-  Users,
-  MapPin,
-  CalendarCheck,
-  Grid3x3,
-  ClipboardList,
-  AlertTriangle,
-  Tag,
-  ShieldAlert,
-  X,
-  UserCog,
-  Camera
-} from 'lucide-react';
+import { LogOut, X, PanelLeftClose, PanelLeftOpen, MapPin, Building2, Globe2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { navFor, ROLE_LABEL } from '../ui/nav';
+import { BrandMark, Avatar } from '../ui/primitives';
 
-export default function Sidebar({
-  isCollapsed,
-  setIsCollapsed,
-  isMobileOpen = false,
-  setIsMobileOpen
-}) {
-  const { currentUser, isSuperAdmin, logout } = useAuth();
+/**
+ * Navigation rail for every role. The menu itself comes from `navFor(role)`,
+ * so zone officers only ever see zone destinations.
+ */
+export default function Sidebar({ isCollapsed, setIsCollapsed, isMobileOpen = false, setIsMobileOpen }) {
+  const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
+  const role = currentUser?.role;
+  const groups = navFor(role);
+
+  const closeMobile = () => setIsMobileOpen && setIsMobileOpen(false);
 
   const handleSignOut = async () => {
-    if (setIsMobileOpen) setIsMobileOpen(false);
+    closeMobile();
     await logout();
     navigate('/login', { replace: true });
   };
 
-  const handleNavClick = () => {
-    if (setIsMobileOpen) setIsMobileOpen(false);
-  };
+  const scope =
+    role === 'super_admin'
+      ? { icon: Globe2, label: 'All clients', sub: 'Fillip Technologies' }
+      : role === 'zone_incharge' || role === 'zone_staff'
+        ? { icon: MapPin, label: currentUser?.zoneName || 'My location', sub: currentUser?.clientName || 'Location' }
+        : { icon: Building2, label: currentUser?.clientName || 'My organisation', sub: 'Client workspace' };
 
-  // Navigation schema configured strictly by role
-  const superAdminNav = [
-    {
-      group: 'Super Administrator',
-      items: [
-        {
-          name: 'Platform Overview',
-          path: '/superadmin/overview',
-          icon: LayoutDashboard
-        },
-        {
-          name: 'Organizations',
-          path: '/superadmin/organizations',
-          icon: Building2
-        },
-        {
-          name: 'Client Users',
-          path: '/superadmin/clients',
-          icon: Users
-        },
-        {
-          name: 'Team Management',
-          path: '/superadmin/team',
-          icon: UserCog
-        },
-        {
-          name: 'Zones',
-          path: '/superadmin/zones',
-          icon: MapPin
-        },
-        {
-          name: 'Technicians',
-          path: '/superadmin/technicians',
-          icon: Wrench
-        },
-        {
-          name: 'Inventory',
-          path: '/superadmin/products',
-          icon: Boxes
-        },
-        {
-          name: 'Product Categories',
-          path: '/superadmin/categories',
-          icon: Tag
-        },
-        {
-          name: 'Defect Categories',
-          path: '/superadmin/defect-categories',
-          icon: ShieldAlert
-        },
-        {
-          name: 'Issues & Defects',
-          path: '/superadmin/issues',
-          icon: AlertTriangle
-        }
-      ]
-    }
-  ];
-
-  const clientAdminNav = [
-    {
-      group: 'Facility Command',
-      items: [
-        {
-          name: 'Facility Overview',
-          path: '/clientadmin/overview',
-          icon: LayoutDashboard
-        },
-        {
-          name: 'Product Overview',
-          path: '/clientadmin/products',
-          icon: Camera
-        },
-        {
-          name: 'Team & Roles',
-          path: '/clientadmin/users',
-          icon: Users
-        },
-        {
-          name: 'Raise Query',
-          path: '/clientadmin/requests',
-          icon: ClipboardList
-        },
-        {
-          name: 'Daily Logs',
-          path: '/clientadmin/daily-logs',
-          icon: CalendarCheck
-        },
-        {
-          name: 'Zones',
-          path: '/clientadmin/zones',
-          icon: Grid3x3
-        }
-      ]
-    }
-  ];
-
-  const navItems = isSuperAdmin ? superAdminNav : clientAdminNav;
-
-  const getInitials = (name) => {
-    if (!name) return 'FX';
-    const parts = name.trim().split(' ');
-    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    return name.slice(0, 2).toUpperCase();
-  };
-
-  const displayName = currentUser?.name || 'User';
-  const roleLabel = isSuperAdmin ? 'Super Admin' : (currentUser?.role === 'client_admin' ? 'Client Admin' : 'Zone In-Charge');
-  const orgLabel = isSuperAdmin ? 'Fixly HQ' : (currentUser?.facilityName || 'Facility');
-
-  const sidebarContent = (
-    <aside
-      className={`h-full bg-[var(--bg-sidebar)] flex flex-col select-none transition-all duration-300 ${
-        isCollapsed ? 'w-[72px]' : 'w-[280px] md:w-[260px]'
-      }`}
-    >
-      {/* Brand Header */}
-      <div
-        className={`h-[70px] px-3.5 flex items-center border-b border-[var(--border-color)] gap-2 ${
-          isCollapsed ? 'justify-center' : 'justify-between'
-        }`}
-      >
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div
-            className={`w-[38px] h-[38px] min-w-[38px] rounded-xl flex items-center justify-center text-white relative shadow-md shrink-0 ${
-              isSuperAdmin
-                ? 'bg-gradient-to-br from-indigo-600 to-sky-500 shadow-indigo-950/40'
-                : 'bg-gradient-to-br from-emerald-600 to-teal-500 shadow-emerald-950/40'
-            }`}
-          >
-            <Wrench size={20} className="-rotate-12 hover:rotate-45 transition-transform duration-300" />
-          </div>
-
-          {/* Text hidden when collapsed */}
-          {!isCollapsed && (
-            <div className="flex flex-col whitespace-nowrap animate-in fade-in duration-150">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xl font-extrabold tracking-tight text-white lowercase">fixly</span>
-                <span
-                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border ${
-                    isSuperAdmin
-                      ? 'bg-indigo-950/70 border-indigo-800/60 text-indigo-400'
-                      : 'bg-emerald-950/70 border-emerald-800/60 text-emerald-400'
-                  }`}
-                >
-                  {isSuperAdmin ? 'HQ' : 'Client'}
-                </span>
-              </div>
-              <span className="text-[11px] font-medium text-slate-400">
-                {isSuperAdmin ? 'Enterprise Ops' : 'Facility Command'}
-              </span>
+  const content = (collapsed) => (
+    <aside className="h-full flex flex-col bg-[var(--rail)] text-[var(--rail-ink)] select-none">
+      {/* Brand */}
+      <div className={`h-[64px] flex items-center shrink-0 ${collapsed ? 'justify-center' : 'px-5 justify-between'}`}>
+        <div className="flex items-center gap-2.5">
+          <BrandMark size={30} />
+          {!collapsed && (
+            <div className="leading-none">
+              <div className="text-[18px] font-[680] tracking-[-0.03em]">fixly</div>
+              <div className="text-[10.5px] text-[var(--rail-muted)] mt-[3px] tracking-[0.01em]">Equipment care</div>
             </div>
           )}
         </div>
-
-        {/* Desktop Collapse Button */}
         <button
-          className={`hidden md:flex w-7 h-7 rounded-lg bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-slate-400 hover:text-white items-center justify-center transition-colors cursor-pointer shrink-0 ${
-            isCollapsed ? 'absolute -right-3.5 top-5 z-50 shadow-md bg-[var(--bg-card)]' : ''
-          }`}
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-          aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-        >
-          {isCollapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
-        </button>
-
-        {/* Mobile Close Drawer Button */}
-        <button
-          className="md:hidden w-8 h-8 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-          onClick={() => setIsMobileOpen && setIsMobileOpen(false)}
+          className="md:hidden w-8 h-8 grid place-items-center rounded-lg text-[var(--rail-muted)] hover:text-white hover:bg-[var(--rail-active)] cursor-pointer"
+          onClick={closeMobile}
+          aria-label="Close menu"
         >
           <X size={18} />
         </button>
       </div>
 
-      {/* Navigation List */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-2.5 flex flex-col gap-3">
-        {navItems.map((group, idx) => (
-          <div key={idx} className="flex flex-col gap-1">
-            {/* Group Label (Hidden when collapsed) */}
-            {!isCollapsed ? (
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1 animate-in fade-in duration-150">
-                {group.group}
-              </span>
-            ) : (
-              <div className="h-px bg-[var(--border-color)] my-1 mx-2" />
-            )}
-
-            <nav className="flex flex-col gap-1.5">
-              {group.items.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    onClick={handleNavClick}
-                    title={isCollapsed ? item.name : undefined}
-                    className={({ isActive }) =>
-                      `flex items-center transition-all group relative ${
-                        isCollapsed
-                          ? `w-11 h-11 mx-auto justify-center rounded-xl ${
-                              isActive
-                                ? isSuperAdmin
-                                  ? 'bg-indigo-600 text-white shadow-md font-bold'
-                                  : 'bg-emerald-600 text-white shadow-md font-bold'
-                                : 'text-slate-400 hover:bg-[var(--bg-card)] hover:text-white'
-                            }`
-                          : `justify-between px-3 py-2.5 rounded-xl text-[13px] font-medium ${
-                              isActive
-                                ? isSuperAdmin
-                                  ? 'bg-[var(--bg-card)] text-white font-bold border-l-4 border-indigo-500 shadow-sm'
-                                  : 'bg-[var(--bg-card)] text-white font-bold border-l-4 border-emerald-500 shadow-sm'
-                                : 'text-slate-300 hover:bg-[var(--bg-card)] hover:text-white'
-                            }`
-                      }`
-                    }
-                  >
-                    {({ isActive }) => (
-                      <div
-                        className={`flex items-center ${
-                          isCollapsed ? 'justify-center' : 'gap-3 whitespace-nowrap'
-                        }`}
-                      >
-                        <Icon
-                          size={19}
-                          className={`${
-                            isCollapsed && isActive
-                              ? 'text-white'
-                              : isActive
-                              ? isSuperAdmin
-                                ? 'text-indigo-400'
-                                : 'text-emerald-400'
-                              : 'text-slate-400 group-hover:text-white'
-                          } transition-colors shrink-0`}
-                        />
-                        {!isCollapsed && <span>{item.name}</span>}
-                      </div>
-                    )}
-                  </NavLink>
-                );
-              })}
-            </nav>
-          </div>
-        ))}
-      </div>
-
-      {/* User Profile Card at Bottom */}
-      <div
-        className={`p-3 border-t border-[var(--border-color)] flex items-center bg-[var(--bg-sidebar)] gap-2 ${
-          isCollapsed ? 'justify-center flex-col' : 'justify-between'
-        }`}
-      >
+      {/* Scope chip — whose equipment am I looking at? */}
+      <div className={`${collapsed ? 'px-3' : 'px-3.5'} pb-3`}>
         <div
-          className={`flex items-center overflow-hidden ${
-            isCollapsed ? 'justify-center' : 'gap-2.5'
-          }`}
-          title={isCollapsed ? `${displayName} (${roleLabel})` : undefined}
+          className={`flex items-center gap-2.5 rounded-[11px] bg-[var(--rail-2)] border border-[var(--rail-line)] ${collapsed ? 'justify-center h-10' : 'px-3 py-2.5'}`}
+          title={collapsed ? scope.label : undefined}
         >
-          <div
-            className={`relative w-9 h-9 min-w-9 rounded-xl ${
-              isSuperAdmin
-                ? 'bg-gradient-to-br from-indigo-600 to-purple-600'
-                : 'bg-gradient-to-br from-emerald-600 to-teal-600'
-            } flex items-center justify-center font-bold text-xs text-white shadow-sm shrink-0`}
-          >
-            <span>{getInitials(displayName)}</span>
-            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[var(--bg-sidebar)]"></span>
-          </div>
-
-          {!isCollapsed && (
-            <div className="flex flex-col whitespace-nowrap overflow-hidden animate-in fade-in duration-150">
-              <span className="text-xs font-bold text-white truncate">{displayName}</span>
-              <span className="text-[10px] text-slate-400 truncate">
-                {roleLabel} • {orgLabel.split(' ')[0]}
-              </span>
+          <span className="w-7 h-7 rounded-[8px] grid place-items-center bg-white/[0.06] text-[var(--rail-ink)] shrink-0">
+            <scope.icon size={15} />
+          </span>
+          {!collapsed && (
+            <div className="min-w-0 leading-tight">
+              <div className="text-[12.5px] font-[620] truncate">{scope.label}</div>
+              <div className="text-[10.5px] text-[var(--rail-muted)] truncate">{scope.sub}</div>
             </div>
           )}
         </div>
+      </div>
 
-        <button
-          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition-colors cursor-pointer"
-          title="Sign Out"
-          onClick={handleSignOut}
-        >
-          <LogOut size={16} />
-        </button>
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 pb-4 fx-scroll">
+        {groups.map((g) => (
+          <div key={g.group} className="mt-3 first:mt-1">
+            {collapsed ? (
+              <div className="h-px mx-3 my-2 bg-[var(--rail-line)]" />
+            ) : (
+              <div className="px-3 pb-1.5 font-mono text-[10px] font-[500] tracking-[0.1em] uppercase text-[var(--rail-muted)]/80">
+                {g.group}
+              </div>
+            )}
+            <div className="flex flex-col gap-[2px]">
+              {g.items.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={closeMobile}
+                  title={collapsed ? item.name : undefined}
+                  className={({ isActive }) =>
+                    `group relative flex items-center h-9 rounded-[9px] text-[13px] transition-colors ${
+                      collapsed ? 'justify-center w-11 mx-auto' : 'gap-3 px-3'
+                    } ${
+                      isActive
+                        ? 'bg-[var(--rail-active)] text-white font-[600]'
+                        : 'text-[var(--rail-muted)] hover:text-[var(--rail-ink)] hover:bg-white/[0.035] font-[500]'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {isActive && (
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-r-full bg-[var(--ok)]" />
+                      )}
+                      <item.icon size={17} strokeWidth={isActive ? 2.2 : 1.9} className="shrink-0" />
+                      {!collapsed && <span className="truncate">{item.name}</span>}
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* Footer: user + collapse */}
+      <div className="border-t border-[var(--rail-line)] p-2.5 flex flex-col gap-1">
+        <div className={`flex items-center gap-2.5 rounded-[10px] ${collapsed ? 'justify-center py-1.5' : 'px-2 py-1.5'}`}>
+          <Avatar name={currentUser?.name || 'User'} size={30} tone="#2a313b" />
+          {!collapsed && (
+            <div className="min-w-0 flex-1 leading-tight">
+              <div className="text-[12.5px] font-[600] truncate">{currentUser?.name || 'User'}</div>
+              <div className="text-[10.5px] text-[var(--rail-muted)] truncate">{ROLE_LABEL[role] ?? 'User'}</div>
+            </div>
+          )}
+          {!collapsed && (
+            <button
+              onClick={handleSignOut}
+              className="w-8 h-8 grid place-items-center rounded-lg text-[var(--rail-muted)] hover:text-[#ff8a80] hover:bg-white/[0.05] cursor-pointer"
+              title="Sign out"
+              aria-label="Sign out"
+            >
+              <LogOut size={15} />
+            </button>
+          )}
+        </div>
+        {setIsCollapsed && (
+          <button
+            onClick={() => setIsCollapsed(!collapsed)}
+            className={`hidden md:flex items-center h-8 rounded-lg text-[12px] text-[var(--rail-muted)] hover:text-[var(--rail-ink)] hover:bg-white/[0.035] cursor-pointer ${
+              collapsed ? 'justify-center' : 'gap-2.5 px-3'
+            }`}
+            title={collapsed ? 'Expand' : 'Collapse'}
+          >
+            {collapsed ? <PanelLeftOpen size={15} /> : <PanelLeftClose size={15} />}
+            {!collapsed && 'Collapse'}
+          </button>
+        )}
+        {collapsed && (
+          <button
+            onClick={handleSignOut}
+            className="hidden md:grid place-items-center h-8 rounded-lg text-[var(--rail-muted)] hover:text-[#ff8a80] hover:bg-white/[0.05] cursor-pointer"
+            title="Sign out"
+            aria-label="Sign out"
+          >
+            <LogOut size={15} />
+          </button>
+        )}
       </div>
     </aside>
   );
 
   return (
     <>
-      {/* 1. Desktop Sidebar */}
       <div
-        className={`hidden md:block h-screen sticky top-0 left-0 z-40 border-r border-[var(--border-color)] transition-all duration-300 bg-[var(--bg-sidebar)] ${
-          isCollapsed ? 'w-[72px]' : 'w-[260px]'
+        className={`hidden md:block h-screen sticky top-0 z-40 shrink-0 transition-[width] duration-200 ${
+          isCollapsed ? 'w-[68px]' : 'w-[248px]'
         }`}
       >
-        {sidebarContent}
+        {content(isCollapsed)}
       </div>
 
-      {/* 2. Mobile Drawer & Backdrop */}
       {isMobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden flex animate-in fade-in duration-200">
-          <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-xs"
-            onClick={() => setIsMobileOpen && setIsMobileOpen(false)}
-          />
-          <div className="relative z-50 h-full w-[280px] bg-[var(--bg-sidebar)] border-r border-[var(--border-color)] shadow-2xl animate-in slide-in-from-left duration-250">
-            {sidebarContent}
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-[2px]" onClick={closeMobile} />
+          <div className="relative z-50 h-full w-[272px] shadow-2xl" style={{ animation: 'fx-slide-in 200ms ease-out both', animationName: 'fx-rise' }}>
+            {content(false)}
           </div>
         </div>
       )}

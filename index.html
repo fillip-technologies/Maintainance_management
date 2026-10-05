@@ -1,11 +1,22 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fixly | Enterprise Maintenance Management System</title>
-    <meta name="description" content="Fixly is an enterprise CMMS and maintenance operations management platform for assets, work orders, preventive maintenance, and SLA compliance." />
+    <title>Fixly | Equipment Care Platform</title>
+    <meta name="description" content="Fixly is an equipment care and maintenance operations platform — live health of every device across locations, faults, technicians and daily checks." />
+    <meta name="theme-color" content="#111418" />
+    <script>
+      // Apply the saved theme before first paint (no light/dark flash).
+      (function () {
+        var t = 'light';
+        try { t = localStorage.getItem('fixly_theme') || 'light'; } catch (e) {}
+        document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   </head>
   <body>

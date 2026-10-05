@@ -71,12 +71,12 @@ export default function ZoneHealthGrid({
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Layers size={18} className="text-blue-400" />
-          <h2 className="text-sm font-bold text-white tracking-tight uppercase">
+          <Layers size={18} className="text-blue-700 dark:text-blue-400" />
+          <h2 className="text-sm font-bold text-[var(--ink)] tracking-tight uppercase">
             Live Zone-Wise Telemetry & Working Status
           </h2>
         </div>
-        <span className="text-xs text-slate-400 hidden sm:inline">
+        <span className="text-xs text-[var(--ink-3)] hidden sm:inline">
           Click any zone to filter timeline view
         </span>
       </div>
@@ -92,8 +92,8 @@ export default function ZoneHealthGrid({
               onClick={() => onSelectZone(isSelected ? 'all' : z.id)}
               className={`p-3.5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between gap-3 relative overflow-hidden group ${
                 isSelected
-                  ? 'bg-blue-950/40 border-blue-500 shadow-md shadow-blue-900/20 ring-1 ring-blue-500/50'
-                  : 'bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border-[var(--border-color)] hover:border-slate-700'
+                  ? 'bg-blue-500/10 border-blue-500 shadow-md shadow-blue-900/20 ring-1 ring-blue-500/50'
+                  : 'bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border-[var(--border-color)] hover:border-[var(--line-strong)]'
               }`}
             >
               {/* Header: Icon + Zone Name + Alert badge */}
@@ -102,17 +102,17 @@ export default function ZoneHealthGrid({
                   <div
                     className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
                       z.hasFaulty
-                        ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                        : 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
+                        ? 'bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/30'
+                        : 'bg-blue-600/20 text-blue-700 dark:text-blue-400 border border-blue-500/30'
                     }`}
                   >
                     <IconComponent size={16} />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-xs font-bold text-white truncate group-hover:text-blue-300 transition-colors" title={toTitleCase(z.name)}>
+                    <h3 className="text-xs font-bold text-[var(--ink)] truncate group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors" title={toTitleCase(z.name)}>
                       {toTitleCase(z.name)}
                     </h3>
-                    <span className="text-[10px] text-slate-400 font-mono">
+                    <span className="text-[10px] text-[var(--ink-3)] font-mono">
                       {z.total} {z.total === 1 ? 'cam' : 'cams'}
                     </span>
                   </div>
@@ -125,7 +125,7 @@ export default function ZoneHealthGrid({
                       e.stopPropagation();
                       onOpenAlerts(z.id);
                     }}
-                    className="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold font-mono hover:bg-amber-500/30 transition-colors flex items-center gap-1 cursor-pointer"
+                    className="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40 text-[10px] font-bold font-mono hover:bg-amber-500/30 transition-colors flex items-center gap-1 cursor-pointer"
                     title={`${z.alerts} active alert(s) in this zone - click to inspect`}
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
@@ -137,16 +137,16 @@ export default function ZoneHealthGrid({
               {/* Working breakdown (Blue for working, Red for offline) */}
               <div className="space-y-1.5 pt-1">
                 <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-slate-400 text-[11px]">Working:</span>
+                  <span className="text-[var(--ink-3)] text-[11px]">Working:</span>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-blue-400 font-bold">{z.online}</span>
+                    <span className="text-blue-700 dark:text-blue-400 font-bold">{z.online}</span>
                     <span className="text-slate-600">/</span>
-                    <span className="text-slate-300">{z.total}</span>
+                    <span className="text-[var(--ink-2)]">{z.total}</span>
                   </div>
                 </div>
 
                 {/* Visual Ratio Bar */}
-                <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden flex">
+                <div className="w-full h-1.5 rounded-full bg-[var(--surface-3)] overflow-hidden flex">
                   <div
                     className="h-full bg-blue-500 transition-all duration-300"
                     style={{ width: `${z.total > 0 ? (z.online / z.total) * 100 : 0}%` }}
@@ -173,10 +173,10 @@ export default function ZoneHealthGrid({
                   <span
                     className={`inline-flex items-center gap-1 font-bold ${
                       z.isAllWorking
-                        ? 'text-blue-400'
+                        ? 'text-blue-700 dark:text-blue-400'
                         : z.hasFaulty
-                        ? 'text-red-400'
-                        : 'text-amber-400'
+                        ? 'text-red-700 dark:text-red-400'
+                        : 'text-amber-800 dark:text-amber-400'
                     }`}
                   >
                     <span
@@ -192,7 +192,7 @@ export default function ZoneHealthGrid({
                       ? '100% Working'
                       : `${z.offline} Faulty`}
                   </span>
-                  <span className="font-mono text-slate-400 font-semibold">
+                  <span className="font-mono text-[var(--ink-3)] font-semibold">
                     {z.avgUptime}%
                   </span>
                 </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { RefreshCw, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { PageHeader, RefreshButton } from '../ui/primitives';
 import TicketList from './TicketList';
 import RaiseQueryModal from './RaiseQueryModal';
 import { getIssues } from '../api/issuesApi';
@@ -75,34 +76,33 @@ export default function RaiseQueryPage() {
     fetchIssues();
   };
 
+  const open = tickets.filter((t) => !['resolved', 'closed'].includes(t.status)).length;
+  const unassigned = tickets.filter((t) => !['resolved', 'closed'].includes(t.status) && !t.assignedTech).length;
+
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-200">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-extrabold text-white">Raise a Query</h1>
-          <p className="text-xs text-slate-400">Report a problem with your units and track it through to resolution.</p>
-        </div>
-        <div className="flex items-center gap-2 self-start">
-          <button
-            onClick={openModal}
-            className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-sm cursor-pointer"
-          >
-            <Plus size={15} />
-            <span>Raise Query</span>
-          </button>
-          <button
-            onClick={fetchIssues}
-            disabled={loading}
-            className="p-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] text-slate-400 hover:text-white hover:bg-[var(--bg-card-hover)] transition-all cursor-pointer disabled:opacity-40"
-            title="Refresh"
-          >
-            <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
-          </button>
-        </div>
-      </div>
+    <div className="flex flex-col gap-6 pb-10">
+      <PageHeader
+        eyebrow={<>Report · follow · close</>}
+        title="Problems & repairs"
+        meta={!loading && (
+          <>
+            <span><span className="num font-[620] text-[var(--ink-2)]">{open}</span> open</span>
+            {unassigned > 0 && <span className="text-[var(--down-ink)]"><span className="num font-[620]">{unassigned}</span> waiting for a technician</span>}
+            <span><span className="num font-[620] text-[var(--ink-2)]">{tickets.length}</span> total</span>
+          </>
+        )}
+        actions={
+          <>
+            <RefreshButton onClick={fetchIssues} spinning={loading} />
+            <button type="button" onClick={openModal} className="fx-btn fx-btn-primary">
+              <Plus size={15} /> Report a problem
+            </button>
+          </>
+        }
+      />
 
       {error && (
-        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs font-medium text-rose-300">
+        <div className="px-4 py-3 rounded-[12px] text-[13px] font-[520]" style={{ background: 'var(--down-soft)', color: 'var(--down-ink)' }}>
           {error}
         </div>
       )}
@@ -111,7 +111,6 @@ export default function RaiseQueryPage() {
         tickets={tickets}
         loading={loading}
         onOpenRequestModal={openModal}
-        onNotify={showToast}
         onRefresh={fetchIssues}
       />
 

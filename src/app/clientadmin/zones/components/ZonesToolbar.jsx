@@ -20,17 +20,17 @@ export default function ZonesToolbar({
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs">
       {/* Search */}
-      <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex-1 max-w-sm focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
-        <Search size={14} className="text-slate-400 shrink-0" />
+      <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex-1 max-w-sm focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-[var(--accent-soft)] transition-all">
+        <Search size={14} className="text-[var(--ink-3)] shrink-0" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search zones or sub-zones…"
-          className="bg-transparent border-none text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-slate-400"
+          className="bg-transparent border-none text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-[var(--ink-3)]"
         />
         {searchQuery && (
-          <button onClick={() => setSearchQuery("")} className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer">
+          <button onClick={() => setSearchQuery("")} className="text-[var(--ink-3)] hover:text-slate-700 transition-colors cursor-pointer">
             <X size={13} />
           </button>
         )}
@@ -58,10 +58,10 @@ export default function ZonesToolbar({
         <div className="w-px h-5 bg-slate-200" />
 
         {/* Showing count */}
-        <span className="text-[11px] font-semibold text-slate-400">{totalVisible} zone{totalVisible !== 1 ? "s" : ""}</span>
+        <span className="text-[11px] font-semibold text-[var(--ink-3)]">{totalVisible} zone{totalVisible !== 1 ? "s" : ""}</span>
 
         {/* View Hint */}
-        <span className="hidden sm:inline-flex items-center text-[11px] font-medium text-slate-400 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-xl">
+        <span className="hidden sm:inline-flex items-center text-[11px] font-medium text-[var(--ink-3)] bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-xl">
           Click any card to view details
         </span>
       </div>

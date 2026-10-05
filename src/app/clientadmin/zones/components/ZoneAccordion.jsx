@@ -104,7 +104,7 @@ export default function ZoneAccordion({ zone, searchQuery, forceExpand }) {
             </div>
 
             <span className="flex items-center gap-1 text-[11px] text-slate-500">
-              <Layers size={11} className="text-slate-400" />
+              <Layers size={11} className="text-[var(--ink-3)]" />
               {zone.subzones.length} sub-zones
             </span>
             <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
@@ -120,7 +120,7 @@ export default function ZoneAccordion({ zone, searchQuery, forceExpand }) {
               {zone.totalMaintenance} maintenance
             </span>
             <span className="flex items-center gap-1 text-[11px] text-slate-500">
-              <Building2 size={11} className="text-slate-400" />
+              <Building2 size={11} className="text-[var(--ink-3)]" />
               {zone.coverage}
             </span>
           </div>

@@ -23,11 +23,11 @@ function StatCard({ label, value, color }) {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-xs">
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{label}</span>
+        <span className="text-xs font-bold uppercase tracking-wider text-[var(--ink-3)]">{label}</span>
         <span className={`text-3xl font-extrabold tracking-tight ${color}`}>{value}</span>
       </div>
       <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center">
-        <ScrollText size={18} className="text-slate-400" />
+        <ScrollText size={18} className="text-[var(--ink-3)]" />
       </div>
     </div>
   );
@@ -132,17 +132,17 @@ export default function InventoryLogsPage() {
       {/* Filters */}
       <div className="flex flex-col md:flex-row md:items-center gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-xs flex-wrap">
         {/* Search */}
-        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2 flex-1 min-w-[200px] max-w-sm focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
-          <Search size={15} className="text-slate-400 shrink-0" />
+        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2 flex-1 min-w-[200px] max-w-sm focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-[var(--accent-soft)] transition-all">
+          <Search size={15} className="text-[var(--ink-3)] shrink-0" />
           <input
             type="text"
             placeholder="Search device, zone, logged by…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent border-none text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-slate-400"
+            className="bg-transparent border-none text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-[var(--ink-3)]"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+            <button onClick={() => setSearchQuery('')} className="text-[var(--ink-3)] hover:text-slate-600 cursor-pointer">
               <X size={13} />
             </button>
           )}
@@ -150,7 +150,7 @@ export default function InventoryLogsPage() {
 
         {/* Date picker */}
         <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus-within:bg-white focus-within:border-indigo-400 transition-all">
-          <Calendar size={14} className="text-slate-400 shrink-0" />
+          <Calendar size={14} className="text-[var(--ink-3)] shrink-0" />
           <input
             type="date"
             value={selectedDate}
@@ -158,7 +158,7 @@ export default function InventoryLogsPage() {
             className="bg-transparent border-none text-xs font-medium text-slate-700 outline-hidden cursor-pointer"
           />
           {selectedDate && (
-            <button onClick={() => setSelectedDate('')} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+            <button onClick={() => setSelectedDate('')} className="text-[var(--ink-3)] hover:text-slate-600 cursor-pointer">
               <X size={13} />
             </button>
           )}
@@ -179,7 +179,7 @@ export default function InventoryLogsPage() {
         {/* Status filter tabs */}
         <div className="flex items-center gap-1.5 flex-wrap">
           {[
-            { key: 'all',               label: `All (${logs.length})`,       active: 'bg-blue-600 text-white' },
+            { key: 'all',               label: `All (${logs.length})`,       active: 'bg-[var(--accent)] text-white' },
             { key: 'working',           label: `Working (${working})`,        active: 'bg-emerald-600 text-white' },
             { key: 'not_working',       label: `Not Working (${notWorking})`, active: 'bg-rose-600 text-white' },
             { key: 'under_maintenance', label: `Maintenance (${maintenance})`,active: 'bg-amber-600 text-white' },
@@ -188,7 +188,7 @@ export default function InventoryLogsPage() {
               key={t.key}
               onClick={() => setStatusFilter(t.key)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                statusFilter === t.key ? `${t.active} shadow-xs font-bold` : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                statusFilter === t.key ? `${t.active} shadow-xs font-bold` : 'bg-slate-800 text-[var(--ink-2)] hover:bg-[var(--surface-3)] hover:text-white'
               }`}
             >
               {t.label}
@@ -213,15 +213,15 @@ export default function InventoryLogsPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 flex flex-col items-center gap-3">
-          <ScrollText size={28} className="text-slate-300" />
+          <ScrollText size={28} className="text-[var(--ink-2)]" />
           <span className="text-sm font-bold text-slate-600">No logs found</span>
-          <span className="text-xs text-slate-400">Try adjusting the filters or date.</span>
+          <span className="text-xs text-[var(--ink-3)]">Try adjusting the filters or date.</span>
         </div>
       ) : (
         <div className="overflow-x-auto bg-white border border-slate-200 rounded-2xl shadow-xs">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)]">
                 <th className="py-3 px-4">Device</th>
                 <th className="py-3 px-4">Zone</th>
                 <th className="py-3 px-4">Status</th>
@@ -236,12 +236,12 @@ export default function InventoryLogsPage() {
                   <td className="py-3.5 px-4">
                     <div className="flex flex-col">
                       <span className="font-bold text-slate-900">{l.deviceName}</span>
-                      <span className="text-[11px] text-slate-400 font-mono">{l.deviceCode}</span>
+                      <span className="text-[11px] text-[var(--ink-3)] font-mono">{l.deviceCode}</span>
                     </div>
                   </td>
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-1.5 text-slate-600">
-                      <MapPin size={12} className="text-slate-400 shrink-0" />
+                      <MapPin size={12} className="text-[var(--ink-3)] shrink-0" />
                       {l.zoneName}
                     </div>
                   </td>
@@ -249,18 +249,18 @@ export default function InventoryLogsPage() {
                     <StatusBadge status={l.status} />
                   </td>
                   <td className="py-3.5 px-4 text-slate-600">
-                    {l.loggedByName ?? <span className="text-slate-300 italic">—</span>}
+                    {l.loggedByName ?? <span className="text-[var(--ink-2)] italic">—</span>}
                   </td>
                   <td className="py-3.5 px-4 text-slate-500 max-w-[200px] truncate">
-                    {l.note || <span className="text-slate-300 italic">—</span>}
+                    {l.note || <span className="text-[var(--ink-2)] italic">—</span>}
                   </td>
                   <td className="py-3.5 px-4">
                     <div className="flex flex-col text-slate-500">
                       <span className="flex items-center gap-1">
-                        <Calendar size={11} className="text-slate-400" />
+                        <Calendar size={11} className="text-[var(--ink-3)]" />
                         {l.date ? new Date(l.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
                       </span>
-                      <span className="flex items-center gap-1 text-[11px] text-slate-400">
+                      <span className="flex items-center gap-1 text-[11px] text-[var(--ink-3)]">
                         <Clock size={11} />
                         {l.createdAt ? new Date(l.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
                       </span>
@@ -270,7 +270,7 @@ export default function InventoryLogsPage() {
               ))}
             </tbody>
           </table>
-          <div className="px-4 py-2.5 border-t border-slate-100 text-[11px] text-slate-400 font-medium">
+          <div className="px-4 py-2.5 border-t border-slate-100 text-[11px] text-[var(--ink-3)] font-medium">
             Showing {filtered.length} of {logs.length} log{logs.length !== 1 ? 's' : ''}
           </div>
         </div>

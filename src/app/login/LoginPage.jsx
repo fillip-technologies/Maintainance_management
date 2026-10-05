@@ -1,22 +1,80 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, Moon, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { landingFor } from '../common/roleRouting';
-import {
-  Wrench,
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  ArrowRight,
-  ShieldCheck,
-  Activity,
-  AlertCircle
-} from 'lucide-react';
+import { BrandMark } from '../ui/primitives';
+import { useTheme } from '../ui/theme';
+
+const COLS = 14;
+const ROWS = 10;
+const STATE_COLOR = { ok: '#2fc276', fix: '#f2a623', down: '#f2574d', idle: '#3a414c' };
+
+/**
+ * The "equipment wall": a grid of devices that quietly break and get fixed.
+ * It is the product in one picture — every device, visible at once.
+ */
+function EquipmentWall() {
+  const initial = useMemo(() => {
+    const cells = [];
+    for (let i = 0; i < COLS * ROWS; i++) {
+      const r = (Math.sin(i * 12.9898) * 43758.5453) % 1;
+      const v = Math.abs(r);
+      cells.push(v < 0.04 ? 'down' : v < 0.08 ? 'fix' : v < 0.13 ? 'idle' : 'ok');
+    }
+    return cells;
+  }, []);
+  const [cells, setCells] = useState(initial);
+
+  useEffect(() => {
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return undefined;
+    const t = setInterval(() => {
+      setCells((prev) => {
+        const next = prev.slice();
+        // a broken device gets picked up, a fix completes, something new breaks
+        const down = next.map((s, i) => (s === 'down' ? i : -1)).filter((i) => i >= 0);
+        const fix = next.map((s, i) => (s === 'fix' ? i : -1)).filter((i) => i >= 0);
+        if (down.length) next[down[Math.floor(Math.random() * down.length)]] = 'fix';
+        if (fix.length) next[fix[Math.floor(Math.random() * fix.length)]] = 'ok';
+        const j = Math.floor(Math.random() * next.length);
+        if (next[j] === 'ok' && Math.random() < 0.8) next[j] = 'down';
+        return next;
+      });
+    }, 1400);
+    return () => clearInterval(t);
+  }, []);
+
+  const counts = cells.reduce((a, s) => ({ ...a, [s]: (a[s] || 0) + 1 }), {});
+
+  return (
+    <div className="relative">
+      <div className="grid gap-[5px]" style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }} aria-hidden="true">
+        {cells.map((s, i) => (
+          <span
+            key={i}
+            className="aspect-square rounded-[4px] transition-[background-color,box-shadow] duration-700"
+            style={{
+              background: STATE_COLOR[s],
+              opacity: s === 'ok' ? 0.55 : 1,
+              boxShadow: s === 'down' ? '0 0 0 3px rgba(242,87,77,0.18)' : s === 'fix' ? '0 0 0 3px rgba(242,166,35,0.16)' : 'none',
+            }}
+          />
+        ))}
+      </div>
+      <div className="mt-5 flex items-center gap-5 text-[12px] text-white/60 font-mono">
+        <span className="inline-flex items-center gap-2"><i className="w-2 h-2 rounded-full" style={{ background: STATE_COLOR.ok }} />{counts.ok || 0} working</span>
+        <span className="inline-flex items-center gap-2"><i className="w-2 h-2 rounded-full" style={{ background: STATE_COLOR.fix }} />{counts.fix || 0} being fixed</span>
+        <span className="inline-flex items-center gap-2"><i className="w-2 h-2 rounded-full" style={{ background: STATE_COLOR.down }} />{counts.down || 0} broken</span>
+      </div>
+    </div>
+  );
+}
 
 export default function LoginPage() {
   const { login, isAuthenticated, currentUser } = useAuth();
   const navigate = useNavigate();
+  const { theme, toggle } = useTheme();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +83,7 @@ export default function LoginPage() {
   const [errorInfo, setErrorInfo] = useState(null);
 
   // Redirect if already authenticated
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       navigate(landingFor(currentUser?.role), { replace: true });
     }
@@ -47,189 +105,138 @@ export default function LoginPage() {
       console.error('Login error:', err);
       let message = err.message || 'Authentication failed. Please check your credentials.';
       if (err.code === 'INVALID_CREDENTIALS') {
-        message = 'Invalid email or password. Please verify credentials.';
+        message = 'That email and password don\'t match. Please try again.';
       } else if (err.code === 'FORBIDDEN') {
-        message = 'Account is suspended. Please contact platform support.';
+        message = 'This account is suspended. Please contact platform support.';
       }
-      setErrorInfo({
-        code: err.code || 'AUTH_ERROR',
-        message
-      });
+      setErrorInfo({ code: err.code || 'AUTH_ERROR', message });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0f1e] via-[#0d1526] to-[#070b16] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden font-sans select-none">
-      {/* Background Ambient Gradient Accents */}
-      <div className="absolute top-[-10%] left-[-5%] w-[450px] h-[450px] bg-indigo-600/15 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[450px] h-[450px] bg-emerald-600/10 rounded-full blur-[100px] pointer-events-none" />
-
-      {/* Subtle Dot Grid */}
-      <div
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{
-          backgroundImage: `radial-gradient(#ffffff 1px, transparent 1px)`,
-          backgroundSize: '24px 24px'
-        }}
-      />
-
-      <div className="w-full max-w-5xl relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-        
-        {/* Left Side: Brand Showcase */}
-        <div className="lg:col-span-6 flex flex-col gap-6 text-left">
-          {/* Logo Badge */}
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-sky-500 flex items-center justify-center text-white shadow-lg shadow-indigo-950">
-              <Wrench size={22} className="-rotate-12" />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-black tracking-tight text-slate-100 lowercase">fixly</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 tracking-wide uppercase">
-                  Enterprise
-                </span>
-              </div>
-              <span className="text-xs text-slate-400 font-medium">
-                Facility & Maintenance Platform
-              </span>
-            </div>
-          </div>
-
-          {/* Heading */}
-          <div className="flex flex-col gap-3">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-100 tracking-tight leading-[1.15]">
-              Intelligent Facility <br />
-              <span className="bg-gradient-to-r from-indigo-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent">
-                Command & Telemetry
-              </span>
-            </h1>
-            <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-lg">
-              Manage facility equipment, monitor daily operational health logs, oversee Zone Officers, and coordinate certified field technicians seamlessly.
-            </p>
-          </div>
-
-          {/* Feature Highlights Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-            <div className="p-4 rounded-2xl bg-[var(--bg-card)]/70 border border-[var(--border-color)] shadow-xs backdrop-blur-sm flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 flex items-center justify-center shrink-0">
-                <ShieldCheck size={20} />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-slate-200">Multi-Role Security</span>
-                <span className="text-[11px] text-slate-400">Strict RBAC & profile isolation</span>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-[var(--bg-card)]/70 border border-[var(--border-color)] shadow-xs backdrop-blur-sm flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-center justify-center shrink-0">
-                <Activity size={20} />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-slate-200">Live Status Sync</span>
-                <span className="text-[11px] text-slate-400">Real-time daily equipment checks</span>
-              </div>
-            </div>
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] bg-[var(--paper)]">
+      {/* Left: the product, in one picture */}
+      <section className="relative hidden lg:flex flex-col gap-10 overflow-hidden bg-[#0e1115] text-white px-12 py-10 xl:px-16">
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.5]"
+          style={{ background: 'radial-gradient(900px 500px at 15% 0%, rgba(47,194,118,0.10), transparent 60%), radial-gradient(700px 400px at 100% 100%, rgba(91,123,255,0.12), transparent 60%)' }}
+        />
+        <div className="relative flex items-center gap-3">
+          <BrandMark size={34} />
+          <div className="leading-none">
+            <div className="text-[20px] font-[680] tracking-[-0.03em]">fixly</div>
+            <div className="text-[11px] text-white/50 mt-1">by Fillip Technologies</div>
           </div>
         </div>
 
-        {/* Right Side: Clean Login Card */}
-        <div className="lg:col-span-6 w-full max-w-md mx-auto lg:max-w-none">
-          <div className="bg-[var(--bg-card)] rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/40 border border-[var(--border-color)] flex flex-col gap-6 relative">
-            
-            {/* Card Header */}
-            <div className="flex flex-col gap-1 text-left">
-              <h2 className="text-xl font-extrabold text-slate-100 tracking-tight">
-                Sign In to Workspace
-              </h2>
-              <p className="text-xs text-slate-400">
-                Enter your registered administrator or facility credentials to continue.
-              </p>
-            </div>
-
-            {/* Error Message Alert */}
-            {errorInfo && (
-              <div className="p-3.5 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5 animate-in fade-in duration-150">
-                <AlertCircle size={16} className="text-rose-400 shrink-0 mt-0.5" />
-                <div className="flex flex-col">
-                  <span className="font-bold">{errorInfo.code}</span>
-                  <span className="text-rose-300 text-[11px] mt-0.5">{errorInfo.message}</span>
-                </div>
-              </div>
-            )}
-
-            {/* Login Form */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 text-left">
-              {/* Email Address */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-300">
-                  Email Address / Login ID
-                </label>
-                <div className="relative flex items-center">
-                  <Mail size={16} className="absolute left-3.5 text-slate-500 pointer-events-none" />
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email address"
-                    className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all font-medium"
-                  />
-                </div>
-              </div>
-
-              {/* Password */}
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-300">
-                    Password
-                  </label>
-                  <span className="text-[11px] text-indigo-400 font-semibold cursor-pointer hover:text-indigo-300">
-                    Forgot?
-                  </span>
-                </div>
-                <div className="relative flex items-center">
-                  <Lock size={16} className="absolute left-3.5 text-slate-500 pointer-events-none" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl pl-10 pr-10 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all font-medium"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 text-slate-500 hover:text-slate-300 p-1 cursor-pointer transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Sign In Button */}
-              <button
-                type="submit"
-                disabled={loading || !email.trim() || !password.trim()}
-                className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white text-xs font-bold shadow-lg shadow-indigo-950/50 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 hover:scale-[1.01] active:scale-[0.99]"
-              >
-                {loading ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <>
-                    <span>Enter Workspace</span>
-                    <ArrowRight size={15} />
-                  </>
-                )}
-              </button>
-            </form>
-
+        <div className="relative max-w-[520px] my-auto">
+          <h1 className="text-[38px] xl:text-[46px] leading-[1.02] font-[640] tracking-[-0.045em]">
+            Every device.<br />
+            Every location.<br />
+            <span className="text-white/45">One look.</span>
+          </h1>
+          <p className="mt-5 text-[15px] leading-relaxed text-white/60 max-w-[44ch]">
+            Cameras, lights, kiosks, screens and more — see what's working, what's broken and who is fixing it, across every site you look after.
+          </p>
+          <div className="mt-9 max-w-[400px]">
+            <EquipmentWall />
           </div>
         </div>
 
-      </div>
+        <div className="relative flex items-center gap-6 text-[12px] text-white/40">
+          <span>Live health</span>
+          <span className="w-1 h-1 rounded-full bg-white/25" />
+          <span>Daily on-site checks</span>
+          <span className="w-1 h-1 rounded-full bg-white/25" />
+          <span>Repairs tracked to closure</span>
+        </div>
+      </section>
+
+      {/* Right: sign in */}
+      <section className="relative flex flex-col items-center justify-center px-5 py-12 sm:px-10">
+        <button
+          type="button"
+          onClick={toggle}
+          className="absolute top-5 right-5 w-9 h-9 grid place-items-center rounded-[10px] text-[var(--ink-2)] hover:bg-[var(--color-interactive-hover)] cursor-pointer"
+          aria-label="Toggle theme"
+          title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}
+        >
+          {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+        </button>
+
+        <div className="w-full max-w-[380px]" style={{ animation: 'fx-rise 500ms cubic-bezier(.2,.7,.2,1) both' }}>
+          <div className="lg:hidden flex items-center gap-2.5 mb-10">
+            <BrandMark size={32} />
+            <span className="text-[20px] font-[680] tracking-[-0.03em]">fixly</span>
+          </div>
+
+          <h2 className="text-[28px] font-[650] tracking-[-0.035em] leading-tight">Sign in</h2>
+          <p className="mt-2 text-[14px] text-[var(--ink-3)]">Use the email your administrator registered for you.</p>
+
+          {errorInfo && (
+            <div role="alert" className="mt-6 flex items-start gap-3 rounded-[12px] border px-4 py-3 text-[13px]" style={{ background: 'var(--down-soft)', borderColor: 'color-mix(in oklab, var(--down) 30%, transparent)', color: 'var(--down-ink)' }}>
+              <AlertCircle size={17} className="shrink-0 mt-[1px]" />
+              <span>{errorInfo.message}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
+            <label className="flex flex-col gap-2">
+              <span className="text-[13px] font-[600] text-[var(--ink-2)]">Email</span>
+              <span className="relative">
+                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--ink-3)] pointer-events-none" />
+                <input
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@organisation.com"
+                  className="fx-input !h-12 !text-[14.5px] !rounded-[12px] pl-10"
+                />
+              </span>
+            </label>
+
+            <label className="flex flex-col gap-2">
+              <span className="text-[13px] font-[600] text-[var(--ink-2)]">Password</span>
+              <span className="relative">
+                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--ink-3)] pointer-events-none" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="fx-input !h-12 !text-[14.5px] !rounded-[12px] pl-10 pr-11"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 grid place-items-center rounded-lg text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--color-interactive-hover)] cursor-pointer"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </span>
+            </label>
+
+            <button type="submit" disabled={loading} className="fx-btn fx-btn-primary !h-12 !rounded-[12px] !text-[14.5px] mt-2">
+              {loading ? (
+                <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>Sign in <ArrowRight size={16} /></>
+              )}
+            </button>
+          </form>
+
+          <p className="mt-10 text-[12px] text-[var(--ink-3)] leading-relaxed">
+            Trouble signing in? Your organisation's administrator can reset your access.
+          </p>
+        </div>
+      </section>
     </div>
   );
 }

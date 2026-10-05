@@ -106,17 +106,17 @@ export default function CreateTechnicianModal({ isOpen, onClose, onCreated }) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-800 dark:text-amber-400 flex items-center justify-center border border-amber-500/30">
               <Wrench size={20} />
             </div>
             <div>
               <h2 className="text-base font-bold">Add Technician</h2>
-              <p className="text-xs text-slate-400">Creates a login account, emails credentials, and optionally assigns coverage.</p>
+              <p className="text-xs text-[var(--ink-3)]">Creates a login account, emails credentials, and optionally assigns coverage.</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer">
             <X size={16} />
           </button>
         </div>
@@ -172,7 +172,7 @@ export default function CreateTechnicianModal({ isOpen, onClose, onCreated }) {
               <span className="text-[10px] text-amber-600 font-semibold">Min. 8 characters</span>
             </div>
             <div className="relative flex items-center">
-              <Lock size={15} className="absolute left-3.5 text-slate-400 pointer-events-none" />
+              <Lock size={15} className="absolute left-3.5 text-[var(--ink-3)] pointer-events-none" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 required minLength={8}
@@ -182,7 +182,7 @@ export default function CreateTechnicianModal({ isOpen, onClose, onCreated }) {
                 className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
+                className="absolute right-3 text-[var(--ink-3)] hover:text-slate-600 p-1 cursor-pointer">
                 {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
@@ -192,7 +192,7 @@ export default function CreateTechnicianModal({ isOpen, onClose, onCreated }) {
           <div className="flex flex-col gap-3 p-4 rounded-xl border border-slate-200 bg-slate-50/60">
             <div>
               <div className="text-xs font-bold text-slate-700">
-                Coverage Assignment <span className="text-slate-400 font-medium">(optional)</span>
+                Coverage Assignment <span className="text-[var(--ink-3)] font-medium">(optional)</span>
               </div>
               <p className="text-[11px] text-slate-500 mt-0.5">
                 Defects raised in the assigned area will automatically route to this technician.
@@ -242,7 +242,7 @@ export default function CreateTechnicianModal({ isOpen, onClose, onCreated }) {
                     onClick={() => setScope('zone')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
                       scope === 'zone'
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                        ? 'bg-[var(--accent)] text-white border-indigo-600 shadow-sm'
                         : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-400'
                     }`}
                   >

@@ -89,10 +89,10 @@ export default function DefectCategoriesPage() {
     <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 relative">
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 animate-in slide-in-from-bottom-4 duration-200">
-          <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+        <div className="fixed bottom-6 right-6 z-50 bg-[var(--surface-2)] text-[var(--ink)] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-[var(--line)] animate-in slide-in-from-bottom-4 duration-200">
+          <CheckCircle2 size={16} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
           <span className="text-xs font-semibold">{toast}</span>
-          <button onClick={() => setToast(null)} className="text-slate-400 hover:text-white p-1 ml-1 cursor-pointer"><X size={13} /></button>
+          <button onClick={() => setToast(null)} className="text-[var(--ink-3)] hover:text-[var(--ink)] p-1 ml-1 cursor-pointer"><X size={13} /></button>
         </div>
       )}
 
@@ -123,7 +123,7 @@ export default function DefectCategoriesPage() {
         ].map(({ label, value, color }) => (
           <div key={label} className="bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-col shadow-xs">
             <span className={`text-2xl font-extrabold ${color}`}>{value}</span>
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span>
+            <span className="text-[11px] font-semibold text-[var(--ink-3)] uppercase tracking-wide">{label}</span>
           </div>
         ))}
       </div>
@@ -140,7 +140,7 @@ export default function DefectCategoriesPage() {
           <button
             onClick={handleQuickOther}
             disabled={saving}
-            className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold cursor-pointer disabled:opacity-50 transition-colors whitespace-nowrap"
+            className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold cursor-pointer disabled:opacity-50 transition-colors whitespace-nowrap"
           >
             <Plus size={13} />
             Create "Other"
@@ -179,7 +179,7 @@ export default function DefectCategoriesPage() {
                 placeholder="e.g. Not Working, Physical Damage, Other"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]"
               />
             </div>
 
@@ -188,7 +188,7 @@ export default function DefectCategoriesPage() {
               <select
                 value={scopeId}
                 onChange={(e) => setScopeId(e.target.value)}
-                className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer"
+                className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] cursor-pointer"
               >
                 <option value="">Global (all product types)</option>
                 {productCats.map((p) => (
@@ -200,7 +200,7 @@ export default function DefectCategoriesPage() {
             <button
               type="submit"
               disabled={saving || !name.trim()}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer disabled:opacity-50 transition-colors whitespace-nowrap shadow-sm shadow-indigo-200"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold cursor-pointer disabled:opacity-50 transition-colors whitespace-nowrap shadow-sm shadow-indigo-200"
             >
               <Plus size={14} />
               {saving ? 'Creating…' : 'Add Category'}
@@ -222,7 +222,7 @@ export default function DefectCategoriesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)]">
                 <th className="py-3 px-5">Category Name</th>
                 <th className="py-3 px-5">Scope</th>
                 <th className="py-3 px-5 text-right">Actions</th>
@@ -230,9 +230,9 @@ export default function DefectCategoriesPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
               {loading ? (
-                <tr><td colSpan="3" className="text-center py-14 text-slate-400">Loading…</td></tr>
+                <tr><td colSpan="3" className="text-center py-14 text-[var(--ink-3)]">Loading…</td></tr>
               ) : items.length === 0 ? (
-                <tr><td colSpan="3" className="text-center py-14 text-slate-400">No defect categories yet. Add one above.</td></tr>
+                <tr><td colSpan="3" className="text-center py-14 text-[var(--ink-3)]">No defect categories yet. Add one above.</td></tr>
               ) : (
                 items.map((cat) => (
                   <tr key={cat.id} className="hover:bg-slate-50/60 transition-colors">
@@ -255,7 +255,7 @@ export default function DefectCategoriesPage() {
                         onClick={() => handleDelete(cat)}
                         disabled={deletingId === cat.id}
                         title={`Delete "${cat.name}"`}
-                        className="p-2 rounded-xl border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-colors cursor-pointer disabled:opacity-40"
+                        className="p-2 rounded-xl border border-slate-200 text-[var(--ink-3)] hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-colors cursor-pointer disabled:opacity-40"
                       >
                         <Trash2 size={15} />
                       </button>

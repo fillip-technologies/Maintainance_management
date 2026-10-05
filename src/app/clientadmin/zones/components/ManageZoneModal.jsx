@@ -72,7 +72,7 @@ function InChargeTab({ zone, clientId }) {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 justify-center py-12 text-slate-400 text-xs">
+      <div className="flex items-center gap-2 justify-center py-12 text-[var(--ink-3)] text-xs">
         <Loader2 size={16} className="animate-spin" /> Loading…
       </div>
     );
@@ -88,9 +88,9 @@ function InChargeTab({ zone, clientId }) {
 
       {/* Current in-charges */}
       <div className="flex flex-col gap-1">
-        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Current In-Charges</p>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)]">Current In-Charges</p>
         {assignments.length === 0 ? (
-          <div className="py-6 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-slate-200">
+          <div className="py-6 text-center text-xs text-[var(--ink-3)] bg-slate-50 rounded-xl border border-slate-200">
             No in-charge assigned yet.
           </div>
         ) : (
@@ -101,7 +101,7 @@ function InChargeTab({ zone, clientId }) {
                 className="flex items-center justify-between px-3.5 py-3 bg-indigo-50/60 border border-indigo-100 rounded-xl"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-[var(--accent)] text-white flex items-center justify-center text-xs font-bold shrink-0">
                     {(a.user?.name ?? '?').slice(0, 2).toUpperCase()}
                   </div>
                   <div>
@@ -125,9 +125,9 @@ function InChargeTab({ zone, clientId }) {
 
       {/* Assign new */}
       <div className="flex flex-col gap-2 pt-2 border-t border-slate-100">
-        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Assign In-Charge</p>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)]">Assign In-Charge</p>
         {available.length === 0 ? (
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[var(--ink-3)]">
             {allUsers.length === 0
               ? 'No zone in-charge accounts exist — create one from Team & Roles first.'
               : 'All available in-charges are already assigned to this zone.'}
@@ -137,7 +137,7 @@ function InChargeTab({ zone, clientId }) {
             <select
               value={selectedUserId}
               onChange={(e) => setSelectedUserId(e.target.value)}
-              className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer"
+              className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] cursor-pointer"
             >
               <option value="">Select a person…</option>
               {available.map((u) => (
@@ -147,7 +147,7 @@ function InChargeTab({ zone, clientId }) {
             <button
               onClick={handleAssign}
               disabled={!selectedUserId || assigning}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 shrink-0"
             >
               {assigning ? <Loader2 size={13} className="animate-spin" /> : <UserPlus size={13} />}
               Assign
@@ -242,9 +242,9 @@ export default function ManageZoneModal({ zone: initialZone, clientId, onClose, 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 flex items-center justify-center border border-indigo-500/30">
               <Settings size={20} />
             </div>
             <div>
@@ -258,7 +258,7 @@ export default function ManageZoneModal({ zone: initialZone, clientId, onClose, 
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={16} />
           </button>
@@ -306,12 +306,12 @@ export default function ManageZoneModal({ zone: initialZone, clientId, onClose, 
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Zone name"
-                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]"
                   />
                   <button
                     type="submit"
                     disabled={savingName || !name.trim() || name.trim() === zone.name}
-                    className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 shrink-0"
+                    className="px-4 py-2.5 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 shrink-0"
                   >
                     {savingName ? 'Saving…' : 'Save'}
                   </button>
@@ -331,7 +331,7 @@ export default function ManageZoneModal({ zone: initialZone, clientId, onClose, 
                     ) : zone.logoUrl ? (
                       <img src={zone.logoUrl} alt="zone logo" className="w-full h-full object-cover" />
                     ) : (
-                      <Image size={24} className="text-slate-300" />
+                      <Image size={24} className="text-[var(--ink-2)]" />
                     )}
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -347,7 +347,7 @@ export default function ManageZoneModal({ zone: initialZone, clientId, onClose, 
                         type="button"
                         onClick={handleUploadLogo}
                         disabled={uploadingLogo}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
                       >
                         {uploadingLogo ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
                         {uploadingLogo ? 'Uploading…' : 'Save logo'}
@@ -370,7 +370,7 @@ export default function ManageZoneModal({ zone: initialZone, clientId, onClose, 
                 <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-50 border border-slate-200">
                   <div>
                     <p className="text-xs font-semibold text-slate-700 capitalize">{zone.status}</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-[var(--ink-3)] mt-0.5">
                       {zone.status === 'active' && 'Zone is live — devices and issues are tracked.'}
                       {zone.status === 'draft' && 'Assigning an in-charge will auto-activate this zone.'}
                       {zone.status === 'inactive' && 'Zone is paused — no new issues can be raised.'}

@@ -96,14 +96,14 @@ export default function ClientUsersPage() {
     <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 relative">
       {/* Toast Notification Alert */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 animate-in slide-in-from-bottom-4 duration-200">
-          <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+        <div className="fixed bottom-6 right-6 z-50 bg-[var(--surface-2)] text-[var(--ink)] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-[var(--line)] animate-in slide-in-from-bottom-4 duration-200">
+          <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center justify-center">
             <CheckCircle2 size={16} />
           </div>
           <span className="text-xs font-semibold">{toastMessage}</span>
           <button
             onClick={() => setToastMessage(null)}
-            className="text-slate-400 hover:text-white p-1 ml-2 transition-colors cursor-pointer"
+            className="text-[var(--ink-3)] hover:text-[var(--ink)] p-1 ml-2 transition-colors cursor-pointer"
           >
             <X size={14} />
           </button>
@@ -113,10 +113,10 @@ export default function ClientUsersPage() {
       {/* Top Headline Banner */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 py-1">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--ink)] tracking-tight">
             Facility Team & User Roles
           </h1>
-          <p className="text-xs md:text-sm text-slate-400 max-w-2xl">
+          <p className="text-xs md:text-sm text-[var(--ink-3)] max-w-2xl">
             Manage operational team access, assign Zone In-Charges and Floor Staff, allocate certified Technicians, and configure user permissions.
           </p>
         </div>
@@ -136,17 +136,17 @@ export default function ClientUsersPage() {
       {/* Filters & Search Control Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-xs">
         {/* Search */}
-        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
-          <Search size={16} className="text-slate-400 shrink-0" />
+        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-[var(--accent-soft)] transition-all">
+          <Search size={16} className="text-[var(--ink-3)] shrink-0" />
           <input
             type="text"
             placeholder="Search by name, email, or assigned zone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent border-none text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-slate-400"
+            className="bg-transparent border-none text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-[var(--ink-3)]"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-slate-600">
+            <button onClick={() => setSearchQuery('')} className="text-[var(--ink-3)] hover:text-slate-600">
               <X size={14} />
             </button>
           )}
@@ -160,7 +160,7 @@ export default function ClientUsersPage() {
               onClick={() => setSelectedRole(tab.id)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 selectedRole === tab.id
-                  ? 'bg-indigo-600 text-white shadow-xs'
+                  ? 'bg-[var(--accent)] text-white shadow-xs'
                   : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
               }`}
             >

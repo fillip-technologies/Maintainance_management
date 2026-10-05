@@ -366,29 +366,29 @@ export default function MapLocationPickerModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
       <div
-        className={`bg-slate-900 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col transition-all duration-200 ${
+        className={`bg-[var(--surface-2)] rounded-3xl shadow-2xl border border-[var(--line)] overflow-hidden flex flex-col transition-all duration-200 ${
           isFullscreen ? 'w-full h-full max-w-none rounded-none' : 'max-w-4xl w-full h-[88vh] max-h-[750px]'
         }`}
         onClick={() => setShowDropdown(false)}
       >
         {/* Top Header */}
-        <div className="relative z-30 bg-slate-950 px-5 py-3.5 flex items-center justify-between border-b border-slate-800 gap-3 shrink-0 flex-wrap sm:flex-nowrap">
+        <div className="relative z-30 bg-[var(--surface-2)] px-5 py-3.5 flex items-center justify-between border-b border-[var(--line)] gap-3 shrink-0 flex-wrap sm:flex-nowrap">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-500/30 shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-700 dark:text-blue-400 flex items-center justify-center border border-blue-500/30 shrink-0">
               <MapPin size={16} />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-white tracking-tight truncate">
+                <h2 className="text-sm font-bold text-[var(--ink)] tracking-tight truncate">
                   Pick Facility Location
                 </h2>
                 {facilityName && (
-                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-200 font-semibold truncate max-w-[160px]">
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-[var(--surface-3)] border border-[var(--line)] text-[var(--ink)] font-semibold truncate max-w-[160px]">
                     {facilityName}
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-slate-300 truncate">
+              <p className="text-[11px] text-[var(--ink-2)] truncate">
                 Search place or drag and drop the pin directly onto the map
               </p>
             </div>
@@ -397,17 +397,17 @@ export default function MapLocationPickerModal({
           {/* Search Box with Autocomplete */}
           <div className="relative z-30 flex-1 max-w-xs sm:max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
             <div className="relative flex items-center">
-              <Search size={13} className="absolute left-3 text-slate-400 pointer-events-none" />
+              <Search size={13} className="absolute left-3 text-[var(--ink-3)] pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
                 placeholder="Search city, street, or facility..."
-                className="w-full pl-8 pr-8 py-1.5 rounded-xl border border-slate-700 bg-slate-900 text-white text-xs font-medium placeholder:text-slate-400 outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                className="w-full pl-8 pr-8 py-1.5 rounded-xl border border-[var(--line)] bg-[var(--surface-2)] text-[var(--ink)] text-xs font-medium placeholder:text-[var(--ink-3)] outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] transition-all"
               />
               {isSearching ? (
-                <Loader2 size={13} className="absolute right-3 text-blue-400 animate-spin" />
+                <Loader2 size={13} className="absolute right-3 text-blue-700 dark:text-blue-400 animate-spin" />
               ) : (
                 searchQuery && (
                   <button
@@ -417,7 +417,7 @@ export default function MapLocationPickerModal({
                       setSearchResults([]);
                       setShowDropdown(false);
                     }}
-                    className="absolute right-2.5 text-slate-400 hover:text-white cursor-pointer"
+                    className="absolute right-2.5 text-[var(--ink-3)] hover:text-[var(--ink)] cursor-pointer"
                   >
                     <X size={12} />
                   </button>
@@ -427,15 +427,15 @@ export default function MapLocationPickerModal({
 
             {/* Search Dropdown Results */}
             {showDropdown && searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1.5 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden max-h-56 overflow-y-auto backdrop-blur-md">
+              <div className="absolute top-full left-0 right-0 mt-1.5 bg-[var(--surface-2)] border border-[var(--line)] rounded-xl shadow-2xl z-50 overflow-hidden max-h-56 overflow-y-auto backdrop-blur-md">
                 {searchResults.map((item, idx) => (
                   <button
                     key={`${item.place_id || idx}`}
                     type="button"
                     onClick={() => handleSelectSearchResult(item)}
-                    className="w-full text-left px-3 py-2 text-xs text-slate-200 hover:text-white hover:bg-slate-800 flex items-start gap-2 border-b border-slate-800 last:border-0 transition-colors cursor-pointer"
+                    className="w-full text-left px-3 py-2 text-xs text-[var(--ink)] hover:text-[var(--ink)] hover:bg-[var(--surface-3)] flex items-start gap-2 border-b border-[var(--line)] last:border-0 transition-colors cursor-pointer"
                   >
-                    <MapPin size={13} className="text-blue-400 shrink-0 mt-0.5" />
+                    <MapPin size={13} className="text-blue-700 dark:text-blue-400 shrink-0 mt-0.5" />
                     <span className="line-clamp-2">{item.display_name}</span>
                   </button>
                 ))}
@@ -446,14 +446,14 @@ export default function MapLocationPickerModal({
           {/* Header Controls: Layer Switch, Fullscreen, Close */}
           <div className="flex items-center gap-1.5 shrink-0">
             {/* Layer Toggle */}
-            <div className="flex items-center bg-slate-900 border border-slate-700 rounded-xl p-0.5">
+            <div className="flex items-center bg-[var(--surface-2)] border border-[var(--line)] rounded-xl p-0.5">
               <button
                 type="button"
                 onClick={() => handleLayerSwitch('satellite')}
                 className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
                   mapLayer === 'satellite'
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-300 hover:text-white'
+                    ? 'bg-[var(--accent)] text-white shadow-xs'
+                    : 'text-[var(--ink-2)] hover:text-[var(--ink)]'
                 }`}
                 title="Satellite Imagery"
               >
@@ -464,8 +464,8 @@ export default function MapLocationPickerModal({
                 onClick={() => handleLayerSwitch('streets')}
                 className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
                   mapLayer === 'streets'
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-300 hover:text-white'
+                    ? 'bg-[var(--accent)] text-white shadow-xs'
+                    : 'text-[var(--ink-2)] hover:text-[var(--ink)]'
                 }`}
                 title="Street Map"
               >
@@ -476,7 +476,7 @@ export default function MapLocationPickerModal({
             <button
               type="button"
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="w-7 h-7 rounded-xl bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer border border-slate-700"
+              className="w-7 h-7 rounded-xl bg-[var(--surface-3)] text-[var(--ink-2)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer border border-[var(--line)]"
               title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
             >
               {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
@@ -484,7 +484,7 @@ export default function MapLocationPickerModal({
             <button
               type="button"
               onClick={onClose}
-              className="w-7 h-7 rounded-xl bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer border border-slate-700"
+              className="w-7 h-7 rounded-xl bg-[var(--surface-3)] text-[var(--ink-2)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer border border-[var(--line)]"
               title="Close"
             >
               <X size={14} />
@@ -493,49 +493,49 @@ export default function MapLocationPickerModal({
         </div>
 
         {/* Map Body Container */}
-        <div className="flex-1 relative z-0 isolate overflow-hidden bg-slate-950">
+        <div className="flex-1 relative z-0 isolate overflow-hidden bg-[var(--surface-2)]">
           <div ref={mapContainerRef} className="w-full h-full min-h-[300px]" />
 
           {/* Quick Floating Action: Recenter to Pin */}
           <button
             type="button"
             onClick={handleCenterToPin}
-            className="absolute bottom-4 right-4 z-20 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-900 text-white text-xs font-bold border border-slate-700 shadow-xl backdrop-blur-xs flex items-center gap-1.5 transition-all cursor-pointer hover:border-blue-500"
+            className="absolute bottom-4 right-4 z-20 px-3 py-1.5 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--ink)] text-xs font-bold border border-[var(--line)] shadow-xl backdrop-blur-xs flex items-center gap-1.5 transition-all cursor-pointer hover:border-blue-500"
             title="Recenter Map to Pin"
           >
-            <LocateFixed size={14} className="text-blue-400" />
+            <LocateFixed size={14} className="text-blue-700 dark:text-blue-400" />
             <span>Center Pin</span>
           </button>
         </div>
 
         {/* Bottom Information Bar & Actions */}
-        <div className="bg-slate-950 px-5 py-3 border-t border-slate-800 flex items-center justify-between gap-4 flex-wrap shrink-0">
+        <div className="bg-[var(--surface-2)] px-5 py-3 border-t border-[var(--line)] flex items-center justify-between gap-4 flex-wrap shrink-0">
           {/* Resolved Address and Coordinates */}
           <div className="flex items-center gap-4 flex-1 min-w-0">
             <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                <span className="text-[10px] uppercase tracking-wider font-bold text-[var(--ink-3)]">
                   Detected Location
                 </span>
                 {isGeocoding && (
-                  <span className="flex items-center gap-1 text-[10px] text-blue-400">
+                  <span className="flex items-center gap-1 text-[10px] text-blue-700 dark:text-blue-400">
                     <Loader2 size={10} className="animate-spin" /> Resolving address…
                   </span>
                 )}
               </div>
-              <p className="text-xs font-semibold text-white truncate max-w-lg" title={resolvedAddress}>
+              <p className="text-xs font-semibold text-[var(--ink)] truncate max-w-lg" title={resolvedAddress}>
                 {resolvedAddress || 'Click map or drag pin to resolve location'}
               </p>
             </div>
 
             {/* GPS & Map Badges */}
             <div className="hidden sm:flex items-center gap-2 shrink-0">
-              <div className="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-200">
-                <span className="text-slate-400 font-semibold mr-1">GPS:</span>
+              <div className="px-2.5 py-1 rounded-xl bg-[var(--surface-2)] border border-[var(--line)] text-[11px] font-mono text-[var(--ink)]">
+                <span className="text-[var(--ink-3)] font-semibold mr-1">GPS:</span>
                 {lat.toFixed(4)}, {lng.toFixed(4)}
               </div>
-              <div className="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-200">
-                <span className="text-slate-400 font-semibold mr-1">Map:</span>
+              <div className="px-2.5 py-1 rounded-xl bg-[var(--surface-2)] border border-[var(--line)] text-[11px] font-mono text-[var(--ink)]">
+                <span className="text-[var(--ink-3)] font-semibold mr-1">Map:</span>
                 X: {mapX}% • Y: {mapY}%
               </div>
             </div>
@@ -546,14 +546,14 @@ export default function MapLocationPickerModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer border border-slate-700"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-[var(--ink)] hover:text-[var(--ink)] bg-[var(--surface-3)] hover:bg-[var(--surface-3)] transition-colors cursor-pointer border border-[var(--line)]"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleConfirm}
-              className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/30 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] shadow-lg shadow-blue-600/30 transition-all cursor-pointer"
             >
               <Check size={14} strokeWidth={2.5} />
               <span>Confirm Location</span>

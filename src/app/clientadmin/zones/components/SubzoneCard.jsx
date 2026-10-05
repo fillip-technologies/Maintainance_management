@@ -19,8 +19,8 @@ export default function SubzoneCard({ sz, color }) {
       label: "Not Working",
       value: sz.notWorking,
       Icon: XCircle,
-      valueCls: "text-rose-400 font-extrabold",
-      iconCls:  "text-rose-400",
+      valueCls: "text-rose-700 dark:text-rose-400 font-extrabold",
+      iconCls:  "text-rose-700 dark:text-rose-400",
       bg:       "bg-rose-500/10 border-rose-500/25",
     },
     {
@@ -49,7 +49,7 @@ export default function SubzoneCard({ sz, color }) {
           <span className="text-[13px] font-extrabold text-slate-900 group-hover:text-indigo-700 transition-colors leading-tight truncate">
             {sz.name}
           </span>
-          <span className="text-[10px] text-slate-400 font-medium truncate">
+          <span className="text-[10px] text-[var(--ink-3)] font-medium truncate">
             {sz.floor}
           </span>
         </div>
@@ -60,7 +60,7 @@ export default function SubzoneCard({ sz, color }) {
 
       {/* ── Total products count ── */}
       <div className="px-4 pt-3 pb-1 flex items-center gap-1.5">
-        <Layers size={12} className="text-slate-400" />
+        <Layers size={12} className="text-[var(--ink-3)]" />
         <span className="text-[11px] font-semibold text-slate-500">
           {sz.total} total products
         </span>

@@ -104,7 +104,7 @@ export default function IssuesPage() {
       <div className="flex flex-col gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
         {/* Status tabs */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1">Status:</span>
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)] mr-1">Status:</span>
           {STATUS_TABS.map((tab) => {
             const count = tab === 'all' ? counts.total ?? 0 : counts[tab] ?? 0;
             const active = statusFilter === tab;
@@ -114,12 +114,12 @@ export default function IssuesPage() {
                 onClick={() => setStatus(tab)}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold capitalize transition-all cursor-pointer flex items-center gap-1.5 ${
                   active
-                    ? 'bg-indigo-600 text-white shadow-xs'
+                    ? 'bg-[var(--accent)] text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
                 <span>{pretty(tab)}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${active ? 'bg-white/25 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${active ? 'bg-white/25 text-[var(--ink)]' : 'bg-slate-200 text-slate-600'}`}>
                   {count}
                 </span>
               </button>
@@ -130,7 +130,7 @@ export default function IssuesPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
           {/* Priority filter */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1">Priority:</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)] mr-1">Priority:</span>
             {PRIORITY_TABS.map((tab) => {
               const active = priorityFilter === tab;
               return (
@@ -139,7 +139,7 @@ export default function IssuesPage() {
                   onClick={() => setPriority(tab)}
                   className={`px-2.5 py-0.5 rounded-lg text-xs font-semibold capitalize transition-all cursor-pointer ${
                     active
-                      ? 'bg-slate-800 text-white'
+                      ? 'bg-[var(--surface-3)] text-[var(--ink)]'
                       : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
                   }`}
                 >
@@ -151,16 +151,16 @@ export default function IssuesPage() {
 
           {/* Search box */}
           <div className="relative w-full sm:w-64">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--ink-3)]" />
             <input
               type="text"
               placeholder="Search by unit, description…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-8 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-indigo-500 focus:bg-white text-slate-800 placeholder:text-slate-400 transition-all"
+              className="w-full pl-9 pr-8 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[var(--accent)] focus:bg-white text-slate-800 placeholder:text-[var(--ink-3)] transition-all"
             />
             {search && (
-              <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--ink-3)] hover:text-slate-600">
                 <X size={12} />
               </button>
             )}
@@ -180,7 +180,7 @@ export default function IssuesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)]">
                 <th className="py-3 px-4">Status</th>
                 <th className="py-3 px-4">Priority</th>
                 <th className="py-3 px-4">Unit</th>
@@ -194,9 +194,9 @@ export default function IssuesPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
               {loading ? (
-                <tr><td colSpan="9" className="text-center py-14 text-slate-400">Loading issues…</td></tr>
+                <tr><td colSpan="9" className="text-center py-14 text-[var(--ink-3)]">Loading issues…</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan="9" className="text-center py-14 text-slate-400">No issues matching your filters.</td></tr>
+                <tr><td colSpan="9" className="text-center py-14 text-[var(--ink-3)]">No issues matching your filters.</td></tr>
               ) : (
                 filtered.map((issue) => (
                   <tr
@@ -216,13 +216,13 @@ export default function IssuesPage() {
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-1.5">
-                        <Cpu size={12} className="text-slate-400 shrink-0" />
+                        <Cpu size={12} className="text-[var(--ink-3)] shrink-0" />
                         <span className="font-semibold text-slate-800">{issue.device?.name ?? '—'}</span>
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-1.5">
-                        <Tag size={12} className="text-slate-400 shrink-0" />
+                        <Tag size={12} className="text-[var(--ink-3)] shrink-0" />
                         <span className="text-slate-600">{issue.category?.name ?? '—'}</span>
                       </div>
                     </td>
@@ -231,23 +231,23 @@ export default function IssuesPage() {
                     </td>
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
-                        <User size={12} className="text-slate-400 shrink-0" />
+                        <User size={12} className="text-[var(--ink-3)] shrink-0" />
                         <span className="text-slate-600">{issue.raisedBy?.name ?? '—'}</span>
                       </div>
                     </td>
                     <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span className={issue.assignedTechnician ? 'text-emerald-700 font-semibold' : 'text-slate-400'}>
+                      <span className={issue.assignedTechnician ? 'text-emerald-700 font-semibold' : 'text-[var(--ink-3)]'}>
                         {issue.assignedTechnician?.user?.name ?? 'Unassigned'}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-slate-500 whitespace-nowrap">
                       <div className="flex items-center gap-1">
-                        <Clock size={11} className="text-slate-400" />
+                        <Clock size={11} className="text-[var(--ink-3)]" />
                         {fmtDate(issue.createdAt)}
                       </div>
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      <div className="w-8 h-8 rounded-lg bg-white group-hover:bg-indigo-600 group-hover:text-white border border-slate-200 text-slate-400 flex items-center justify-center transition-all ml-auto">
+                      <div className="w-8 h-8 rounded-lg bg-white group-hover:bg-[var(--accent)] group-hover:text-white border border-slate-200 text-slate-400 flex items-center justify-center transition-all ml-auto">
                         <ChevronRight size={15} />
                       </div>
                     </td>

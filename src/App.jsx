@@ -16,6 +16,9 @@ import ZoneDailyLogPage from './app/zone/ZoneDailyLogPage';
 // Shared "Raise Query" panel (client_admin + zone officers)
 import RaiseQueryPage from './app/common/RaiseQueryPage';
 
+// Shared equipment board (all roles; scope comes from the signed-in user)
+import EquipmentBoardPage from './app/common/EquipmentBoardPage';
+
 // Superadmin Layout & Views
 import SuperadminLayout from './app/superadmin/SuperadminLayout';
 import Overview from './app/superadmin/overview/Overview';
@@ -61,7 +64,7 @@ function AppRoutes() {
   if (bootstrapping) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--bg-main)]">
-        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-7 h-7 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -80,6 +83,8 @@ function AppRoutes() {
           <Route path="/superadmin" element={<SuperadminLayout />}>
             <Route index element={<Navigate to="/superadmin/overview" replace />} />
             <Route path="overview" element={<Overview />} />
+            <Route path="board" element={<EquipmentBoardPage />} />
+            <Route path="board/:zoneId" element={<EquipmentBoardPage />} />
             <Route path="organizations" element={<CompaniesPage />} />
             <Route path="clients" element={<SuperadminClientsPage />} />
             <Route path="team" element={<SuperadminUsersPage />} />
@@ -101,6 +106,8 @@ function AppRoutes() {
           <Route path="/zone" element={<ZoneLayout />}>
             <Route index element={<Navigate to="/zone/overview" replace />} />
             <Route path="overview" element={<ZoneOverview />} />
+            <Route path="board" element={<EquipmentBoardPage />} />
+            <Route path="board/:zoneId" element={<EquipmentBoardPage />} />
             <Route path="team" element={<ZoneTeamPage />} />
             <Route path="requests" element={<RaiseQueryPage />} />
             <Route path="daily-logs" element={<ZoneDailyLogPage />} />
@@ -113,10 +120,12 @@ function AppRoutes() {
           <Route path="/clientadmin" element={<ClientadminLayout />}>
             <Route index element={<Navigate to="/clientadmin/overview" replace />} />
             <Route path="overview" element={<ClientOverview />} />
+            <Route path="board" element={<EquipmentBoardPage />} />
+            <Route path="board/:zoneId" element={<EquipmentBoardPage />} />
             <Route path="products" element={<ClientCamerasPage />} />
             <Route path="daily-logs" element={<DailyLogsPage />} />
             <Route path="users" element={<ClientUsersPage />} />
-<Route path="requests" element={<RaiseQueryPage />} />
+            <Route path="requests" element={<RaiseQueryPage />} />
             <Route path="assets" element={<ClientAssetsPage />} />
             <Route path="invoices" element={<ClientInvoicesPage />} />
             <Route path="zones" element={<ZonesPage />} />

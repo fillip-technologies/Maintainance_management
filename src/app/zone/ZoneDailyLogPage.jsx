@@ -36,21 +36,21 @@ function ActionBar({ count, status, setStatus, notes, setNotes, onSubmit, onClea
   if (count === 0) return null;
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 animate-in slide-in-from-bottom-4 duration-200">
-      <div className="flex flex-col sm:flex-row items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 min-w-[520px]">
+      <div className="flex flex-col sm:flex-row items-center gap-3 bg-[var(--surface-2)] text-[var(--ink)] px-5 py-3.5 rounded-2xl shadow-2xl border border-[var(--line)] min-w-[520px]">
 
         {/* Selected count */}
         <div className="flex items-center gap-2 shrink-0">
-          <CheckCheck size={15} className="text-indigo-400" />
+          <CheckCheck size={15} className="text-indigo-700 dark:text-indigo-400" />
           <span className="text-xs font-bold">{count} selected</span>
           <button
             onClick={onClear}
-            className="ml-1 text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className="ml-1 text-[var(--ink-3)] hover:text-[var(--ink)] transition-colors cursor-pointer"
           >
             <X size={13} />
           </button>
         </div>
 
-        <div className="w-px h-5 bg-slate-700 hidden sm:block shrink-0" />
+        <div className="w-px h-5 bg-[var(--line)] hidden sm:block shrink-0" />
 
         {/* Status buttons */}
         <div className="flex items-center gap-1.5">
@@ -63,7 +63,7 @@ function ActionBar({ count, status, setStatus, notes, setNotes, onSubmit, onClea
                 type="button"
                 onClick={() => setStatus(active ? '' : s.key)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[11px] font-bold transition-all cursor-pointer
-                  ${active ? s.active : 'border-slate-600 text-slate-300 hover:border-slate-400 hover:text-white'}`}
+                  ${active ? s.active : 'border-[var(--line-strong)] text-[var(--ink-2)] hover:border-slate-400 hover:text-[var(--ink)]'}`}
               >
                 <Icon size={12} />{s.label}
               </button>
@@ -71,7 +71,7 @@ function ActionBar({ count, status, setStatus, notes, setNotes, onSubmit, onClea
           })}
         </div>
 
-        <div className="w-px h-5 bg-slate-700 hidden sm:block shrink-0" />
+        <div className="w-px h-5 bg-[var(--line)] hidden sm:block shrink-0" />
 
         {/* Notes */}
         <input
@@ -79,7 +79,7 @@ function ActionBar({ count, status, setStatus, notes, setNotes, onSubmit, onClea
           placeholder="Note (optional)"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="flex-1 min-w-0 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-600 text-xs font-medium text-white placeholder:text-slate-500 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+          className="flex-1 min-w-0 px-3 py-1.5 rounded-xl bg-[var(--surface-3)] border border-[var(--line-strong)] text-xs font-medium text-[var(--ink)] placeholder:text-slate-500 outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-indigo-500 transition-all"
         />
 
         {/* Submit */}
@@ -242,7 +242,7 @@ export default function ZoneDailyLogPage() {
         {!loading && (
           <div className="flex items-center gap-2 flex-wrap">
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-bold text-slate-600">
-              <Package size={13} className="text-slate-400" />
+              <Package size={13} className="text-[var(--ink-3)]" />
               {devices.length} devices
             </span>
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-100 border border-emerald-200 text-xs font-bold text-emerald-700">
@@ -289,8 +289,8 @@ export default function ZoneDailyLogPage() {
               {t.label}
               <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full
                 ${filter === t.key
-                  ? t.key === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
-                  : 'text-slate-400'}`}>
+                  ? t.key === 'pending' ? 'bg-amber-500/15 text-current' : 'bg-black/10 text-current'
+                  : 'text-[var(--ink-3)]'}`}>
                 {t.count}
               </span>
             </button>
@@ -298,17 +298,17 @@ export default function ZoneDailyLogPage() {
         </div>
 
         {/* Search */}
-        <div className="flex-1 flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
-          <Search size={14} className="text-slate-400 shrink-0" />
+        <div className="flex-1 flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-[var(--accent-soft)] transition-all">
+          <Search size={14} className="text-[var(--ink-3)] shrink-0" />
           <input
             type="text"
             placeholder="Search by device name, zone, or type…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 text-xs font-medium text-slate-900 outline-none placeholder:text-slate-400 bg-transparent"
+            className="flex-1 text-xs font-medium text-slate-900 outline-none placeholder:text-[var(--ink-3)] bg-transparent"
           />
           {search && (
-            <button onClick={() => setSearch('')} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+            <button onClick={() => setSearch('')} className="text-[var(--ink-3)] hover:text-slate-600 cursor-pointer">
               <X size={13} />
             </button>
           )}
@@ -326,28 +326,28 @@ export default function ZoneDailyLogPage() {
             onClick={toggleAllVisible}
             disabled={filtered.length === 0}
             className={`shrink-0 transition-colors cursor-pointer disabled:opacity-30
-              ${allVisible ? 'text-indigo-600' : 'text-slate-300 hover:text-slate-500'}`}
+              ${allVisible ? 'text-indigo-600' : 'text-[var(--ink-2)] hover:text-slate-500'}`}
           >
             {allVisible ? <SquareCheck size={17} /> : <Square size={17} />}
           </button>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex-1">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)] flex-1">
             Device / Zone
           </span>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 w-36 hidden sm:block">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)] w-36 hidden sm:block">
             Today's Status
           </span>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 w-16 text-center hidden md:block">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)] w-16 text-center hidden md:block">
             Quick Log
           </span>
         </div>
 
         {/* Rows */}
         {loading ? (
-          <div className="flex items-center justify-center py-20 gap-2 text-slate-400 text-sm">
+          <div className="flex items-center justify-center py-20 gap-2 text-[var(--ink-3)] text-sm">
             <Loader2 size={18} className="animate-spin text-amber-500" /> Loading devices…
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-2 text-slate-400">
+          <div className="flex flex-col items-center justify-center py-20 gap-2 text-[var(--ink-3)]">
             <Package size={28} className="opacity-30" />
             <p className="text-sm font-medium">
               {devices.length === 0 ? 'No active devices in your zone' : 'No devices match your filter'}
@@ -373,7 +373,7 @@ export default function ZoneDailyLogPage() {
                       : 'hover:bg-slate-50/70 cursor-pointer'}`}
                 >
                   {/* Checkbox — hidden for already-logged rows */}
-                  <div className={`shrink-0 transition-colors ${isLogged ? 'invisible' : isSelected ? 'text-indigo-600' : 'text-slate-300 group-hover:text-slate-400'}`}>
+                  <div className={`shrink-0 transition-colors ${isLogged ? 'invisible' : isSelected ? 'text-indigo-600' : 'text-[var(--ink-2)] group-hover:text-[var(--ink-3)]'}`}>
                     {isSelected ? <SquareCheck size={17} /> : <Square size={17} />}
                   </div>
 
@@ -387,11 +387,11 @@ export default function ZoneDailyLogPage() {
                       <p className={`text-sm font-bold truncate ${isSelected ? 'text-indigo-900' : 'text-slate-900'}`}>
                         {device.name}
                       </p>
-                      <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5 truncate">
+                      <p className="text-[11px] text-[var(--ink-3)] flex items-center gap-1 mt-0.5 truncate">
                         <MapPin size={9} className="shrink-0" />
                         {device.zone?.name ?? '—'}
                         {device.hardwareType?.name && (
-                          <span className="text-slate-300 mx-1">·</span>
+                          <span className="text-[var(--ink-2)] mx-1">·</span>
                         )}
                         {device.hardwareType?.name}
                       </p>
@@ -407,7 +407,7 @@ export default function ZoneDailyLogPage() {
                           {cfg.label}
                         </span>
                         {existing?.createdAt && (
-                          <span className="text-[10px] text-slate-400 pl-1 flex items-center gap-1">
+                          <span className="text-[10px] text-[var(--ink-3)] pl-1 flex items-center gap-1">
                             <Clock size={8} /> {fmtTime(existing.createdAt)}
                           </span>
                         )}
@@ -439,7 +439,7 @@ export default function ZoneDailyLogPage() {
                               showToast('err', err.message || 'Failed');
                             }
                           }}
-                          className="w-6 h-6 rounded-lg flex items-center justify-center border border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600 transition-all cursor-pointer"
+                          className="w-6 h-6 rounded-lg flex items-center justify-center border border-slate-200 text-[var(--ink-3)] hover:border-slate-300 hover:text-slate-600 transition-all cursor-pointer"
                         >
                           <Icon size={11} />
                         </button>

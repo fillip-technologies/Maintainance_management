@@ -404,13 +404,13 @@ import { CATEGORY_COLORS } from '../../../../tokens';
 
 const CATEGORY_BG_MAP = {
   cameras:       'bg-emerald-500',
-  nvr:           'bg-blue-600',
+  nvr:           'bg-[var(--accent)]',
   switches:      'bg-purple-600',
   routers:       'bg-teal-500',
   fiber:         'bg-amber-500',
   ups:           'bg-rose-500',
-  accessControl: 'bg-indigo-600',
-  default:       'bg-blue-600',
+  accessControl: 'bg-[var(--accent)]',
+  default:       'bg-[var(--accent)]',
 };
 
 const CATEGORY_ICON_MAP = {

@@ -450,7 +450,7 @@ export default function ClientCamerasPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 min-h-full bg-[var(--bg-main)] text-slate-100 relative">
+    <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 min-h-full bg-[var(--bg-main)] text-[var(--ink)] relative">
       
       {/* ── CATEGORY NAV ─────────────────────────────────────────────────── */}
       {cameras.length > 0 && (
@@ -466,13 +466,13 @@ export default function ClientCamerasPage() {
               }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                 selectedCategory === 'all'
-                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-900'
-                  : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-slate-400 hover:text-white hover:border-slate-600'
+                  ? 'bg-[var(--accent)] text-white shadow-sm shadow-blue-900'
+                  : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--ink-3)] hover:text-[var(--ink)] hover:border-[var(--line-strong)]'
               }`}
             >
               All Products
               <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
-                selectedCategory === 'all' ? 'bg-blue-700 text-blue-100' : 'bg-slate-800 text-slate-400'
+                selectedCategory === 'all' ? 'bg-blue-700 text-blue-100' : 'bg-[var(--surface-3)] text-[var(--ink-3)]'
               }`}>
                 {cameras.length}
               </span>
@@ -491,13 +491,13 @@ export default function ClientCamerasPage() {
                 }}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                   selectedCategory === 'camera'
-                    ? 'bg-blue-600 text-white shadow-sm shadow-blue-900'
-                    : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-slate-400 hover:text-white hover:border-slate-600'
+                    ? 'bg-[var(--accent)] text-white shadow-sm shadow-blue-900'
+                    : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--ink-3)] hover:text-[var(--ink)] hover:border-[var(--line-strong)]'
                 }`}
               >
                 Camera
                 <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
-                  selectedCategory === 'camera' ? 'bg-blue-700 text-blue-100' : 'bg-slate-800 text-slate-400'
+                  selectedCategory === 'camera' ? 'bg-blue-700 text-blue-100' : 'bg-[var(--surface-3)] text-[var(--ink-3)]'
                 }`}>
                   {totalCameraCount}
                 </span>
@@ -517,13 +517,13 @@ export default function ClientCamerasPage() {
                   }}
                   className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                     isActive
-                      ? 'bg-blue-600 text-white shadow-sm shadow-blue-900'
-                      : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-slate-400 hover:text-white hover:border-slate-600'
+                      ? 'bg-[var(--accent)] text-white shadow-sm shadow-blue-900'
+                      : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--ink-3)] hover:text-[var(--ink)] hover:border-[var(--line-strong)]'
                   }`}
                 >
                   {ht.name}
                   <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
-                    isActive ? 'bg-blue-700 text-blue-100' : 'bg-slate-800 text-slate-400'
+                    isActive ? 'bg-blue-700 text-blue-100' : 'bg-[var(--surface-3)] text-[var(--ink-3)]'
                   }`}>
                     {ht.count}
                   </span>
@@ -535,7 +535,7 @@ export default function ClientCamerasPage() {
           {/* Sub-row: Camera Subtypes (Bullet, Dome, PTZ) */}
           {selectedCategory === 'camera' && cameraSubtypes.length > 0 && (
             <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-color)] overflow-x-auto scrollbar-none animate-in fade-in slide-in-from-top-1 duration-150">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-0.5 shrink-0">
+              <span className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-wider mr-0.5 shrink-0">
                 Camera Types:
               </span>
 
@@ -545,13 +545,13 @@ export default function ClientCamerasPage() {
                 onClick={() => setSelectedCameraSubtype(null)}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                   !selectedCameraSubtype
-                    ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-900'
-                    : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-slate-400 hover:text-white hover:border-slate-600'
+                    ? 'bg-[var(--accent)] text-white shadow-sm shadow-indigo-900'
+                    : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--ink-3)] hover:text-[var(--ink)] hover:border-[var(--line-strong)]'
                 }`}
               >
                 All Cameras
                 <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
-                  !selectedCameraSubtype ? 'bg-indigo-700 text-indigo-100' : 'bg-slate-800 text-slate-400'
+                  !selectedCameraSubtype ? 'bg-indigo-700 text-indigo-100' : 'bg-[var(--surface-3)] text-[var(--ink-3)]'
                 }`}>
                   {totalCameraCount}
                 </span>
@@ -567,13 +567,13 @@ export default function ClientCamerasPage() {
                     onClick={() => setSelectedCameraSubtype(st.id || st.name)}
                     className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                       isSubActive
-                        ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-900'
-                        : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-slate-400 hover:text-white hover:border-slate-600'
+                        ? 'bg-[var(--accent)] text-white shadow-sm shadow-indigo-900'
+                        : 'bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--ink-3)] hover:text-[var(--ink)] hover:border-[var(--line-strong)]'
                     }`}
                   >
                     {st.name}
                     <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
-                      isSubActive ? 'bg-indigo-700 text-indigo-100' : 'bg-slate-800 text-slate-400'
+                      isSubActive ? 'bg-indigo-700 text-indigo-100' : 'bg-[var(--surface-3)] text-[var(--ink-3)]'
                     }`}>
                       {st.count}
                     </span>
@@ -593,30 +593,30 @@ export default function ClientCamerasPage() {
           <div className="flex items-center gap-2.5 flex-wrap">
             {/* Main Zone / Facility Selector */}
             <div className="flex items-center gap-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-3 py-1.5 shrink-0">
-              <Layers size={15} className="text-slate-400 shrink-0" />
-              <span className="text-xs font-bold text-slate-400 shrink-0">Facility:</span>
+              <Layers size={15} className="text-[var(--ink-3)] shrink-0" />
+              <span className="text-xs font-bold text-[var(--ink-3)] shrink-0">Facility:</span>
               <select
                 value={selectedZone}
                 onChange={(e) => setSelectedZone(e.target.value)}
-                className="bg-transparent text-xs font-semibold text-white focus:outline-none cursor-pointer max-w-[190px] truncate"
+                className="bg-transparent text-xs font-semibold text-[var(--ink)] focus:outline-none cursor-pointer max-w-[190px] truncate"
               >
-                <option value="all" className="bg-[#0b1329] text-white">
+                <option value="all" className="bg-[var(--surface-2)] text-[var(--ink)]">
                   All Facilities ({topLevelFacilities.length})
                 </option>
                 {topLevelFacilities.map((z) => (
-                  <option key={z.id} value={z.id} className="bg-[#0b1329] text-white">
+                  <option key={z.id} value={z.id} className="bg-[var(--surface-2)] text-[var(--ink)]">
                     {z.name}
                   </option>
                 ))}
               </select>
               {loading ? (
-                <Loader2 size={13} className="animate-spin text-blue-400 ml-1 shrink-0" />
+                <Loader2 size={13} className="animate-spin text-blue-700 dark:text-blue-400 ml-1 shrink-0" />
               ) : (
                 <button
                   type="button"
                   onClick={fetchApiData}
                   title="Refresh data from database"
-                  className="text-slate-400 hover:text-blue-400 transition-colors ml-1 cursor-pointer"
+                  className="text-[var(--ink-3)] hover:text-blue-700 dark:hover:text-blue-400 transition-colors ml-1 cursor-pointer"
                 >
                   <RefreshCw size={13} />
                 </button>
@@ -632,7 +632,7 @@ export default function ClientCamerasPage() {
                   count: stats.total,
                   dot: null,
                   active: 'bg-blue-600/20 border border-blue-500/40',
-                  countColor: 'text-white',
+                  countColor: 'text-[var(--ink)]',
                 },
                 {
                   key: 'zone',
@@ -640,7 +640,7 @@ export default function ClientCamerasPage() {
                   count: stats.zones,
                   dot: null,
                   active: 'bg-indigo-600/20 border border-indigo-500/40',
-                  countColor: 'text-indigo-300',
+                  countColor: 'text-indigo-700 dark:text-indigo-300',
                 },
                 {
                   key: 'online',
@@ -648,7 +648,7 @@ export default function ClientCamerasPage() {
                   count: stats.online,
                   dot: 'bg-emerald-400 shadow-[0_0_5px_rgba(52,211,153,0.7)]',
                   active: 'bg-emerald-600/15 border border-emerald-500/30',
-                  countColor: 'text-emerald-400',
+                  countColor: 'text-emerald-700 dark:text-emerald-400',
                 },
                 {
                   key: 'offline',
@@ -656,7 +656,7 @@ export default function ClientCamerasPage() {
                   count: stats.offline,
                   dot: 'bg-red-400 shadow-[0_0_5px_rgba(248,113,113,0.7)] animate-pulse',
                   active: 'bg-red-600/15 border border-red-500/30',
-                  countColor: 'text-red-400',
+                  countColor: 'text-red-700 dark:text-red-400',
                 },
                 {
                   key: 'alerts',
@@ -664,7 +664,7 @@ export default function ClientCamerasPage() {
                   count: stats.alerts,
                   dot: 'bg-amber-400 shadow-[0_0_5px_rgba(251,191,36,0.7)]',
                   active: 'bg-amber-600/15 border border-amber-500/30',
-                  countColor: 'text-amber-400',
+                  countColor: 'text-amber-800 dark:text-amber-400',
                 },
               ].map(({ key, label, count, dot, active, countColor }) => (
                 <button
@@ -672,12 +672,12 @@ export default function ClientCamerasPage() {
                   type="button"
                   onClick={() => setStatusFilter(key)}
                   className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                    statusFilter === key ? active : 'hover:bg-slate-800/50'
+                    statusFilter === key ? active : 'hover:bg-[var(--surface-3)]'
                   }`}
                 >
                   {dot && <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dot}`} />}
                   <span className="text-[11px] text-slate-500">{label}</span>
-                  <span className={`text-[12px] font-bold font-mono leading-none ${statusFilter === key ? countColor : 'text-slate-300'}`}>
+                  <span className={`text-[12px] font-bold font-mono leading-none ${statusFilter === key ? countColor : 'text-[var(--ink-2)]'}`}>
                     {count}
                   </span>
                 </button>
@@ -688,13 +688,13 @@ export default function ClientCamerasPage() {
           {/* Right Group: Fleet Health & Zone Alerts Trigger Button */}
           <div className="flex items-center gap-3 shrink-0">
             {/* Quick Summary Pill */}
-            <div className="hidden md:flex items-center gap-1.5 text-xs font-medium text-slate-400">
+            <div className="hidden md:flex items-center gap-1.5 text-xs font-medium text-[var(--ink-3)]">
               <span className="text-slate-500">Fleet Health:</span>
-              <span className={`font-bold font-mono ${stats.offline === 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
+              <span className={`font-bold font-mono ${stats.offline === 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-800 dark:text-amber-400'}`}>
                 {stats.total > 0 ? `${((stats.online / stats.total) * 100).toFixed(1)}%` : '0%'} Active
               </span>
               {stats.offline > 0 && (
-                <span className="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-md bg-red-950/60 border border-red-800/80 text-red-400 text-[11px] font-semibold">
+                <span className="inline-flex items-center gap-1 ml-1 px-2 py-0.5 rounded-md bg-red-500/10 border border-red-500/25 text-red-700 dark:text-red-400 text-[11px] font-semibold">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping" />
                   {stats.offline} Inactive
                 </span>
@@ -705,17 +705,17 @@ export default function ClientCamerasPage() {
             <button
               type="button"
               onClick={() => handleOpenAlerts('all')}
-              className="relative inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 hover:border-amber-400 rounded-xl transition-all cursor-pointer shadow-xs shrink-0 whitespace-nowrap"
+              className="relative inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 hover:border-amber-400 rounded-xl transition-all cursor-pointer shadow-xs shrink-0 whitespace-nowrap"
               title="Open Zone Telemetry Alert Drawer"
             >
               <div className="relative flex items-center justify-center">
-                <Bell size={15} className="fill-amber-400 text-amber-300" />
+                <Bell size={15} className="fill-amber-400 text-amber-800 dark:text-amber-300" />
                 {stats.alerts > 0 && (
                   <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-400 animate-ping" />
                 )}
               </div>
               <span>Zone Alerts</span>
-              <span className="px-1.5 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800 text-[10px] font-mono font-bold">
+              <span className="px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/25 text-[10px] font-mono font-bold">
                 {stats.alerts}
               </span>
             </button>
@@ -732,8 +732,8 @@ export default function ClientCamerasPage() {
 
           {/* API error */}
           {apiError && !loading && (
-            <div className="flex items-center gap-3 p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-300 text-xs font-semibold">
-              <AlertTriangle size={18} className="shrink-0 text-rose-400" />
+            <div className="flex items-center gap-3 p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-700 dark:text-rose-300 text-xs font-semibold">
+              <AlertTriangle size={18} className="shrink-0 text-rose-700 dark:text-rose-400" />
               <div className="flex-1">
                 <span className="font-bold">API Connection Issue: </span>
                 {apiError}
@@ -741,7 +741,7 @@ export default function ClientCamerasPage() {
               <button
                 type="button"
                 onClick={fetchApiData}
-                className="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 rounded-lg text-rose-200 cursor-pointer text-xs"
+                className="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 rounded-lg text-rose-800 dark:text-rose-200 cursor-pointer text-xs"
               >
                 Retry
               </button>
@@ -751,8 +751,8 @@ export default function ClientCamerasPage() {
           {/* Loading */}
           {loading && !hasLoaded && (
             <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-16 flex flex-col items-center justify-center gap-3 shadow-xs">
-              <Loader2 size={24} className="animate-spin text-blue-400" />
-              <span className="text-xs font-semibold text-slate-400">Loading live facility zones and product telemetry from database…</span>
+              <Loader2 size={24} className="animate-spin text-blue-700 dark:text-blue-400" />
+              <span className="text-xs font-semibold text-[var(--ink-3)]">Loading live facility zones and product telemetry from database…</span>
             </div>
           )}
 
@@ -770,19 +770,19 @@ export default function ClientCamerasPage() {
           {/* Empty state */}
           {hasLoaded && !loading && !apiError && cameras.length === 0 && (
             <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-12 text-center flex flex-col items-center justify-center gap-4 shadow-xl">
-              <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-400 flex items-center justify-center">
                 <Layers size={32} />
               </div>
               <div className="space-y-1.5">
-                <h3 className="text-base font-bold text-white">No Cameras in Database</h3>
-                <p className="text-xs text-slate-400 max-w-md">
+                <h3 className="text-base font-bold text-[var(--ink)]">No Cameras in Database</h3>
+                <p className="text-xs text-[var(--ink-3)] max-w-md">
                   The API query succeeded, but zero camera products were found for your facility.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={fetchApiData}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-all border border-slate-700 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[var(--surface-3)] hover:bg-[var(--surface-3)] text-[var(--ink)] text-xs font-semibold transition-all border border-[var(--line)] cursor-pointer"
               >
                 ↻ Refresh
               </button>
@@ -817,22 +817,22 @@ export default function ClientCamerasPage() {
       {notificationToast && (
         <div
           onClick={() => handleOpenAlerts(notificationToast.zoneId)}
-          className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-[#0c1427] border border-amber-500/60 shadow-2xl text-slate-100 flex items-start gap-3 cursor-pointer animate-in slide-in-from-bottom duration-300 max-w-md"
+          className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-[var(--surface-2)] border border-amber-500/60 shadow-2xl text-[var(--ink)] flex items-start gap-3 cursor-pointer animate-in slide-in-from-bottom duration-300 max-w-md"
         >
-          <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center shrink-0">
-            <Bell size={18} className="fill-amber-400 text-amber-300 animate-bounce" />
+          <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-800 dark:text-amber-400 border border-amber-500/40 flex items-center justify-center shrink-0">
+            <Bell size={18} className="fill-amber-400 text-amber-800 dark:text-amber-300 animate-bounce" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-amber-300 uppercase">
+              <h4 className="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase">
                 {notificationToast.title}
               </h4>
-              <span className="text-[10px] text-slate-400">Just now</span>
+              <span className="text-[10px] text-[var(--ink-3)]">Just now</span>
             </div>
-            <p className="text-xs text-slate-200 mt-1">
+            <p className="text-xs text-[var(--ink)] mt-1">
               {notificationToast.message}
             </p>
-            <span className="text-[11px] text-blue-400 font-semibold mt-1 block">
+            <span className="text-[11px] text-blue-700 dark:text-blue-400 font-semibold mt-1 block">
               Click to view Zone Telemetry Alerts →
             </span>
           </div>
@@ -842,7 +842,7 @@ export default function ClientCamerasPage() {
               e.stopPropagation();
               setNotificationToast(null);
             }}
-            className="text-slate-400 hover:text-white p-1 cursor-pointer"
+            className="text-[var(--ink-3)] hover:text-[var(--ink)] p-1 cursor-pointer"
           >
             ×
           </button>

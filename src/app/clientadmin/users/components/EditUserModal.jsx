@@ -121,19 +121,19 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 flex items-center justify-center border border-indigo-500/30">
               <UserCheck size={20} />
             </div>
             <div>
               <h2 className="text-base font-bold">Edit User Role & Status</h2>
-              <p className="text-xs text-slate-400">{user.email}</p>
+              <p className="text-xs text-[var(--ink-3)]">{user.email}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={16} />
           </button>
@@ -157,7 +157,7 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+              className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]"
             />
           </div>
 
@@ -167,7 +167,7 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer"
+              className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] cursor-pointer"
             >
               {roles.map((r) => (
                 <option key={r.id} value={r.id}>{r.label}</option>
@@ -180,7 +180,7 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-slate-700">Assigned Facility Zone</label>
               {loadingZones ? (
-                <div className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-400">
+                <div className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-[var(--ink-3)]">
                   Loading zones…
                 </div>
               ) : zones.length === 0 ? (
@@ -191,7 +191,7 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
                 <select
                   value={selectedZoneId}
                   onChange={(e) => setSelectedZoneId(e.target.value)}
-                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer"
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] cursor-pointer"
                 >
                   <option value="">— No zone assigned —</option>
                   {zones.map((z) => (
@@ -208,7 +208,7 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
             <select
               value={formData.accountStatus}
               onChange={(e) => setFormData({ ...formData, accountStatus: e.target.value })}
-              className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer"
+              className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] cursor-pointer"
             >
               <option value="active">Active (Full operational access)</option>
               <option value="suspended">Suspended (Access blocked)</option>
@@ -225,7 +225,7 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
               title={isSelf ? "You can't remove your own account" : 'Remove this user'}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-colors border ${
                 isSelf
-                  ? 'text-rose-300 border-rose-100 bg-rose-50/40 cursor-not-allowed'
+                  ? 'text-rose-700 dark:text-rose-300 border-rose-100 bg-rose-50/40 cursor-not-allowed'
                   : 'text-rose-600 hover:bg-rose-50 border-rose-200 cursor-pointer'
               }`}
             >
@@ -244,7 +244,7 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-200 transition-all cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold shadow-md shadow-indigo-200 transition-all cursor-pointer"
               >
                 {isSubmitting ? 'Saving...' : 'Save Changes'}
               </button>

@@ -1,235 +1,299 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  ClipboardList,
-  AlertTriangle,
-  Cpu,
-  FileWarning,
-  CheckCircle2,
-  X,
-  BarChart2,
-  LayoutGrid,
-  ChevronDown,
-} from 'lucide-react';
-
-import StatCard from './components/StatCard';
-import PlatformKpiCards from './components/PlatformKpiCards';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Building2, ChevronRight, LayoutGrid, Clock3, ArrowRight, Users, MapPinned, Wrench, Boxes } from 'lucide-react';
 import LocationsOverviewMap from './components/LocationsOverviewMap';
-import DeviceStatusDistribution from './components/DeviceStatusDistribution';
-import DevicesByLocationChart from './components/DevicesByLocationChart';
-import LocationCardsRow from './components/LocationCardsRow';
-import WorkOrderStatus from './components/WorkOrderStatus';
-import CriticalAlerts from './components/CriticalAlerts';
-import FacilityOverviewTable from './components/FacilityOverviewTable';
-import TechnicianWorkload from './components/TechnicianWorkload';
-import RecentActivityFeed from './components/RecentActivityFeed';
-import ZoneQueryView from '../../common/ZoneQueryView';
 import { getPlatformOverview } from '../../api/dashboardApi';
-import { getClients } from '../../api/clientsApi';
 import { socketClient } from '../../api/socketClient';
+import { PageHeader, RefreshButton, Sheet, Skeleton, EmptyState, HealthStrip, TextLink, Avatar } from '../../ui/primitives';
+import { SignalHero, HeroSkeleton, TypeCards, ProblemFeed, MiniStat } from '../../ui/overview';
+import { HEALTH, STAGE, worstHealth, pct, ago } from '../../ui/status';
 
+const PIPELINE = ['open', 'reopened', 'assigned', 'in_progress', 'on_hold', 'resolved', 'closed'];
+
+/**
+ * Platform overview for Fillip operations: portfolio health, which client
+ * needs help, what's critical, and how the repair pipeline is flowing. One
+ * aggregated call (GET /dashboard/overview).
+ */
 export default function Overview() {
-  const [toastMessage, setToastMessage] = useState(null);
+  const navigate = useNavigate();
   const [overview, setOverview] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(null);
-  const [isLive, setIsLive] = useState(false);
-  const [activeTab, setActiveTab] = useState('analytics'); // 'analytics' | 'zone'
-  const [clients, setClients] = useState([]);
-  const [selectedClientId, setSelectedClientId] = useState('');
 
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
-  };
-
-  const fetchOverview = useCallback(async () => {
+  const load = useCallback(async (silent = false) => {
+    silent ? setRefreshing(true) : setLoading(true);
     try {
       const data = await getPlatformOverview();
-      if (data) {
-        setOverview(data);
-        setError(null);
-        setLastUpdated(new Date());
-      }
+      if (data) { setOverview(data); setError(null); }
     } catch (err) {
-      console.error('[Superadmin Overview] fetch error:', err);
-      setError(err.message || 'Failed to load platform overview from backend');
+      setError(err.message || 'Failed to load platform overview');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchOverview();
+    load(false);
+    const offs = ['issue:created', 'issue:updated', 'log:submitted'].map((ev) => socketClient.on(ev, () => load(true)));
+    return () => offs.forEach((off) => off());
+  }, [load]);
 
-    const unsubIssue = socketClient.on('issue:new', fetchOverview);
-    const unsubLog = socketClient.on('daily_log:new', fetchOverview);
-    const unsubDev = socketClient.on('device:updated', fetchOverview);
+  const d = overview?.devices;
+  const tally = useMemo(() => {
+    if (!d) return { total: 0, ok: 0, down: 0, fix: 0, idle: 0, live: 0, checked: 0, unchecked: 0 };
+    const live = d.working + d.faulty + d.underMaintenance;
+    const unchecked = Math.min(live, Math.max(0, (d.missingTodayLog ?? 0) - (d.provisioned ?? 0)));
+    return { total: d.total, ok: d.working, down: d.faulty, fix: d.underMaintenance, idle: d.provisioned, live, unchecked, checked: live - unchecked };
+  }, [d]);
 
-    const interval = setInterval(() => {
-      setIsLive(socketClient.isConnected);
-    }, 2000);
+  const clients = useMemo(() => (overview?.facilities ?? []).map((f) => ({
+    ...f,
+    tally: {
+      total: f.devices,
+      ok: f.workingDevices,
+      down: f.faultyDevices,
+      fix: f.underMaintenanceDevices,
+      idle: Math.max(0, f.devices - f.workingDevices - f.faultyDevices - f.underMaintenanceDevices),
+    },
+  })).sort((a, b) => (b.tally.down * 3 + b.tally.fix) - (a.tally.down * 3 + a.tally.fix) || b.devices - a.devices), [overview]);
 
-    return () => {
-      unsubIssue();
-      unsubLog();
-      unsubDev();
-      clearInterval(interval);
-    };
-  }, [fetchOverview]);
+  const types = useMemo(() => (overview?.byHardwareType ?? []).filter((t) => t.total).map((t) => ({
+    id: t.hardwareTypeId,
+    name: t.name,
+    tally: { total: t.total, ok: t.working, down: t.faulty, fix: t.underMaintenance, idle: Math.max(0, t.total - t.working - t.faulty - t.underMaintenance) },
+  })), [overview]);
 
-  // Load clients when Zone View tab is first opened
-  useEffect(() => {
-    if (activeTab !== 'zone' || clients.length > 0) return;
-    getClients({ limit: 100 })
-      .then((res) => {
-        const items = res?.items ?? [];
-        setClients(items);
-        if (items.length > 0) setSelectedClientId(items[0].id);
-      })
-      .catch(() => {});
-  }, [activeTab, clients.length]);
+  const alerts = useMemo(() => (overview?.criticalAlerts ?? []).map((a) => ({
+    id: a.id,
+    description: a.title,
+    priority: a.priority,
+    status: a.status,
+    technician: a.assignedTo,
+    createdAt: a.createdAt,
+    health: 'down',
+    device: { name: a.deviceName },
+    zone: { name: [a.zoneName, a.clientName].filter(Boolean).join(' · ') },
+  })), [overview]);
 
-  const devices = overview?.devices;
+  const t = overview?.tenancy;
   const issues = overview?.issues;
-  const tenancy = overview?.tenancy;
 
   return (
-    <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 relative">
-      {/* Toast */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 animate-in slide-in-from-bottom-4 duration-200">
-          <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-            <CheckCircle2 size={16} />
+    <div className="flex flex-col gap-6 pb-10">
+      <PageHeader
+        eyebrow={<>Fillip Technologies · platform</>}
+        title="Operations overview"
+        meta={t && (
+          <>
+            <span><span className="num font-[620] text-[var(--ink-2)]">{t.clients}</span> clients</span>
+            <span><span className="num font-[620] text-[var(--ink-2)]">{t.zones}</span> locations</span>
+            <span><span className="num font-[620] text-[var(--ink-2)]">{tally.total}</span> devices</span>
+            <span className="inline-flex items-center gap-1.5"><Clock3 size={13} /> Live from all clients</span>
+          </>
+        )}
+        actions={
+          <>
+            <RefreshButton onClick={() => load(true)} spinning={refreshing} />
+            <button type="button" className="fx-btn fx-btn-primary" onClick={() => navigate('/superadmin/board')}>
+              <LayoutGrid size={15} /> Equipment board
+            </button>
+          </>
+        }
+      />
+
+      {loading ? (
+        <>
+          <HeroSkeleton />
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-6">
+            <Skeleton className="h-[320px] !rounded-[14px]" />
+            <Skeleton className="h-[320px] !rounded-[14px]" />
           </div>
-          <span className="text-xs font-semibold">{toastMessage}</span>
-          <button
-            onClick={() => setToastMessage(null)}
-            className="text-slate-400 hover:text-white p-1 ml-2 transition-colors cursor-pointer"
-          >
-            <X size={14} />
-          </button>
-        </div>
-      )}
+        </>
+      ) : error ? (
+        <Sheet><EmptyState title="Couldn't load the platform overview" body={error} action={<button className="fx-btn" onClick={() => load(false)}>Try again</button>} /></Sheet>
+      ) : (
+        <>
+          <SignalHero
+            tally={tally}
+            places={clients.length > 1 ? `${clients.length} clients` : null}
+            openComplaints={issues?.open ?? 0}
+            onFilter={(show) => navigate(`/superadmin/board?show=${show}`)}
+          />
 
-      {/* Header Tab Switcher (Analytics / Zone View) */}
-      <div className="flex items-center justify-end py-1">
-        <div className="flex items-center bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-1 gap-1 shadow-inner">
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer
-              ${activeTab === 'analytics'
-                ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
-                : 'text-slate-400 hover:text-white'}`}
-          >
-            <BarChart2 size={13} />
-            Analytics
-          </button>
-          <button
-            onClick={() => setActiveTab('zone')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer
-              ${activeTab === 'zone'
-                ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
-                : 'text-slate-400 hover:text-white'}`}
-          >
-            <LayoutGrid size={13} />
-            Zone View
-          </button>
-        </div>
-      </div>
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-6 items-start">
+            <Sheet title="Clients" eyebrow="Worst first" action={<TextLink onClick={() => navigate('/superadmin/clients')}>Manage <ArrowRight size={13} /></TextLink>} bodyClassName="pb-1">
+              {clients.length === 0 ? (
+                <EmptyState icon={Building2} title="No clients yet" />
+              ) : (
+                <ul>
+                  {clients.map((c, i) => {
+                    const w = worstHealth(c.tally);
+                    return (
+                      <li key={c.clientId} className="fx-rise" style={{ '--i': i }}>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/superadmin/board?client=${c.clientId}`)}
+                          className="group w-full text-left grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[minmax(0,1.3fr)_90px_90px_170px_20px] items-center gap-x-5 gap-y-2 px-5 py-4 border-t border-[var(--line)] hover:bg-[var(--surface-2)] cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="relative w-10 h-10 rounded-[11px] overflow-hidden grid place-items-center bg-[var(--surface-3)] text-[var(--ink-2)] shrink-0">
+                              {c.imageUrl ? <img src={c.imageUrl} alt="" className="w-full h-full object-cover" /> : <Building2 size={18} />}
+                            </span>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full shrink-0" style={{ background: HEALTH[w].color }} />
+                                <span className="text-[14.5px] font-[630] tracking-[-0.015em] truncate group-hover:text-[var(--accent)]">{c.name}</span>
+                              </div>
+                              <div className="text-[12px] text-[var(--ink-3)] truncate">{c.facilityName !== c.name ? c.facilityName : c.location || c.companyName}</div>
+                            </div>
+                          </div>
+                          <div className="hidden md:block">
+                            <div className="num text-[17px] font-[640] tracking-[-0.02em]">{c.devices}</div>
+                            <div className="text-[11px] text-[var(--ink-3)]">{c.zones} locations</div>
+                          </div>
+                          <div className="hidden md:block">
+                            <div className="num text-[17px] font-[640] tracking-[-0.02em]" style={{ color: c.openIssues ? 'var(--down-ink)' : 'var(--ink)' }}>{c.openIssues}</div>
+                            <div className="text-[11px] text-[var(--ink-3)]">open</div>
+                          </div>
+                          <div className="col-span-2 md:col-span-1 flex flex-col gap-1.5">
+                            <HealthStrip tally={c.tally} maxTicks={24} height={8} />
+                            <div className="text-[11px] text-[var(--ink-3)]"><span className="num font-[620] text-[var(--ink-2)]">{pct(c.tally.ok, c.tally.total)}%</span> working</div>
+                          </div>
+                          <ChevronRight size={16} className="hidden md:block text-[var(--ink-4)] group-hover:text-[var(--ink)]" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </Sheet>
 
-      {/* Error banner — analytics only */}
-      {activeTab === 'analytics' && error && !loading && (
-        <div className="bg-rose-950/40 border border-rose-800/60 text-rose-300 rounded-xl px-4 py-3 text-xs font-semibold flex items-center gap-2">
-          <AlertTriangle size={16} className="shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
+            <ProblemFeed
+              problems={alerts}
+              title="Critical & high"
+              onOpen={() => navigate('/superadmin/issues')}
+              action={<TextLink onClick={() => navigate('/superadmin/issues')}>All issues <ArrowRight size={13} /></TextLink>}
+            />
+          </div>
 
-      {/* ── Zone View tab ──────────────────────────────────────────────── */}
-      {activeTab === 'zone' && (
-        <div className="flex flex-col gap-5">
-          {/* Client selector */}
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-bold text-slate-400 shrink-0">Client</span>
-            <div className="relative">
-              <select
-                value={selectedClientId}
-                onChange={(e) => setSelectedClientId(e.target.value)}
-                className="appearance-none pl-3.5 pr-8 py-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] text-sm font-semibold text-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-xs"
-              >
-                {clients.length === 0 && (
-                  <option value="">Loading clients…</option>
-                )}
-                {clients.map((c) => (
-                  <option key={c.id} value={c.id} className="bg-slate-900 text-white">{c.name}</option>
-                ))}
-              </select>
-              <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          {/* Repair pipeline */}
+          {issues && (
+            <Sheet title="Repair pipeline" eyebrow="Every complaint, by stage" bodyClassName="px-5 pb-5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+                {PIPELINE.map((s, i) => {
+                  const n = issues.byStatus?.[s] ?? 0;
+                  const tone = STAGE[s]?.tone ?? 'idle';
+                  return (
+                    <div key={s} className="relative rounded-[11px] border border-[var(--line)] bg-[var(--surface-2)] px-3.5 py-3 fx-rise" style={{ '--i': i }}>
+                      <div className="flex items-center gap-1.5 text-[11.5px] font-[560] text-[var(--ink-3)]">
+                        <span className="w-[7px] h-[7px] rounded-full" style={{ background: HEALTH[tone].color }} />
+                        {STAGE[s]?.label}
+                      </div>
+                      <div className="num mt-2 text-[26px] leading-none font-[640] tracking-[-0.04em]">{n}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-[12.5px] text-[var(--ink-3)]">
+                <span>Today: <span className="num font-[640] text-[var(--ink)]">{issues.createdToday}</span> reported</span>
+                <span><span className="num font-[640] text-[var(--ok-ink)]">{issues.resolvedToday}</span> fixed</span>
+                <span><span className="num font-[640] text-[var(--ink)]">{issues.closedToday}</span> closed</span>
+                <span className="ml-auto">
+                  Open by priority:{' '}
+                  {['critical', 'high', 'medium', 'low'].map((p) => (
+                    <span key={p} className="ml-2"><span className="num font-[640] text-[var(--ink)]">{issues.byPriority?.[p] ?? 0}</span> {p}</span>
+                  ))}
+                </span>
+              </div>
+            </Sheet>
+          )}
+
+          {types.length > 0 && (
+            <section className="flex flex-col gap-3">
+              <div>
+                <div className="fx-eyebrow mb-1">Across all clients</div>
+                <h2 className="text-[17px] font-[640] tracking-[-0.02em]">Equipment</h2>
+              </div>
+              <TypeCards cats={types} onOpen={() => navigate('/superadmin/board')} />
+            </section>
+          )}
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+            <Sheet title="Technician load" eyebrow={`${overview.technicians?.busy ?? 0} busy · ${overview.technicians?.idle ?? 0} free`} action={<TextLink onClick={() => navigate('/superadmin/technicians')}>All <ArrowRight size={13} /></TextLink>} bodyClassName="px-5 pb-4">
+              {(overview.technicians?.top ?? []).length === 0 ? (
+                <p className="text-[13px] text-[var(--ink-3)] pb-2">No technicians yet.</p>
+              ) : (
+                <ul className="flex flex-col gap-3">
+                  {overview.technicians.top.map((tech) => {
+                    const max = Math.max(1, ...overview.technicians.top.map((x) => x.openAssigned));
+                    return (
+                      <li key={tech.id} className="flex items-center gap-3">
+                        <Avatar name={tech.name} size={30} />
+                        <div className="w-[150px] min-w-0">
+                          <div className="text-[13px] font-[600] truncate">{tech.name}</div>
+                          <div className="text-[11.5px] text-[var(--ink-3)] truncate">{tech.specialization || 'General'}</div>
+                        </div>
+                        <div className="flex-1 h-2 rounded-full bg-[var(--surface-3)] overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${(tech.openAssigned / max) * 100}%`, background: tech.openAssigned >= 5 ? 'var(--down)' : tech.openAssigned >= 3 ? 'var(--fix)' : 'var(--ok)', transformOrigin: 'left', animation: 'fx-grow 700ms cubic-bezier(.2,.7,.2,1) both' }} />
+                        </div>
+                        <span className="num w-8 text-right text-[13px] font-[640]">{tech.openAssigned}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </Sheet>
+
+            <Sheet title="Latest activity" eyebrow="Repair updates" bodyClassName="px-5 pb-4">
+              {(overview.recentActivity ?? []).length === 0 ? (
+                <p className="text-[13px] text-[var(--ink-3)] pb-2">Nothing yet.</p>
+              ) : (
+                <ol className="relative flex flex-col gap-4 before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-px before:bg-[var(--line)]">
+                  {overview.recentActivity.slice(0, 7).map((a) => {
+                    const tone = STAGE[a.toStatus]?.tone ?? 'idle';
+                    return (
+                      <li key={a.id} className="relative pl-7">
+                        <span className="absolute left-0 top-1 w-[15px] h-[15px] rounded-full border-[3px] border-[var(--surface)]" style={{ background: HEALTH[tone].color }} />
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-[13px] font-[600] truncate">{a.deviceName || 'Device'}</span>
+                          <span className="text-[12px] text-[var(--ink-3)]">→ {STAGE[a.toStatus]?.label ?? a.toStatus}</span>
+                          <span className="ml-auto font-mono text-[11px] text-[var(--ink-3)] whitespace-nowrap">{ago(a.changedAt)}</span>
+                        </div>
+                        <div className="text-[12px] text-[var(--ink-3)] truncate">
+                          {[a.title, a.zoneName, a.clientName].filter(Boolean).join(' · ')}{a.changedBy ? ` — ${a.changedBy}` : ''}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              )}
+            </Sheet>
+          </div>
+
+          {t && (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <MiniStat icon={Building2} label="Organizations" value={t.companies} sub={`${t.activeCompanies} active`} onClick={() => navigate('/superadmin/organizations')} />
+              <MiniStat icon={MapPinned} label="Locations" value={t.zones} sub={`${t.activeZones} active`} onClick={() => navigate('/superadmin/zones')} />
+              <MiniStat icon={Users} label="Users" value={t.users} sub="Client & zone accounts" onClick={() => navigate('/superadmin/clients')} />
+              <MiniStat icon={Wrench} label="Technicians" value={t.technicians} sub="Field engineers" onClick={() => navigate('/superadmin/technicians')} />
             </div>
-          </div>
+          )}
 
-          {/* Zone view scoped to selected client */}
-          {selectedClientId
-            ? <ZoneQueryView key={selectedClientId} clientId={selectedClientId} />
-            : <p className="text-sm text-slate-400 text-center py-10">Select a client to view its zones.</p>
-          }
-        </div>
+          {(overview?.facilities ?? []).some((f) => f.latitude && f.longitude) && (
+            <section className="flex flex-col gap-3">
+              <div>
+                <div className="fx-eyebrow mb-1">Where</div>
+                <h2 className="text-[17px] font-[640] tracking-[-0.02em]">Client sites</h2>
+              </div>
+              <LocationsOverviewMap facilities={overview?.facilities} loading={false} />
+            </section>
+          )}
+          <p className="text-[12px] text-[var(--ink-3)] inline-flex items-center gap-1.5"><Boxes size={12} /> Device counts exclude retired units.</p>
+        </>
       )}
-
-      {/* ── Analytics tab ──────────────────────────────────────────────── */}
-      {activeTab === 'analytics' && <>
-
-      {/* 1. 7 KPI Stat Cards Banner */}
-      <PlatformKpiCards
-        tenancy={tenancy}
-        devices={devices}
-        facilities={overview?.facilities}
-        loading={loading}
-      />
-
-      {/* 2. Middle Row: Locations Overview Map & List (Left) + Distribution & Location Bar Chart (Right) */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
-        {/* Left 7 cols: Interactive Satellite Map & Locations List */}
-        <div className="xl:col-span-7 flex flex-col">
-          <LocationsOverviewMap
-            facilities={overview?.facilities}
-            loading={loading}
-            className="h-full"
-          />
-        </div>
-
-        {/* Right 5 cols: Device Status Distribution Donut + Devices by Location Bar Chart */}
-        <div className="xl:col-span-5 flex flex-col gap-5 justify-between">
-          <DeviceStatusDistribution devices={devices} loading={loading} className="flex-1" />
-          <DevicesByLocationChart
-            facilities={overview?.facilities}
-            hardwareTypes={overview?.byHardwareType}
-            loading={loading}
-            className="flex-1"
-          />
-        </div>
-      </div>
-
-      {/* 3. Bottom Row: Location Operational Cards */}
-      <LocationCardsRow
-        facilities={overview?.facilities}
-        loading={loading}
-      />
-
-      {/* Operational Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-2">
-        <WorkOrderStatus issues={issues} loading={loading} />
-        <CriticalAlerts alerts={overview?.criticalAlerts} loading={loading} />
-      </div>
-
-      <TechnicianWorkload technicians={overview?.technicians} loading={loading} />
-
-      <FacilityOverviewTable facilities={overview?.facilities} loading={loading} onNotify={showToast} />
-
-      <RecentActivityFeed activities={overview?.recentActivity} loading={loading} />
-
-      </>} {/* end analytics tab */}
     </div>
   );
 }

@@ -48,23 +48,23 @@ export default function CompanyModal({ isOpen, company, onClose, onSaved }) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-[var(--border-color)]">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-6 py-4 flex items-center justify-between border-b border-[var(--border-color)]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 flex items-center justify-center border border-indigo-500/30">
               <Building2 size={20} />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">
+              <h2 className="text-base font-bold text-[var(--ink)]">
                 {isEdit ? 'Edit Organization' : 'Add Organization'}
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[var(--ink-3)]">
                 {isEdit ? 'Update this organization' : 'Provision a new top-level organization'}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={16} />
           </button>
@@ -73,17 +73,17 @@ export default function CompanyModal({ isOpen, company, onClose, onSaved }) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
           {errorMsg && (
-            <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs font-semibold">
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-700 dark:text-rose-300 text-xs font-semibold">
               {errorMsg}
             </div>
           )}
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-300">
+            <label className="text-xs font-bold text-[var(--ink-2)]">
               Organization Name <span className="text-rose-500">*</span>
             </label>
             <div className="relative flex items-center">
-              <Building2 size={15} className="absolute left-3.5 text-slate-400 pointer-events-none" />
+              <Building2 size={15} className="absolute left-3.5 text-[var(--ink-3)] pointer-events-none" />
               <input
                 type="text"
                 required
@@ -92,13 +92,13 @@ export default function CompanyModal({ isOpen, company, onClose, onSaved }) {
                 placeholder="e.g. Acme Facilities Group"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-white text-xs font-medium outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-500"
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--ink)] text-xs font-medium outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] placeholder:text-slate-500"
               />
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-300">Status</label>
+            <label className="text-xs font-bold text-[var(--ink-2)]">Status</label>
             <div className="flex gap-2">
               {['active', 'inactive'].map((s) => (
                 <button
@@ -109,8 +109,8 @@ export default function CompanyModal({ isOpen, company, onClose, onSaved }) {
                     status === s
                       ? s === 'active'
                         ? 'bg-emerald-600 text-white border-emerald-600'
-                        : 'bg-slate-700 text-white border-slate-700'
-                      : 'bg-[var(--bg-main)] text-slate-400 border-[var(--border-color)] hover:bg-slate-800 hover:text-white'
+                        : 'bg-[var(--line)] text-[var(--ink)] border-[var(--line)]'
+                      : 'bg-[var(--bg-main)] text-[var(--ink-3)] border-[var(--border-color)] hover:bg-[var(--surface-3)] hover:text-[var(--ink)]'
                   }`}
                 >
                   {s}
@@ -124,7 +124,7 @@ export default function CompanyModal({ isOpen, company, onClose, onSaved }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-[var(--ink-2)] hover:text-[var(--ink)] bg-[var(--surface-3)] hover:bg-[var(--surface-3)] transition-colors cursor-pointer"
             >
               Cancel
             </button>

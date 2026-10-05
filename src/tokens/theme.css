@@ -1,0 +1,174 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   FIXLY — THEME TOKENS ("Field Signal")
+   Light is the default; dark is opt-in via <html data-theme="dark">.
+
+   Design language:
+   - Warm paper canvas + white sheets, graphite navigation rail in both themes.
+   - Status is the loudest thing on screen and always means the same thing:
+       ok    green  — working
+       fix   amber  — being fixed / needs attention
+       down  red    — broken
+       idle  grey   — not live / unknown
+   - Cobalt is reserved for actions and selection, never for status.
+   - Geist for UI, Geist Mono for codes, IDs, counts and times.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: light;
+
+  /* ── Core palette ── */
+  --paper:        #f3f2ee;
+  --surface:      #ffffff;
+  --surface-2:    #f8f7f4;
+  --surface-3:    #efeee9;
+  --line:         #e5e3dc;
+  --line-strong:  #d3d0c6;
+  --ink:          #14161a;
+  --ink-2:        #474c57;
+  --ink-3:        #767c88;
+  --ink-4:        #a3a8b2;
+
+  /* Navigation rail (graphite in both themes) */
+  --rail:         #111418;
+  --rail-2:       #181c21;
+  --rail-line:    rgba(255, 255, 255, 0.07);
+  --rail-ink:     #eceef1;
+  --rail-muted:   #8a919d;
+  --rail-active:  rgba(255, 255, 255, 0.07);
+
+  /* Action / selection */
+  --accent:       #2f55f4;
+  --accent-hover: #2546d6;
+  --accent-ink:   #ffffff;
+  --accent-soft:  rgba(47, 85, 244, 0.09);
+  --accent-line:  rgba(47, 85, 244, 0.28);
+
+  /* Status */
+  --ok:           #14a05a;
+  --ok-soft:      #e4f5eb;
+  --ok-ink:       #0b6b3b;
+  --fix:          #df8b00;
+  --fix-soft:     #fdf1d9;
+  --fix-ink:      #8a5200;
+  --down:         #e1372d;
+  --down-soft:    #fde7e5;
+  --down-ink:     #a3221a;
+  --idle:         #9aa1ad;
+  --idle-soft:    #eef0f2;
+  --idle-ink:     #545b66;
+
+  /* Elevation */
+  --shadow-1:     0 1px 0 rgba(20, 22, 26, 0.04), 0 1px 2px rgba(20, 22, 26, 0.05);
+  --shadow-2:     0 1px 0 rgba(20, 22, 26, 0.04), 0 6px 16px -6px rgba(20, 22, 26, 0.12);
+  --shadow-pop:   0 24px 60px -18px rgba(20, 22, 26, 0.35), 0 2px 6px rgba(20, 22, 26, 0.08);
+  --focus-ring:   0 0 0 3px rgba(47, 85, 244, 0.28);
+
+  /* ── Legacy component variables (used as bg-[var(--bg-card)] etc.) ── */
+  --bg-main:        var(--paper);
+  --bg-sidebar:     var(--rail);
+  --bg-header:      var(--paper);
+  --bg-card:        var(--surface);
+  --bg-card-hover:  var(--surface-2);
+  --border-color:   var(--line);
+  --border-hover:   var(--line-strong);
+  --text-main:      var(--ink);
+  --text-muted:     var(--ink-3);
+
+  --color-surface-base:       var(--paper);
+  --color-surface-sidebar:    var(--rail);
+  --color-surface-card:       var(--surface);
+  --color-surface-card-hover: var(--surface-2);
+  --color-surface-elevated:   var(--surface);
+  --color-surface-inset:      var(--surface-2);
+
+  --color-border-default:  var(--line);
+  --color-border-hover:    var(--line-strong);
+  --color-border-focus:    var(--accent-line);
+  --color-border-divider:  var(--line);
+
+  --color-text-primary:   var(--ink);
+  --color-text-secondary: var(--ink-2);
+  --color-text-tertiary:  var(--ink-3);
+  --color-text-disabled:  var(--ink-4);
+
+  --color-brand-primary:        var(--accent);
+  --color-brand-primary-hover:  var(--accent-hover);
+  --color-brand-primary-muted:  var(--accent-soft);
+  --color-brand-primary-ring:   var(--accent-line);
+
+  --color-success:        var(--ok);
+  --color-success-muted:  var(--ok-soft);
+  --color-success-text:   var(--ok-ink);
+  --color-success-border: rgba(20, 160, 90, 0.28);
+  --color-warning:        var(--fix);
+  --color-warning-muted:  var(--fix-soft);
+  --color-warning-text:   var(--fix-ink);
+  --color-warning-border: rgba(223, 139, 0, 0.3);
+  --color-danger:         var(--down);
+  --color-danger-muted:   var(--down-soft);
+  --color-danger-text:    var(--down-ink);
+  --color-danger-border:  rgba(225, 55, 45, 0.28);
+  --color-info:           #2563eb;
+  --color-info-muted:     #e6eefc;
+  --color-info-text:      #1d4ed8;
+  --color-info-border:    rgba(37, 99, 235, 0.28);
+
+  --color-interactive-hover:    rgba(20, 22, 26, 0.04);
+  --color-interactive-active:   rgba(20, 22, 26, 0.07);
+  --color-interactive-disabled: #cbd0d8;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper:        #0c0e11;
+  --surface:      #14171c;
+  --surface-2:    #191d23;
+  --surface-3:    #1f242b;
+  --line:         #242a32;
+  --line-strong:  #323943;
+  --ink:          #eceef1;
+  --ink-2:        #b2b8c2;
+  --ink-3:        #7d8592;
+  --ink-4:        #565d69;
+
+  --rail:         #090b0d;
+  --rail-2:       #111418;
+  --rail-line:    rgba(255, 255, 255, 0.06);
+  --rail-active:  rgba(255, 255, 255, 0.06);
+
+  --accent:       #5b7bff;
+  --accent-hover: #7a94ff;
+  --accent-soft:  rgba(91, 123, 255, 0.14);
+  --accent-line:  rgba(91, 123, 255, 0.4);
+
+  --ok:           #2fc276;
+  --ok-soft:      rgba(47, 194, 118, 0.13);
+  --ok-ink:       #6ee3a4;
+  --fix:          #f2a623;
+  --fix-soft:     rgba(242, 166, 35, 0.14);
+  --fix-ink:      #ffc867;
+  --down:         #f2574d;
+  --down-soft:    rgba(242, 87, 77, 0.15);
+  --down-ink:     #ff9a92;
+  --idle:         #6f7784;
+  --idle-soft:    rgba(140, 150, 165, 0.14);
+  --idle-ink:     #b7bec9;
+
+  --shadow-1:     0 1px 0 rgba(255, 255, 255, 0.02), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2:     0 1px 0 rgba(255, 255, 255, 0.02), 0 8px 20px -8px rgba(0, 0, 0, 0.6);
+  --shadow-pop:   0 24px 60px -16px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --focus-ring:   0 0 0 3px rgba(91, 123, 255, 0.35);
+
+  --color-success-border: rgba(47, 194, 118, 0.3);
+  --color-warning-border: rgba(242, 166, 35, 0.3);
+  --color-danger-border:  rgba(242, 87, 77, 0.3);
+  --color-info:           #3b82f6;
+  --color-info-muted:     rgba(59, 130, 246, 0.15);
+  --color-info-text:      #8ab4ff;
+  --color-info-border:    rgba(59, 130, 246, 0.3);
+
+  --color-interactive-hover:    rgba(255, 255, 255, 0.05);
+  --color-interactive-active:   rgba(255, 255, 255, 0.09);
+  --color-interactive-disabled: #334155;
+}

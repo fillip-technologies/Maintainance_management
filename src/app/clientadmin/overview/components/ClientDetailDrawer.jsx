@@ -104,12 +104,12 @@ function DeviceRow({ device }) {
   const s = DEVICE_STATUS[device.status] ?? DEVICE_STATUS.provisioned;
   return (
     <div className="flex items-center gap-3 py-3 border-b border-[var(--border-color)] last:border-0">
-      <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center shrink-0">
+      <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-700 dark:text-indigo-400 flex items-center justify-center shrink-0">
         <Package size={16} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-white truncate">{device.name ?? '—'}</p>
-        <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+        <p className="text-xs font-bold text-[var(--ink)] truncate">{device.name ?? '—'}</p>
+        <p className="text-[11px] text-[var(--ink-3)] flex items-center gap-1 mt-0.5">
           <MapPin size={10} className="shrink-0" />
           {device.zone?.name ?? 'In Stock'} · {device.hardwareType?.name ?? device.category?.name ?? '—'}
         </p>
@@ -118,7 +118,7 @@ function DeviceRow({ device }) {
         <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${s.badge}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />{s.label}
         </span>
-        {device.code && <span className="text-[10px] text-slate-400 font-mono">{device.code}</span>}
+        {device.code && <span className="text-[10px] text-[var(--ink-3)] font-mono">{device.code}</span>}
       </div>
     </div>
   );
@@ -129,23 +129,23 @@ function IssueRow({ issue }) {
   const p = PRIORITY_BADGE[issue.priority] ?? PRIORITY_BADGE.medium;
   return (
     <div className="flex items-start gap-3 py-3 border-b border-[var(--border-color)] last:border-0">
-      <div className="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 text-orange-400 flex items-center justify-center shrink-0">
+      <div className="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 text-orange-700 dark:text-orange-400 flex items-center justify-center shrink-0">
         <Wrench size={16} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-white truncate">{issue.device?.name ?? '—'}</p>
+        <p className="text-xs font-bold text-[var(--ink)] truncate">{issue.device?.name ?? '—'}</p>
         {issue.device?.zone?.name && (
-          <p className="text-[11px] text-indigo-400 font-semibold flex items-center gap-1 mt-0.5">
+          <p className="text-[11px] text-indigo-700 dark:text-indigo-400 font-semibold flex items-center gap-1 mt-0.5">
             <MapPin size={9} className="shrink-0" />{issue.device.zone.name}
           </p>
         )}
-        <p className="text-[11px] text-slate-400 truncate mt-0.5">{issue.description?.slice(0, 80)}{issue.description?.length > 80 ? '…' : ''}</p>
+        <p className="text-[11px] text-[var(--ink-3)] truncate mt-0.5">{issue.description?.slice(0, 80)}{issue.description?.length > 80 ? '…' : ''}</p>
         <div className="flex items-center gap-1.5 mt-1">
-          <Tag size={10} className="text-slate-400 shrink-0" />
-          <span className="text-[10px] text-slate-400">{issue.category?.name ?? '—'}</span>
+          <Tag size={10} className="text-[var(--ink-3)] shrink-0" />
+          <span className="text-[10px] text-[var(--ink-3)]">{issue.category?.name ?? '—'}</span>
           <span className="text-slate-600">·</span>
-          <Calendar size={10} className="text-slate-400 shrink-0" />
-          <span className="text-[10px] text-slate-400">{fmt(issue.createdAt)}</span>
+          <Calendar size={10} className="text-[var(--ink-3)] shrink-0" />
+          <span className="text-[10px] text-[var(--ink-3)]">{fmt(issue.createdAt)}</span>
         </div>
       </div>
       <div className="flex flex-col items-end gap-1 shrink-0">
@@ -160,18 +160,18 @@ function UserRow({ user }) {
   const roleLabel = user.role?.replace(/_/g, ' ') ?? '—';
   return (
     <div className="flex items-center gap-3 py-3 border-b border-[var(--border-color)] last:border-0">
-      <div className="w-9 h-9 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-slate-200 flex items-center justify-center shrink-0 font-bold text-sm uppercase">
+      <div className="w-9 h-9 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--ink)] flex items-center justify-center shrink-0 font-bold text-sm uppercase">
         {(user.name ?? '?').charAt(0)}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-white truncate">{user.name ?? '—'}</p>
-        <p className="text-[11px] text-slate-400 truncate">{user.email ?? '—'}</p>
+        <p className="text-xs font-bold text-[var(--ink)] truncate">{user.name ?? '—'}</p>
+        <p className="text-[11px] text-[var(--ink-3)] truncate">{user.email ?? '—'}</p>
       </div>
       <div className="flex flex-col items-end gap-1 shrink-0">
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--bg-main)] text-slate-300 border border-[var(--border-color)] capitalize">
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--bg-main)] text-[var(--ink-2)] border border-[var(--border-color)] capitalize">
           {roleLabel}
         </span>
-        <span className={`text-[10px] font-semibold ${user.accountStatus === 'active' ? 'text-emerald-400' : 'text-amber-400'}`}>
+        <span className={`text-[10px] font-semibold ${user.accountStatus === 'active' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-800 dark:text-amber-400'}`}>
           {user.accountStatus}
         </span>
       </div>
@@ -182,17 +182,17 @@ function UserRow({ user }) {
 function TechnicianRow({ tech }) {
   return (
     <div className="flex items-center gap-3 py-3 border-b border-[var(--border-color)] last:border-0">
-      <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 font-bold text-sm uppercase">
+      <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-400 flex items-center justify-center shrink-0 font-bold text-sm uppercase">
         {(tech.user?.name ?? '?').charAt(0)}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-white truncate">{tech.user?.name ?? '—'}</p>
-        <p className="text-[11px] text-slate-400 truncate">{tech.user?.email ?? '—'}</p>
+        <p className="text-xs font-bold text-[var(--ink)] truncate">{tech.user?.name ?? '—'}</p>
+        <p className="text-[11px] text-[var(--ink-3)] truncate">{tech.user?.email ?? '—'}</p>
         {tech.specialization && (
-          <p className="text-[10px] text-amber-400 font-semibold mt-0.5">{tech.specialization}</p>
+          <p className="text-[10px] text-amber-800 dark:text-amber-400 font-semibold mt-0.5">{tech.specialization}</p>
         )}
       </div>
-      <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+      <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-400 flex items-center justify-center shrink-0">
         <Wrench size={14} />
       </div>
     </div>
@@ -240,7 +240,7 @@ export default function ClientDetailDrawer({ type, onClose }) {
       />
 
       {/* Drawer panel */}
-      <div className="fixed right-0 top-0 h-full z-50 w-full max-w-md bg-[var(--bg-card)] border-l border-[var(--border-color)] shadow-2xl flex flex-col animate-in slide-in-from-right duration-250 text-white">
+      <div className="fixed right-0 top-0 h-full z-50 w-full max-w-md bg-[var(--bg-card)] border-l border-[var(--border-color)] shadow-2xl flex flex-col animate-in slide-in-from-right duration-250 text-[var(--ink)]">
 
         {/* Header */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-[var(--border-color)] shrink-0">
@@ -248,12 +248,12 @@ export default function ClientDetailDrawer({ type, onClose }) {
             <Icon size={20} />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-sm font-extrabold text-white">{cfg.title}</h2>
-            <p className="text-[11px] text-slate-400 mt-0.5">{cfg.subtitle}</p>
+            <h2 className="text-sm font-extrabold text-[var(--ink)]">{cfg.title}</h2>
+            <p className="text-[11px] text-[var(--ink-3)] mt-0.5">{cfg.subtitle}</p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-[var(--bg-main)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[var(--bg-main)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={15} />
           </button>
@@ -266,13 +266,13 @@ export default function ClientDetailDrawer({ type, onClose }) {
             placeholder="Search…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-3 py-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-xs font-medium text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all placeholder:text-slate-500"
+            className="w-full px-3 py-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-xs font-medium text-[var(--ink)] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] transition-all placeholder:text-slate-500"
           />
         </div>
 
         {/* Count badge */}
         <div className="px-5 py-2 shrink-0 flex items-center justify-between">
-          <span className="text-[11px] font-semibold text-slate-400">
+          <span className="text-[11px] font-semibold text-[var(--ink-3)]">
             {loading ? 'Loading…' : `${filtered.length} result${filtered.length !== 1 ? 's' : ''}`}
           </span>
         </div>
@@ -280,7 +280,7 @@ export default function ClientDetailDrawer({ type, onClose }) {
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-5 pb-6">
           {loading && (
-            <div className="flex items-center justify-center gap-2 py-16 text-slate-400">
+            <div className="flex items-center justify-center gap-2 py-16 text-[var(--ink-3)]">
               <Loader2 size={18} className="animate-spin" />
               <span className="text-xs font-medium">Loading…</span>
             </div>
@@ -293,8 +293,8 @@ export default function ClientDetailDrawer({ type, onClose }) {
           )}
 
           {!loading && !error && filtered.length === 0 && (
-            <div className="flex flex-col items-center gap-2 py-16 text-slate-400">
-              <Icon size={28} className="text-slate-300" />
+            <div className="flex flex-col items-center gap-2 py-16 text-[var(--ink-3)]">
+              <Icon size={28} className="text-[var(--ink-2)]" />
               <p className="text-xs font-semibold">
                 {items.length === 0 ? `No ${cfg.title.toLowerCase()} found.` : 'No results match your search.'}
               </p>

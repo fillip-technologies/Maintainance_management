@@ -295,21 +295,21 @@ export default function LocationsOverviewMap({
         {/* Skeleton Header */}
         <div className="flex items-center justify-between flex-wrap gap-2 shrink-0">
           <div className="flex flex-col gap-2">
-            <div className="h-5 w-44 bg-slate-800 rounded-lg" />
-            <div className="h-3 w-64 bg-slate-800/60 rounded-md" />
+            <div className="h-5 w-44 bg-[var(--surface-3)] rounded-lg" />
+            <div className="h-3 w-64 bg-[var(--surface-3)] rounded-md" />
           </div>
-          <div className="h-8 w-28 bg-slate-800/70 rounded-xl" />
+          <div className="h-8 w-28 bg-[var(--surface-3)] rounded-xl" />
         </div>
 
         {/* Skeleton Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch flex-1 min-h-0">
           {/* Skeleton Map Canvas */}
-          <div className="lg:col-span-7 rounded-xl border border-slate-800 bg-slate-900/60 flex flex-col items-center justify-center min-h-[280px] lg:min-h-0 h-full p-6 relative overflow-hidden">
-            <div className="w-12 h-12 rounded-full bg-slate-800/80 flex items-center justify-center text-slate-700 animate-bounce">
+          <div className="lg:col-span-7 rounded-xl border border-[var(--line)] bg-[var(--surface-2)] flex flex-col items-center justify-center min-h-[280px] lg:min-h-0 h-full p-6 relative overflow-hidden">
+            <div className="w-12 h-12 rounded-full bg-[var(--surface-3)] flex items-center justify-center text-slate-700 animate-bounce">
               <MapPin size={24} />
             </div>
-            <div className="h-3.5 w-36 bg-slate-800 rounded mt-3" />
-            <div className="h-2.5 w-48 bg-slate-800/50 rounded mt-1.5" />
+            <div className="h-3.5 w-36 bg-[var(--surface-3)] rounded mt-3" />
+            <div className="h-2.5 w-48 bg-[var(--surface-3)] rounded mt-1.5" />
             {/* Shimmer overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-800/15 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
           </div>
@@ -319,14 +319,14 @@ export default function LocationsOverviewMap({
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className="p-2.5 rounded-xl border border-slate-800/60 bg-slate-900/40 flex items-center gap-3"
+                className="p-2.5 rounded-xl border border-[var(--line)] bg-[var(--surface-2)] flex items-center gap-3"
               >
-                <div className="w-11 h-11 rounded-full bg-slate-800 shrink-0" />
+                <div className="w-11 h-11 rounded-full bg-[var(--surface-3)] shrink-0" />
                 <div className="flex flex-col gap-1.5 flex-1">
-                  <div className="h-3.5 w-28 bg-slate-800 rounded" />
-                  <div className="h-2.5 w-20 bg-slate-800/60 rounded" />
+                  <div className="h-3.5 w-28 bg-[var(--surface-3)] rounded" />
+                  <div className="h-2.5 w-20 bg-[var(--surface-3)] rounded" />
                 </div>
-                <div className="w-4 h-4 rounded bg-slate-800/40 shrink-0" />
+                <div className="w-4 h-4 rounded bg-[var(--surface-3)] shrink-0" />
               </div>
             ))}
           </div>
@@ -339,17 +339,17 @@ export default function LocationsOverviewMap({
     <div
       className={`bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 sm:p-6 flex flex-col gap-4 shadow-md transition-all duration-300 h-full min-h-[440px] xl:min-h-0 ${
         isFullscreen
-          ? 'fixed inset-4 z-50 overflow-auto bg-slate-950/95 backdrop-blur-xl'
+          ? 'fixed inset-4 z-50 overflow-auto bg-[var(--surface-2)] backdrop-blur-xl'
           : 'relative z-0 isolate'
       } ${className}`}
     >
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2 shrink-0">
         <div>
-          <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+          <h2 className="text-base sm:text-lg font-bold text-[var(--ink)] tracking-tight">
             Locations Overview
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[var(--ink-3)]">
             All registered facilities &amp; project sites ({items.length} {items.length === 1 ? 'client' : 'clients'})
           </p>
         </div>
@@ -357,14 +357,14 @@ export default function LocationsOverviewMap({
         {/* Map Header Controls: Satellite / Street Toggle & Fullscreen */}
         <div className="flex items-center gap-1.5">
           {/* Layer Switcher */}
-          <div className="flex items-center bg-slate-900 border border-slate-700/80 rounded-xl p-0.5 shadow-inner">
+          <div className="flex items-center bg-[var(--surface-2)] border border-[var(--line)] rounded-xl p-0.5 shadow-inner">
             <button
               type="button"
               onClick={() => handleLayerSwitch('satellite')}
               className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
                 mapLayer === 'satellite'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-[var(--accent)] text-white shadow-xs'
+                  : 'text-[var(--ink-3)] hover:text-[var(--ink)]'
               }`}
             >
               🛰️ Satellite
@@ -374,8 +374,8 @@ export default function LocationsOverviewMap({
               onClick={() => handleLayerSwitch('streets')}
               className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
                 mapLayer === 'streets'
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-[var(--accent)] text-white shadow-xs'
+                  : 'text-[var(--ink-3)] hover:text-[var(--ink)]'
               }`}
             >
               🗺️ Streets
@@ -384,7 +384,7 @@ export default function LocationsOverviewMap({
 
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer border border-slate-700"
+            className="p-1.5 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer border border-[var(--line)]"
             title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Map'}
           >
             {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
@@ -395,7 +395,7 @@ export default function LocationsOverviewMap({
       {/* Main Content Grid: Real Map (Left) + Locations List (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch flex-1 min-h-0">
         {/* Real-World Map Canvas Container (7 cols on lg) */}
-        <div className="lg:col-span-7 relative z-0 isolate rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex flex-col justify-center select-none shadow-inner group min-h-[280px] lg:min-h-0 h-full">
+        <div className="lg:col-span-7 relative z-0 isolate rounded-xl overflow-hidden border border-[var(--line)] bg-[var(--surface-2)] flex flex-col justify-center select-none shadow-inner group min-h-[280px] lg:min-h-0 h-full">
           <div ref={mapContainerRef} className="w-full h-full min-h-[280px] relative z-0" />
 
           {/* Floating Fit All Action Button */}
@@ -403,10 +403,10 @@ export default function LocationsOverviewMap({
             <button
               type="button"
               onClick={handleFitAll}
-              className="absolute bottom-3 right-3 z-20 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-900 text-white text-xs font-bold border border-slate-700 shadow-xl backdrop-blur-xs flex items-center gap-1.5 transition-all cursor-pointer hover:border-blue-500"
+              className="absolute bottom-3 right-3 z-20 px-3 py-1.5 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--ink)] text-xs font-bold border border-[var(--line)] shadow-xl backdrop-blur-xs flex items-center gap-1.5 transition-all cursor-pointer hover:border-blue-500"
               title="Show All Facilities"
             >
-              <LocateFixed size={14} className="text-blue-400" />
+              <LocateFixed size={14} className="text-blue-700 dark:text-blue-400" />
               <span>Fit All</span>
             </button>
           )}
@@ -415,9 +415,9 @@ export default function LocationsOverviewMap({
         {/* Right Locations List (5 cols on lg) */}
         <div className="lg:col-span-5 flex flex-col justify-start gap-1.5 overflow-y-auto min-h-0 h-full max-h-[320px] lg:max-h-none pr-1">
           {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full p-6 text-center text-slate-400 rounded-xl border border-dashed border-slate-800">
+            <div className="flex flex-col items-center justify-center h-full p-6 text-center text-[var(--ink-3)] rounded-xl border border-dashed border-[var(--line)]">
               <Building2 size={32} className="text-slate-600 mb-2" />
-              <p className="text-xs font-bold text-slate-300">No Facilities Registered</p>
+              <p className="text-xs font-bold text-[var(--ink-2)]">No Facilities Registered</p>
               <p className="text-[11px] text-slate-500 mt-1 max-w-[200px]">
                 Provision a client facility to view its pin on the interactive map.
               </p>
@@ -446,11 +446,11 @@ export default function LocationsOverviewMap({
                   className={`p-2.5 rounded-xl border flex items-center gap-3 transition-all duration-200 cursor-pointer ${
                     isSelected
                       ? 'bg-blue-600/10 border-blue-500/50 shadow-sm'
-                      : 'bg-transparent border-transparent hover:bg-slate-800/40 hover:border-slate-800'
+                      : 'bg-transparent border-transparent hover:bg-[var(--surface-3)] hover:border-[var(--line-strong)]'
                   }`}
                 >
                   {/* Circular Photo Thumbnail or Icon */}
-                  <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-slate-700 shrink-0 shadow-sm flex items-center justify-center bg-slate-900">
+                  <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-[var(--line)] shrink-0 shadow-sm flex items-center justify-center bg-[var(--surface-2)]">
                     {image ? (
                       <img
                         src={image}
@@ -459,7 +459,7 @@ export default function LocationsOverviewMap({
                         onError={(e) => (e.target.style.display = 'none')}
                       />
                     ) : (
-                      <Building2 size={20} className="text-blue-400" />
+                      <Building2 size={20} className="text-blue-700 dark:text-blue-400" />
                     )}
                   </div>
 
@@ -475,14 +475,14 @@ export default function LocationsOverviewMap({
                             : 'bg-emerald-400'
                         }`}
                       />
-                      <span className="text-xs sm:text-sm font-bold text-white truncate">
+                      <span className="text-xs sm:text-sm font-bold text-[var(--ink)] truncate">
                         {name}
                       </span>
                     </div>
-                    <span className="text-[11px] font-semibold text-slate-300 mt-0.5">
+                    <span className="text-[11px] font-semibold text-[var(--ink-2)] mt-0.5">
                       {devicesCount} Devices
                     </span>
-                    <span className="text-[10px] text-slate-400 truncate">
+                    <span className="text-[10px] text-[var(--ink-3)] truncate">
                       {breakdownText}
                     </span>
                   </div>
@@ -492,7 +492,7 @@ export default function LocationsOverviewMap({
                     size={16}
                     className={`shrink-0 transition-transform ${
                       isSelected
-                        ? 'text-blue-400 translate-x-0.5'
+                        ? 'text-blue-700 dark:text-blue-400 translate-x-0.5'
                         : 'text-slate-500'
                     }`}
                   />

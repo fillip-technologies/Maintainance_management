@@ -58,8 +58,8 @@ function CamBlock({ cam, onMouseEnter, onMouseLeave, onClick }) {
         'p-0.5 bg-transparent border-0 shrink-0 cursor-pointer relative flex items-center justify-center',
         'transition-transform duration-100 hover:scale-125 hover:z-10 focus:outline-none',
         isWorking
-          ? 'text-emerald-400 hover:text-emerald-300 drop-shadow-[0_0_5px_rgba(52,211,153,0.55)]'
-          : 'text-red-500 hover:text-red-400 drop-shadow-[0_0_6px_rgba(239,68,68,0.75)] animate-[pulse_2s_ease-in-out_infinite]',
+          ? 'text-emerald-700 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 drop-shadow-[0_0_5px_rgba(52,211,153,0.55)]'
+          : 'text-red-500 hover:text-red-700 dark:hover:text-red-400 drop-shadow-[0_0_6px_rgba(239,68,68,0.75)] animate-[pulse_2s_ease-in-out_infinite]',
       ].join(' ')}
     >
       {backendIcon ? (
@@ -108,9 +108,9 @@ function CamGrid({ cameras, zoneId, onOpenAlerts, onCreateAlert, onShowTooltip, 
         ))}
       </div>
       {offlineCams.length > 0 && (
-        <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-800/60 flex-wrap">
-          <AlertTriangle size={10} className="text-red-400 shrink-0" />
-          <span className="text-[10px] text-red-400 font-semibold shrink-0">
+        <div className="flex items-center gap-1.5 pt-1.5 border-t border-[var(--line)] flex-wrap">
+          <AlertTriangle size={10} className="text-red-700 dark:text-red-400 shrink-0" />
+          <span className="text-[10px] text-red-700 dark:text-red-400 font-semibold shrink-0">
             {offlineCams.length} offline:
           </span>
           <span className="text-[10px] font-mono text-red-300/80 truncate">
@@ -145,10 +145,10 @@ function TopLevelZoneCard({
     <div
       className={[
         'flex flex-col h-full rounded-2xl border overflow-hidden transition-all duration-200',
-        'bg-[#0c1427]',
+        'bg-[var(--surface-2)]',
         hasOffline
-          ? 'border-red-800/40 shadow-[0_0_18px_rgba(239,68,68,0.07)]'
-          : 'border-slate-700/50 shadow-[0_4px_20px_rgba(0,0,0,0.3)]',
+          ? 'border-red-500/25 shadow-[0_0_18px_rgba(239,68,68,0.07)]'
+          : 'border-[var(--line)] shadow-[var(--shadow-1)]',
       ].join(' ')}
     >
       {/* ── Top-level zone header ─────────────────────────────────────── */}
@@ -158,26 +158,26 @@ function TopLevelZoneCard({
         className={[
           'w-full flex items-center gap-2.5 px-3.5 py-3 text-left transition-colors border-b shrink-0',
           hasOffline
-            ? 'bg-gradient-to-r from-red-950/60 to-[#0a1120] border-red-800/40'
-            : 'bg-gradient-to-r from-blue-950/60 to-[#0a1120] border-slate-800/60',
+            ? 'bg-gradient-to-r from-red-500/10 to-transparent border-red-500/25'
+            : 'bg-gradient-to-r from-blue-500/10 to-transparent border-[var(--line)]',
           hasCameras ? 'cursor-pointer' : 'cursor-default',
         ].join(' ')}
       >
         {/* Name + stats */}
         <div className="flex-1 min-w-0">
           <span
-            className={`block text-[13px] font-bold truncate ${hasOffline ? 'text-red-300' : 'text-white'}`}
+            className={`block text-[13px] font-bold truncate ${hasOffline ? 'text-red-700 dark:text-red-300' : 'text-[var(--ink)]'}`}
             title={toTitleCase(name)}
           >
             {toTitleCase(name)}
           </span>
           <div className="flex items-center gap-2 mt-0.5 text-[10px] font-mono">
-            <span className="text-slate-400">
+            <span className="text-[var(--ink-3)]">
               {total} {total === 1 ? 'product' : 'products'}
             </span>
-            <span className="text-emerald-400 font-bold">● {online}</span>
+            <span className="text-emerald-700 dark:text-emerald-400 font-bold">● {online}</span>
             {(stats.offline ?? 0) > 0 && (
-              <span className="text-red-400 font-bold animate-pulse">○ {stats.offline}</span>
+              <span className="text-red-700 dark:text-red-400 font-bold animate-pulse">○ {stats.offline}</span>
             )}
           </div>
         </div>
@@ -204,8 +204,8 @@ function TopLevelZoneCard({
                 className={[
                   'px-3.5 py-2 flex items-center justify-between border-t text-[10px] mt-auto shrink-0',
                   hasOffline
-                    ? 'bg-red-950/25 border-red-800/30 text-red-400'
-                    : 'bg-emerald-950/15 border-emerald-900/20 text-emerald-400',
+                    ? 'bg-red-500/10 border-red-500/25 text-red-700 dark:text-red-400'
+                    : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-700 dark:text-emerald-400',
                 ].join(' ')}
               >
                 {hasOffline ? (
@@ -215,13 +215,13 @@ function TopLevelZoneCard({
                       <span>{stats.offline} Faulty</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-md bg-red-500/15 border border-red-500/30 text-red-400 text-[10px] font-bold font-mono">
+                      <span className="px-2 py-0.5 rounded-md bg-red-500/15 border border-red-500/30 text-red-700 dark:text-red-400 text-[10px] font-bold font-mono">
                         {pct}%
                       </span>
                       <button
                         type="button"
                         onClick={() => onOpenAlerts?.(id)}
-                        className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[9px] font-bold hover:bg-amber-500/25 transition-colors cursor-pointer"
+                        className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-[9px] font-bold hover:bg-amber-500/25 transition-colors cursor-pointer"
                       >
                         <Bell size={9} /> Alerts
                       </button>
@@ -233,7 +233,7 @@ function TopLevelZoneCard({
                       <CheckCircle2 size={11} className="shrink-0" />
                       <span>All Cameras Working</span>
                     </div>
-                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold font-mono">
+                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold font-mono">
                       {pct}%
                     </span>
                   </>
@@ -274,41 +274,41 @@ function CamTooltip({ tooltip }) {
 
   return (
     <div
-      className="fixed z-[9999] pointer-events-none bg-[#0d1626]/98 border border-slate-700/60 rounded-xl px-3 py-2.5 shadow-2xl text-xs backdrop-blur-sm animate-in fade-in zoom-in-95 duration-100"
+      className="fixed z-[9999] pointer-events-none bg-[var(--surface-2)] border border-[var(--line)] rounded-xl px-3 py-2.5 shadow-2xl text-xs backdrop-blur-sm animate-in fade-in zoom-in-95 duration-100"
       style={{ left: x, top: y - 10, transform: 'translate(-50%,-100%)', minWidth: 220 }}
     >
-      <div className="flex items-center justify-between gap-3 pb-1.5 mb-1.5 border-b border-slate-800">
+      <div className="flex items-center justify-between gap-3 pb-1.5 mb-1.5 border-b border-[var(--line)]">
         <div className="flex items-center gap-1.5 min-w-0">
           {backendIcon ? (
             <img src={backendIcon} alt="" className="w-4 h-4 object-contain rounded shrink-0" />
           ) : (
-            <BulletCameraIcon className="w-4 h-4 text-emerald-400 shrink-0" />
+            <BulletCameraIcon className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
           )}
-          <span className="font-bold text-white truncate">{cam.name}</span>
+          <span className="font-bold text-[var(--ink)] truncate">{cam.name}</span>
         </div>
-        <span className="font-mono text-blue-400 text-[10px] shrink-0">{cam.code}</span>
+        <span className="font-mono text-blue-700 dark:text-blue-400 text-[10px] shrink-0">{cam.code}</span>
       </div>
       <div className="space-y-1 text-[11px]">
         <div className="flex justify-between gap-3">
-          <span className="text-slate-400">Status</span>
-          <span className={online ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}>
+          <span className="text-[var(--ink-3)]">Status</span>
+          <span className={online ? 'text-emerald-700 dark:text-emerald-400 font-bold' : 'text-red-700 dark:text-red-400 font-bold'}>
             {online ? 'Working (Right)' : 'Faulty / Inactive'}
           </span>
         </div>
         {cam.zoneName && (
           <div className="flex justify-between gap-3">
-            <span className="text-slate-400">Zone</span>
-            <span className="text-slate-300 truncate max-w-[130px]">{cam.zoneName}</span>
+            <span className="text-[var(--ink-3)]">Zone</span>
+            <span className="text-[var(--ink-2)] truncate max-w-[130px]">{cam.zoneName}</span>
           </div>
         )}
       </div>
       {cam.alertDetails?.message && (
-        <div className="mt-1.5 pt-1.5 border-t border-slate-800 text-[10px] text-amber-300 italic leading-snug">
+        <div className="mt-1.5 pt-1.5 border-t border-[var(--line)] text-[10px] text-amber-800 dark:text-amber-300 italic leading-snug">
           ⚠ {cam.alertDetails.message}
         </div>
       )}
       {!online && (
-        <p className="mt-1.5 text-[10px] text-blue-400 font-semibold text-center">
+        <p className="mt-1.5 text-[10px] text-blue-700 dark:text-blue-400 font-semibold text-center">
           Click to raise alert →
         </p>
       )}
@@ -348,7 +348,7 @@ export default function ConnectivityTimelineCard({
 
   if (sections.length === 0) {
     return (
-      <div className="bg-[#0c1427] border border-slate-800/80 rounded-2xl p-12 text-center text-slate-500 text-sm">
+      <div className="bg-[var(--surface-2)] border border-[var(--line)] rounded-2xl p-12 text-center text-slate-500 text-sm">
         No zones match the current filter.
       </div>
     );

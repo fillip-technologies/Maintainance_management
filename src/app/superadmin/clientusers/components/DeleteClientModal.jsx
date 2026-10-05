@@ -82,13 +82,13 @@ export default function DeleteClientModal({ isOpen, client, onClose, onDeleted }
             </div>
             <div>
               <h2 className="text-base font-bold">Remove Client</h2>
-              <p className="text-xs text-rose-200">Review what will be deleted before confirming</p>
+              <p className="text-xs text-rose-800 dark:text-rose-200">Review what will be deleted before confirming</p>
             </div>
           </div>
           <button
             onClick={onClose}
             disabled={deleting}
-            className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={16} />
           </button>
@@ -98,8 +98,8 @@ export default function DeleteClientModal({ isOpen, client, onClose, onDeleted }
           {/* Client identity */}
           <div className="flex flex-col gap-0.5">
             <div className="flex items-center gap-2">
-              <Building2 size={14} className="text-slate-400 shrink-0" />
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Organization</span>
+              <Building2 size={14} className="text-[var(--ink-3)] shrink-0" />
+              <span className="text-[11px] font-semibold text-[var(--ink-3)] uppercase tracking-wide">Organization</span>
               <span className="text-xs font-bold text-slate-700">{orgLabel}</span>
             </div>
             <p className="text-base font-extrabold text-slate-900 mt-1">{clientLabel}</p>
@@ -115,7 +115,7 @@ export default function DeleteClientModal({ isOpen, client, onClose, onDeleted }
 
           {!loading && d && (
             <div className="flex flex-col gap-2">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">What will happen</p>
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[var(--ink-3)]">What will happen</p>
               <DependentRow
                 icon={MapPin}
                 color="bg-rose-50 text-rose-600"

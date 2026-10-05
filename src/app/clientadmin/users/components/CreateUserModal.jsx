@@ -91,18 +91,18 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 flex items-center justify-center border border-indigo-500/30">
               <UserPlus size={20} />
             </div>
             <div>
               <h2 className="text-base font-bold">Add / Invite Facility User</h2>
-              <p className="text-xs text-slate-400">Define role, assign to a zone, set credentials</p>
+              <p className="text-xs text-[var(--ink-3)]">Define role, assign to a zone, set credentials</p>
             </div>
           </div>
           <button onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+            className="w-8 h-8 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer">
             <X size={16} />
           </button>
         </div>
@@ -124,7 +124,7 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
                 placeholder="e.g. Ramesh Chandra"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]"
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -135,7 +135,7 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
                 placeholder="name@facility.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]"
               />
             </div>
           </div>
@@ -176,7 +176,7 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
                 value={selectedZoneId}
                 onChange={(e) => setSelectedZoneId(e.target.value)}
                 disabled={loadingZones}
-                className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer disabled:opacity-60"
+                className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] cursor-pointer disabled:opacity-60"
               >
                 <option value="">{loadingZones ? 'Loading zones…' : 'Select a zone…'}</option>
                 {zones.map((z) => (
@@ -198,7 +198,7 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
               <span className="text-[10px] text-indigo-600 font-semibold">min. 8 characters</span>
             </div>
             <div className="relative flex items-center">
-              <Lock size={15} className="absolute left-3.5 text-slate-400 pointer-events-none" />
+              <Lock size={15} className="absolute left-3.5 text-[var(--ink-3)] pointer-events-none" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
@@ -206,10 +206,10 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
                 placeholder="Enter password (minimum 8 characters)"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]"
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 text-slate-400 hover:text-slate-600 p-1 cursor-pointer transition-colors">
+                className="absolute right-3 text-[var(--ink-3)] hover:text-slate-600 p-1 cursor-pointer transition-colors">
                 {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>

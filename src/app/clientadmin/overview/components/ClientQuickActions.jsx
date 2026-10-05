@@ -9,7 +9,7 @@ export default function ClientQuickActions({ onOpenRequestModal, onNotify }) {
           <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
           Client Facility Quick Actions
         </h2>
-        <span className="text-[11px] text-slate-400 font-medium">Instant Operational Triggers</span>
+        <span className="text-[11px] text-[var(--ink-3)] font-medium">Instant Operational Triggers</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -32,7 +32,7 @@ export default function ClientQuickActions({ onOpenRequestModal, onNotify }) {
           onClick={() => onNotify('Preventive maintenance scheduling window opened. Engineer will confirm slot within 2h.')}
           className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 text-slate-900 transition-all text-left group cursor-pointer"
         >
-          <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-xl bg-[var(--accent)] text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
             <CalendarClock size={20} />
           </div>
           <div className="flex flex-col">

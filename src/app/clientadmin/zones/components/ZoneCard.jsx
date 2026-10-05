@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, XCircle, Package, ArrowUpRight, MapPin, Plus, Trash2, Loader2, Settings } from 'lucide-react';
+import { CheckCircle2, Package, ArrowUpRight, MapPin, Plus, Trash2, Loader2, Settings, LayoutGrid } from 'lucide-react';
 import { deleteZone } from '../../../api/zonesApi';
-import { ZONE_GRADIENTS } from '../../../../tokens';
+import { HealthStrip } from '../../../ui/primitives';
+import { HEALTH, worstHealth, pct } from '../../../ui/status';
 
-const GRADIENT = ZONE_GRADIENTS.map((g) => g.gradient);
-
-export default function ZoneCard({ zone, stats = {}, index = 0, basePath = '/clientadmin', onNotWorkingClick, onRaiseIssue, onDeleted, onManage }) {
+export default function ZoneCard({ zone, stats = {}, basePath = '/clientadmin', onNotWorkingClick, onRaiseIssue, onDeleted, onManage }) {
   const navigate = useNavigate();
-  const gradient = GRADIENT[index % GRADIENT.length];
   const [deleting, setDeleting] = useState(false);
   const hasChildren = (zone._count?.children ?? 0) > 0;
 
@@ -31,165 +29,79 @@ export default function ZoneCard({ zone, stats = {}, index = 0, basePath = '/cli
 
   const total = stats.total ?? 0;
   const working = stats.working ?? 0;
-  const faulty = (stats.faulty ?? 0) + (stats.underMaintenance ?? 0);
-  const notWorking = faulty;
-
+  const down = stats.faulty ?? 0;
+  const fixing = stats.underMaintenance ?? 0;
+  const notWorking = down + fixing;
+  const tally = { total, ok: working, down, fix: fixing, idle: Math.max(0, total - working - down - fixing) };
+  const worst = worstHealth(tally);
   const isActive = zone.status === 'active';
+  const open = () => navigate(`${basePath}/board/${zone.id}`);
 
   return (
-    <div className="group bg-[var(--bg-card)] rounded-3xl border border-[var(--border-color)] hover:border-indigo-500/50 shadow-md hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 flex flex-col relative overflow-hidden min-h-[300px] text-white">
-
-      {/* Top */}
-      <div className="p-6 pb-3 flex items-start justify-between gap-3">
-        <div
-          className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white shrink-0 shadow-md group-hover:scale-105 transition-transform duration-300 cursor-pointer overflow-hidden`}
-          onClick={() => navigate(`${basePath}/zones/${zone.id}`)}
-        >
-          {zone.logoUrl
-            ? <img src={zone.logoUrl} alt={zone.name} className="w-full h-full object-cover" />
-            : <MapPin size={20} />
-          }
-        </div>
-
-        <div className="flex flex-col items-end gap-1.5">
-          <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full border ${
-            isActive
-              ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-              : zone.status === 'inactive'
-              ? 'bg-slate-800 text-slate-400 border-slate-700'
-              : 'bg-amber-500/15 text-amber-400 border-amber-500/30'
-          }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-            {zone.status}
+    <div className="group fx-sheet flex flex-col overflow-hidden transition-[transform,box-shadow] duration-200 hover:-translate-y-[2px] hover:shadow-[var(--shadow-2)]">
+      <button type="button" onClick={open} className="text-left p-5 pb-4 flex items-start gap-3.5 cursor-pointer">
+        <span className="relative w-11 h-11 rounded-[12px] overflow-hidden grid place-items-center bg-[var(--surface-3)] text-[var(--ink-2)] shrink-0">
+          {zone.logoUrl ? <img src={zone.logoUrl} alt="" className="w-full h-full object-cover" /> : <MapPin size={19} />}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: HEALTH[worst].color }} />
+            <span className="text-[15.5px] font-[640] tracking-[-0.02em] truncate group-hover:text-[var(--accent)]">{zone.name}</span>
           </span>
-        </div>
-      </div>
-
-      {/* Name */}
-      <div
-        className="px-6 pb-3 cursor-pointer"
-        onClick={() => navigate(`${basePath}/zones/${zone.id}`)}
-      >
-        <h3 className="text-base font-extrabold text-white group-hover:text-indigo-400 transition-colors tracking-tight truncate">
-          {zone.name}
-        </h3>
-        {zone._count && (
-          <p className="text-[11px] text-slate-400 font-medium mt-0.5">
-            {zone._count.children ?? 0} sub-zone{(zone._count.children ?? 0) !== 1 ? 's' : ''}
-          </p>
+          <span className="block text-[12px] text-[var(--ink-3)] mt-0.5">
+            <span className="num">{total}</span> devices
+            {zone._count && <> · <span className="num">{zone._count.children ?? 0}</span> area{(zone._count.children ?? 0) !== 1 ? 's' : ''}</>}
+          </span>
+        </span>
+        {!isActive && (
+          <span className="text-[11px] font-[600] px-2 h-[22px] inline-flex items-center rounded-full bg-[var(--fix-soft)] text-[var(--fix-ink)] capitalize">{zone.status}</span>
         )}
-      </div>
+      </button>
 
-      {/* Total products banner */}
-      <div className="mx-6 mb-3 flex items-center justify-between px-3.5 py-2 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)]">
-        <div className="flex items-center gap-2">
-          <Package size={13} className="text-indigo-400" />
-          <span className="text-[11px] font-bold text-slate-300">Total Devices</span>
-        </div>
-        <span className="text-sm font-black text-white">{total}</span>
-      </div>
-
-      {/* Working / Not Working tiles */}
-      <div className="px-6 pb-4 grid grid-cols-2 gap-3 flex-1">
-        {/* Working */}
-        <div className="flex flex-col justify-between p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25">
-          <div className="flex items-center gap-1.5 text-emerald-400">
-            <CheckCircle2 size={13} className="shrink-0 text-emerald-400" />
-            <span className="text-[10px] font-extrabold uppercase tracking-wider">Working</span>
-          </div>
-          <div className="mt-2 flex items-baseline gap-1">
-            <span className="text-2xl font-black text-emerald-400 leading-none">{working}</span>
-            <span className="text-[11px] font-bold text-emerald-300/80">units</span>
-          </div>
-          <span className="text-[10px] font-bold text-emerald-400 mt-1">Online & Active</span>
-        </div>
-
-        {/* Not Working — high contrast red alert tile */}
-        <button
-          type="button"
-          onClick={() => notWorking > 0 && onNotWorkingClick?.(zone.id, zone.name)}
-          className={`group/btn flex flex-col justify-between p-3.5 rounded-2xl border text-left transition-all ${
-            notWorking > 0
-              ? 'bg-rose-500/15 border-rose-500/40 hover:bg-rose-500/25 hover:border-rose-400/70 cursor-pointer shadow-xs hover:shadow-rose-500/10'
-              : 'bg-[var(--bg-main)] border-[var(--border-color)] opacity-75 cursor-default'
-          }`}
-          title={notWorking > 0 ? 'Click to see issues' : undefined}
-        >
-          <div className={`flex items-center gap-1.5 ${notWorking > 0 ? 'text-rose-400' : 'text-slate-400'}`}>
-            <XCircle size={14} className={`shrink-0 ${notWorking > 0 ? 'text-rose-400' : 'text-slate-500'}`} />
-            <span className={`text-[10px] font-extrabold uppercase tracking-wider ${notWorking > 0 ? 'text-rose-400' : 'text-slate-400'}`}>
-              Not Working
-            </span>
-            {notWorking > 0 && (
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse ml-auto" />
-            )}
-          </div>
-          <div className="mt-2 flex items-baseline gap-1">
-            <span className={`text-2xl font-black leading-none ${notWorking > 0 ? 'text-rose-300' : 'text-slate-400'}`}>
-              {notWorking}
-            </span>
-            <span className={`text-[11px] font-bold ${notWorking > 0 ? 'text-rose-300/90' : 'text-slate-500'}`}>
-              units
-            </span>
-          </div>
-          <span className={`text-[10px] font-bold mt-1 transition-colors ${
-            notWorking > 0
-              ? 'text-rose-300 group-hover/btn:text-white'
-              : 'text-slate-400'
-          }`}>
-            {notWorking > 0 ? 'Tap to view issues →' : 'All OK'}
-          </span>
-        </button>
-      </div>
-
-      {/* Footer */}
-      <div className="px-6 py-3 border-t border-[var(--border-color)] flex items-center justify-between gap-2 bg-[var(--bg-card)]">
-        <button
-          onClick={() => onRaiseIssue?.(zone.id, zone.name)}
-          className="flex items-center gap-1 text-[11px] font-bold text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
-        >
-          <Plus size={12} /> Raise Issue
-        </button>
-
-        <div className="flex items-center gap-2">
-          {/* Manage */}
-          <button
-            onClick={() => onManage?.(zone)}
-            title="Manage zone"
-            className="flex items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-indigo-400 transition-colors cursor-pointer"
-          >
-            <Settings size={12} /> Manage
-          </button>
-
-          {/* Delete */}
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            title={hasChildren ? 'Remove sub-zones first' : 'Delete zone'}
-            className={`flex items-center gap-1 text-[11px] font-bold transition-colors disabled:opacity-40 ${
-              hasChildren
-                ? 'text-slate-600 cursor-not-allowed'
-                : 'text-slate-400 hover:text-rose-400 cursor-pointer'
-            }`}
-          >
-            {deleting ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
-            Delete
-          </button>
-
-          <button
-            onClick={() => navigate(`${basePath}/zones/${zone.id}`)}
-            className="flex items-center gap-1.5 text-xs font-bold text-slate-300 group-hover:text-indigo-400 transition-colors cursor-pointer"
-          >
-            View Details
-            <div className="w-7 h-7 rounded-xl bg-[var(--bg-main)] group-hover:bg-indigo-600 text-slate-400 group-hover:text-white border border-[var(--border-color)] flex items-center justify-center transition-all duration-300 shadow-xs group-hover:scale-105">
-              <ArrowUpRight size={13} />
+      <div className="px-5 pb-4">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <div className="num text-[34px] leading-none font-[640] tracking-[-0.05em]">
+              {pct(working, total)}<span className="text-[16px] text-[var(--ink-3)] font-[560]">%</span>
             </div>
-          </button>
+            <div className="text-[11.5px] text-[var(--ink-3)] mt-1">working now</div>
+          </div>
+          {notWorking > 0 ? (
+            <button
+              type="button"
+              onClick={() => onNotWorkingClick?.(zone.id, zone.name)}
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-[620] cursor-pointer hover:brightness-95"
+              style={{ background: HEALTH[down ? 'down' : 'fix'].soft, color: HEALTH[down ? 'down' : 'fix'].ink }}
+            >
+              <span className="num">{notWorking}</span> not working <ArrowUpRight size={13} />
+            </button>
+          ) : total > 0 ? (
+            <span className="inline-flex items-center gap-1.5 text-[12px] font-[600] text-[var(--ok-ink)]"><CheckCircle2 size={14} /> All working</span>
+          ) : null}
         </div>
+        <HealthStrip tally={tally} maxTicks={32} height={8} className="mt-3.5" />
       </div>
 
-      {/* Color accent strip */}
-      <div className={`h-1.5 w-full bg-gradient-to-r ${gradient} absolute bottom-0 left-0`} />
+      <div className="mt-auto flex items-center gap-1 px-3 py-2.5 border-t border-[var(--line)] bg-[var(--surface-2)]">
+        <button type="button" onClick={open} className="fx-btn !h-8 !px-3 !text-[12.5px]">
+          <LayoutGrid size={14} /> Open board
+        </button>
+        <button type="button" onClick={() => onRaiseIssue?.(zone.id)} className="fx-btn fx-btn-ghost !h-8 !px-2.5 !text-[12.5px]" title="Raise an issue here">
+          <Plus size={14} /> Issue
+        </button>
+        <span className="flex-1" />
+        <button type="button" onClick={() => navigate(`${basePath}/zones/${zone.id}`)} className="w-8 h-8 grid place-items-center rounded-lg text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--color-interactive-hover)] cursor-pointer" title="Zone details & activity">
+          <Package size={15} />
+        </button>
+        {onManage && (
+          <button type="button" onClick={() => onManage(zone)} className="w-8 h-8 grid place-items-center rounded-lg text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--color-interactive-hover)] cursor-pointer" title="Manage zone">
+            <Settings size={15} />
+          </button>
+        )}
+        <button type="button" onClick={handleDelete} disabled={deleting} className="w-8 h-8 grid place-items-center rounded-lg text-[var(--ink-3)] hover:text-[var(--down)] hover:bg-[var(--color-interactive-hover)] cursor-pointer disabled:opacity-50" title="Delete zone">
+          {deleting ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
+        </button>
+      </div>
     </div>
   );
 }

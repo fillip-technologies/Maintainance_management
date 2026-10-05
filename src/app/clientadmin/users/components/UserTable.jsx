@@ -87,7 +87,7 @@ export default function UserTable({ users = [], onEditUser }) {
           <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
             {visibleUsers.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-slate-400">
+                <td colSpan={6} className="py-8 text-center text-[var(--ink-3)]">
                   No active users found matching your criteria.
                 </td>
               </tr>
@@ -103,14 +103,14 @@ export default function UserTable({ users = [], onEditUser }) {
                     {/* User Avatar + Name + Email */}
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-800 to-indigo-900 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                        <div className="w-9 h-9 rounded-xl bg-[var(--surface-3)] text-[var(--ink-2)] flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
                           {getInitials(u.name)}
                         </div>
                         <div className="flex flex-col">
                           <span className="font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">
                             {u.name}
                           </span>
-                          <span className="text-[11px] text-slate-400 font-mono">{u.email}</span>
+                          <span className="text-[11px] text-[var(--ink-3)] font-mono">{u.email}</span>
                         </div>
                       </div>
                     </td>

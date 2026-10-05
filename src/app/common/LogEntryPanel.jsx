@@ -125,14 +125,14 @@ export default function LogEntryPanel({ onSubmitted }) {
     <div className="flex flex-col bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
 
       {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div className="bg-slate-900 px-5 py-4 flex items-center justify-between">
+      <div className="bg-[var(--surface-2)] px-5 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0">
-            <ClipboardList size={16} className="text-amber-400" />
+            <ClipboardList size={16} className="text-amber-800 dark:text-amber-400" />
           </div>
           <div>
-            <p className="text-sm font-bold text-white leading-tight">Log Entry</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">{fmtDate(today)}</p>
+            <p className="text-sm font-bold text-[var(--ink)] leading-tight">Log Entry</p>
+            <p className="text-[11px] text-[var(--ink-3)] mt-0.5">{fmtDate(today)}</p>
           </div>
         </div>
         {!loading && unlogged.length > 0 && (
@@ -178,7 +178,7 @@ export default function LogEntryPanel({ onSubmitted }) {
                 <button
                   type="button"
                   onClick={clearSelection}
-                  className="text-[10px] font-bold text-slate-400 hover:text-slate-600 cursor-pointer transition-colors"
+                  className="text-[10px] font-bold text-[var(--ink-3)] hover:text-slate-600 cursor-pointer transition-colors"
                 >
                   Clear
                 </button>
@@ -197,11 +197,11 @@ export default function LogEntryPanel({ onSubmitted }) {
         {/* Device rows */}
         <div className="px-4 pb-4 flex flex-col gap-1.5 max-h-64 overflow-y-auto">
           {loading ? (
-            <div className="flex items-center gap-2 justify-center py-8 text-slate-400 text-xs">
+            <div className="flex items-center gap-2 justify-center py-8 text-[var(--ink-3)] text-xs">
               <Loader2 size={15} className="animate-spin" /> Loading devices…
             </div>
           ) : devices.length === 0 ? (
-            <div className="flex items-center gap-2 justify-center py-8 text-slate-400 text-xs">
+            <div className="flex items-center gap-2 justify-center py-8 text-[var(--ink-3)] text-xs">
               <Package size={15} /> No active devices in scope
             </div>
           ) : devices.map((device) => {
@@ -224,7 +224,7 @@ export default function LogEntryPanel({ onSubmitted }) {
                     : 'bg-slate-50/60 border-slate-200 hover:border-slate-300 hover:bg-white cursor-pointer'}`}
               >
                 {/* Checkbox — hidden once logged */}
-                <div className={`shrink-0 transition-colors ${isLogged ? 'invisible' : isSelected ? 'text-indigo-600' : 'text-slate-300'}`}>
+                <div className={`shrink-0 transition-colors ${isLogged ? 'invisible' : isSelected ? 'text-indigo-600' : 'text-[var(--ink-2)]'}`}>
                   {isSelected
                     ? <SquareCheck size={17} />
                     : <Square size={17} />}
@@ -236,7 +236,7 @@ export default function LogEntryPanel({ onSubmitted }) {
                     {device.name}
                   </p>
                   {device.zone?.name && (
-                    <p className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                    <p className="text-[10px] text-[var(--ink-3)] flex items-center gap-1 mt-0.5">
                       <MapPin size={9} />{device.zone.name}
                     </p>
                   )}
@@ -262,7 +262,7 @@ export default function LogEntryPanel({ onSubmitted }) {
       <div className="border-t border-slate-100 px-5 py-4 flex flex-col gap-4 bg-slate-50/50">
 
         {/* Selected count */}
-        <p className={`text-[11px] font-bold transition-colors ${selected.size > 0 ? 'text-indigo-700' : 'text-slate-400'}`}>
+        <p className={`text-[11px] font-bold transition-colors ${selected.size > 0 ? 'text-indigo-700' : 'text-[var(--ink-3)]'}`}>
           {selected.size > 0
             ? `${selected.size} device${selected.size !== 1 ? 's' : ''} selected — set status below`
             : 'Select devices above to log their status'}
@@ -292,7 +292,7 @@ export default function LogEntryPanel({ onSubmitted }) {
         {/* Notes */}
         <div className="flex flex-col gap-1.5">
           <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-            Notes <span className="font-normal text-slate-400 normal-case">(optional)</span>
+            Notes <span className="font-normal text-[var(--ink-3)] normal-case">(optional)</span>
           </label>
           <textarea
             rows={2}
@@ -300,7 +300,7 @@ export default function LogEntryPanel({ onSubmitted }) {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             disabled={selected.size === 0}
-            className="px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none transition-all placeholder:text-slate-300 disabled:opacity-40"
+            className="px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-[var(--accent-soft)] resize-none transition-all placeholder:text-[var(--ink-2)] disabled:opacity-40"
           />
         </div>
 

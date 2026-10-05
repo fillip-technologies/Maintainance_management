@@ -58,12 +58,12 @@ function buildNotification(event, payload) {
 
 function NotifIcon({ type }) {
   if (type === 'issue_created')
-    return <AlertTriangle size={16} className="text-rose-500 shrink-0 mt-0.5" />;
+    return <AlertTriangle size={16} className="text-[var(--down)] shrink-0 mt-0.5" />;
   if (type === 'issue_updated')
-    return <CheckCircle2 size={16} className="text-indigo-500 shrink-0 mt-0.5" />;
+    return <CheckCircle2 size={16} className="text-[var(--accent)] shrink-0 mt-0.5" />;
   if (type === 'log_submitted')
-    return <ClipboardList size={16} className="text-emerald-500 shrink-0 mt-0.5" />;
-  return <Info size={16} className="text-slate-400 shrink-0 mt-0.5" />;
+    return <ClipboardList size={16} className="text-[var(--ok)] shrink-0 mt-0.5" />;
+  return <Info size={16} className="text-[var(--ink-3)] shrink-0 mt-0.5" />;
 }
 
 // ─── main component ──────────────────────────────────────────────────────────
@@ -128,96 +128,80 @@ export default function NotificationBell() {
   // ── render ──
   return (
     <div className="relative">
-      {/* Bell button */}
       <button
         ref={bellRef}
         onClick={togglePanel}
-        className="relative p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[var(--bg-card)] border border-[var(--border-color)] transition-all cursor-pointer"
+        className="relative w-9 h-9 grid place-items-center rounded-[10px] text-[var(--ink-2)] hover:text-[var(--ink)] hover:bg-[var(--color-interactive-hover)] transition-colors cursor-pointer"
         aria-label="Notifications"
       >
-        <Bell size={18} className={unreadCount > 0 ? 'animate-[wiggle_0.4s_ease-in-out]' : ''} />
+        <Bell size={18} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-rose-500 text-white text-[10px] font-bold px-1 leading-none">
+          <span className="absolute top-1 right-1 min-w-[16px] h-[16px] grid place-items-center rounded-full bg-[var(--down)] text-white text-[9.5px] font-[700] px-1 leading-none ring-2 ring-[var(--paper)] num">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
       </button>
 
-      {/* Dropdown panel */}
       {open && (
         <div
           ref={panelRef}
-          className="absolute right-0 top-[calc(100%+8px)] w-[340px] sm:w-[380px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 text-white"
+          className="absolute right-0 top-[calc(100%+10px)] w-[340px] sm:w-[380px] bg-[var(--surface)] border border-[var(--line)] rounded-[14px] shadow-[var(--shadow-pop)] z-50 overflow-hidden text-[var(--ink)]"
+          style={{ animation: 'fx-pop 160ms ease-out both' }}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-color)]">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--line)]">
             <div className="flex items-center gap-2">
-              <Bell size={15} className="text-blue-400" />
-              <span className="text-sm font-bold text-white">Notifications</span>
+              <span className="text-[13.5px] font-[650]">Notifications</span>
               {unreadCount > 0 && (
-                <span className="text-[10px] font-bold bg-rose-950/70 border border-rose-800 text-rose-300 px-1.5 py-0.5 rounded-full">
+                <span className="text-[10.5px] font-[650] px-1.5 py-0.5 rounded-full bg-[var(--down-soft)] text-[var(--down-ink)] num">
                   {unreadCount} new
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1">
-              {notifications.length > 0 && (
-                <>
-                  <button
-                    onClick={markAllRead}
-                    className="text-[11px] text-slate-400 hover:text-blue-400 font-medium px-2 py-1 rounded-lg hover:bg-[var(--bg-card-hover)] transition-colors cursor-pointer"
-                  >
-                    Mark all read
-                  </button>
-                  <button
-                    onClick={clearAll}
-                    className="text-[11px] text-slate-400 hover:text-rose-400 font-medium px-2 py-1 rounded-lg hover:bg-rose-950/40 transition-colors cursor-pointer"
-                    title="Clear all"
-                  >
-                    <X size={13} />
-                  </button>
-                </>
-              )}
-            </div>
+            {notifications.length > 0 && (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={markAllRead}
+                  className="text-[11.5px] text-[var(--ink-3)] hover:text-[var(--ink)] font-[550] px-2 py-1 rounded-md hover:bg-[var(--color-interactive-hover)] cursor-pointer"
+                >
+                  Mark all read
+                </button>
+                <button
+                  onClick={clearAll}
+                  className="w-7 h-7 grid place-items-center text-[var(--ink-3)] hover:text-[var(--down)] rounded-md hover:bg-[var(--color-interactive-hover)] cursor-pointer"
+                  title="Clear all"
+                >
+                  <X size={13} />
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* List */}
-          <div className="max-h-[420px] overflow-y-auto divide-y divide-[var(--border-color)]/60">
+          <div className="max-h-[420px] overflow-y-auto fx-scroll">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-3 py-12 px-6 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-[#081023] border border-[var(--border-color)] flex items-center justify-center">
-                  <Bell size={22} className="text-slate-500" />
-                </div>
+                <span className="w-11 h-11 rounded-2xl grid place-items-center bg-[var(--surface-3)] text-[var(--ink-3)]">
+                  <Bell size={20} />
+                </span>
                 <div>
-                  <p className="text-sm font-semibold text-slate-300">No notifications yet</p>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Issue updates and logs will appear here
-                  </p>
+                  <p className="text-[13px] font-[620]">All quiet</p>
+                  <p className="text-[12px] text-[var(--ink-3)] mt-0.5">New faults, repairs and daily checks show up here live.</p>
                 </div>
               </div>
             ) : (
               notifications.map((n) => (
                 <div
                   key={n.id}
-                  className={`flex items-start gap-3 px-4 py-3 transition-colors ${
-                    n.read ? 'bg-[var(--bg-card)]' : 'bg-[#0f1f3d]/50'
-                  }`}
+                  className={`flex items-start gap-3 px-4 py-3 border-b border-[var(--line)] last:border-b-0 ${n.read ? '' : 'bg-[var(--accent-soft)]'}`}
                 >
                   <div className="mt-0.5">
                     <NotifIcon type={n.type} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-semibold truncate ${n.read ? 'text-slate-300' : 'text-white'}`}>
-                      {n.title}
-                    </p>
-                    <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-2 leading-relaxed">
-                      {n.body}
-                    </p>
-                    <p className="text-[10px] text-slate-500 mt-1">{relativeTime(n.time)}</p>
+                    <p className={`text-[12.5px] font-[620] truncate ${n.read ? 'text-[var(--ink-2)]' : 'text-[var(--ink)]'}`}>{n.title}</p>
+                    <p className="text-[11.5px] text-[var(--ink-3)] mt-0.5 line-clamp-2 leading-relaxed">{n.body}</p>
+                    <p className="text-[10.5px] text-[var(--ink-4)] mt-1 font-mono">{relativeTime(n.time)}</p>
                   </div>
-                  {!n.read && (
-                    <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1.5" />
-                  )}
+                  {!n.read && <span className="w-2 h-2 rounded-full bg-[var(--accent)] shrink-0 mt-1.5" />}
                 </div>
               ))
             )}

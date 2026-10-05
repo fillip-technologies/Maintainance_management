@@ -12,8 +12,8 @@ export default function ClientStatCards({ clients = [] }) {
       value: totalClients,
       subtitle: 'Registered enterprise organizations',
       icon: Building2,
-      iconBg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
-      badgeBg: 'bg-indigo-950/60 text-indigo-300 border border-indigo-800/60',
+      iconBg: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-500/20',
+      badgeBg: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/25',
       badgeText: 'Organizations'
     },
     {
@@ -21,8 +21,8 @@ export default function ClientStatCards({ clients = [] }) {
       value: activeClients,
       subtitle: `${activeClients} authenticated managers`,
       icon: Users,
-      iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-      badgeBg: 'bg-emerald-950/60 text-emerald-300 border border-emerald-800/60',
+      iconBg: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20',
+      badgeBg: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25',
       badgeText: 'Active Access'
     },
     {
@@ -30,8 +30,8 @@ export default function ClientStatCards({ clients = [] }) {
       value: totalClients,
       subtitle: `Across ${uniqueLocations} regional hubs`,
       icon: MapPin,
-      iconBg: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-      badgeBg: 'bg-purple-950/60 text-purple-300 border border-purple-800/60',
+      iconBg: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20',
+      badgeBg: 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/25',
       badgeText: 'Facilities'
     },
     {
@@ -39,8 +39,8 @@ export default function ClientStatCards({ clients = [] }) {
       value: activeClients,
       subtitle: 'Operational client access channels',
       icon: ShieldCheck,
-      iconBg: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-      badgeBg: 'bg-sky-950/60 text-sky-300 border border-sky-800/60',
+      iconBg: 'bg-sky-500/10 text-sky-700 dark:text-sky-400 border-sky-500/20',
+      badgeBg: 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border border-sky-500/25',
       badgeText: 'Verified'
     }
   ];
@@ -56,8 +56,8 @@ export default function ClientStatCards({ clients = [] }) {
           >
             <div className="flex items-start justify-between">
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-semibold text-slate-400">{card.title}</span>
-                <span className="text-3xl font-extrabold text-white tracking-tight">
+                <span className="text-xs font-semibold text-[var(--ink-3)]">{card.title}</span>
+                <span className="text-3xl font-extrabold text-[var(--ink)] tracking-tight">
                   {card.value}
                 </span>
               </div>
@@ -67,7 +67,7 @@ export default function ClientStatCards({ clients = [] }) {
             </div>
 
             <div className="pt-3 border-t border-[var(--border-color)] mt-4 flex items-center justify-between">
-              <span className="text-[11px] font-medium text-slate-400">{card.subtitle}</span>
+              <span className="text-[11px] font-medium text-[var(--ink-3)]">{card.subtitle}</span>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${card.badgeBg}`}>
                 {card.badgeText}
               </span>

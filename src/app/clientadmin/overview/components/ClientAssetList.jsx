@@ -36,7 +36,7 @@ export default function ClientAssetList({ assets, onNotify }) {
               <div className="flex items-start justify-between gap-2">
                 <div className="flex flex-col">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono font-bold text-slate-400">{asset.id}</span>
+                    <span className="text-[10px] font-mono font-bold text-[var(--ink-3)]">{asset.id}</span>
                     <span className="text-[10px] font-bold text-slate-600 bg-slate-200/70 px-1.5 py-0.5 rounded">
                       {asset.category}
                     </span>
@@ -80,7 +80,7 @@ export default function ClientAssetList({ assets, onNotify }) {
 
               <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-100">
                 <span className="flex items-center gap-1">
-                  <Wrench size={11} className="text-slate-400" />
+                  <Wrench size={11} className="text-[var(--ink-3)]" />
                   Last PM: {asset.lastServiced}
                 </span>
                 <span className="flex items-center gap-1 text-slate-600 font-medium">

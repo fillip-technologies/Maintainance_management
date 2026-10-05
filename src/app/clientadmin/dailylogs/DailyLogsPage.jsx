@@ -123,17 +123,17 @@ function DeviceHistoryPanel({ device, onClose }) {
       {/* panel */}
       <div className="relative z-10 w-full max-w-md bg-white h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-250">
         {/* Header */}
-        <div className="bg-slate-900 text-white px-5 py-4 flex items-center justify-between shrink-0">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-5 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center">
-              <History size={17} className="text-indigo-400" />
+              <History size={17} className="text-indigo-700 dark:text-indigo-400" />
             </div>
             <div>
               <p className="text-sm font-bold truncate max-w-[220px]">{device.name}</p>
-              <p className="text-[11px] text-slate-400">{device.zoneName} · Log history</p>
+              <p className="text-[11px] text-[var(--ink-3)]">{device.zoneName} · Log history</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer">
             <X size={15} />
           </button>
         </div>
@@ -141,12 +141,12 @@ function DeviceHistoryPanel({ device, onClose }) {
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-5">
           {loading ? (
-            <div className="flex items-center gap-2 justify-center py-16 text-slate-400 text-xs">
+            <div className="flex items-center gap-2 justify-center py-16 text-[var(--ink-3)] text-xs">
               <Loader2 size={16} className="animate-spin" /> Loading history…
             </div>
           ) : logs.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 py-16 text-slate-400 text-xs">
-              <Package2 size={22} className="text-slate-300" />
+            <div className="flex flex-col items-center gap-2 py-16 text-[var(--ink-3)] text-xs">
+              <Package2 size={22} className="text-[var(--ink-2)]" />
               No logs found for this device.
             </div>
           ) : (
@@ -166,7 +166,7 @@ function DeviceHistoryPanel({ device, onClose }) {
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${meta.badge}`}>
                           {meta.label}
                         </span>
-                        <span className="text-[10px] text-slate-400 shrink-0">{fmt(log.logDate)}</span>
+                        <span className="text-[10px] text-[var(--ink-3)] shrink-0">{fmt(log.logDate)}</span>
                       </div>
                       <p className="text-[11px] text-slate-500 mt-1">
                         by {log.loggedByName ?? '—'}
@@ -174,7 +174,7 @@ function DeviceHistoryPanel({ device, onClose }) {
                       {log.notes && (
                         <p className="text-[11px] text-slate-500 italic mt-0.5 truncate">"{log.notes}"</p>
                       )}
-                      <p className="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
+                      <p className="text-[10px] text-[var(--ink-3)] mt-0.5 flex items-center gap-1">
                         <Clock size={9} /> Updated {fmt(updated, true)} · {timeAgo(updated)}
                       </p>
                     </div>
@@ -242,11 +242,11 @@ function DailyLogsTab({ rawLogs, loading, zoneOptions, onRefresh }) {
 
       {/* Filters */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-xs">
-        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
-          <Search size={15} className="text-slate-400 shrink-0" />
+        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-[var(--accent-soft)] transition-all">
+          <Search size={15} className="text-[var(--ink-3)] shrink-0" />
           <input type="text" placeholder="Search by product, zone, or logged by…" value={search} onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-slate-400" />
-          {search && <button onClick={() => setSearch('')} className="text-slate-400 hover:text-slate-600 cursor-pointer"><X size={13} /></button>}
+            className="bg-transparent text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-[var(--ink-3)]" />
+          {search && <button onClick={() => setSearch('')} className="text-[var(--ink-3)] hover:text-slate-600 cursor-pointer"><X size={13} /></button>}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <LiveBadge isLive={isLive} />
@@ -265,7 +265,7 @@ function DailyLogsTab({ rawLogs, loading, zoneOptions, onRefresh }) {
               { key: 'not_working', label: `Issues (${notOk})`,     active: 'bg-rose-600 text-white' },
             ].map((t) => (
               <button key={t.key} onClick={() => setStatusFilter(t.key)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${statusFilter === t.key ? (t.active ?? 'bg-slate-900 text-white') : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${statusFilter === t.key ? (t.active ?? 'bg-[var(--surface-2)] text-[var(--ink)]') : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
                 {t.label}
               </button>
             ))}
@@ -288,11 +288,11 @@ function DailyLogsTab({ rawLogs, loading, zoneOptions, onRefresh }) {
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
               {loading ? (
-                <tr><td colSpan={5} className="py-10 text-center text-slate-400">
+                <tr><td colSpan={5} className="py-10 text-center text-[var(--ink-3)]">
                   <span className="inline-flex items-center gap-2"><Loader2 size={16} className="animate-spin text-indigo-500" /> Loading…</span>
                 </td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={5} className="py-10 text-center text-slate-400">
+                <tr><td colSpan={5} className="py-10 text-center text-[var(--ink-3)]">
                   {latestPerDevice.length === 0 ? 'No daily logs submitted yet.' : 'No logs match your filters.'}
                 </td></tr>
               ) : filtered.map((log) => {
@@ -305,7 +305,7 @@ function DailyLogsTab({ rawLogs, loading, zoneOptions, onRefresh }) {
                         <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0"><Boxes size={16} /></div>
                         <div className="flex flex-col">
                           <span className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{log.name}</span>
-                          <span className="text-[11px] text-slate-400">{log.loggedByName ? `by ${log.loggedByName}` : '—'}</span>
+                          <span className="text-[11px] text-[var(--ink-3)]">{log.loggedByName ? `by ${log.loggedByName}` : '—'}</span>
                         </div>
                       </div>
                     </td>
@@ -320,9 +320,9 @@ function DailyLogsTab({ rawLogs, loading, zoneOptions, onRefresh }) {
                     <td className="py-4 px-6">
                       <div className="flex flex-col">
                         <span className="font-semibold text-slate-800 flex items-center gap-1.5">
-                          <Calendar size={12} className="text-slate-400" />{fmt(updated)}
+                          <Calendar size={12} className="text-[var(--ink-3)]" />{fmt(updated)}
                         </span>
-                        <span className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+                        <span className="text-[11px] text-[var(--ink-3)] flex items-center gap-1 mt-0.5">
                           <Clock size={10} />{fmt(updated, true)} · {timeAgo(updated)}
                         </span>
                       </div>
@@ -433,11 +433,11 @@ function QueriesTab() {
       {error && <div className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold"><AlertTriangle size={13} />{error}</div>}
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-xs">
-        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
-          <Search size={15} className="text-slate-400 shrink-0" />
+        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-[var(--accent-soft)] transition-all">
+          <Search size={15} className="text-[var(--ink-3)] shrink-0" />
           <input type="text" placeholder="Search by device, zone, or raised by…" value={search} onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-slate-400" />
-          {search && <button onClick={() => setSearch('')} className="text-slate-400 hover:text-slate-600 cursor-pointer"><X size={13} /></button>}
+            className="bg-transparent text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-[var(--ink-3)]" />
+          {search && <button onClick={() => setSearch('')} className="text-[var(--ink-3)] hover:text-slate-600 cursor-pointer"><X size={13} /></button>}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <LiveBadge isLive={isLive} />
@@ -448,7 +448,7 @@ function QueriesTab() {
               { key: 'resolved', label: `Resolved (${resolved})` },
             ].map((t) => (
               <button key={t.key} onClick={() => setStatusFilter(t.key)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${statusFilter === t.key ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${statusFilter === t.key ? 'bg-[var(--surface-2)] text-[var(--ink)]' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
                 {t.label}
               </button>
             ))}
@@ -481,11 +481,11 @@ function QueriesTab() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
               {loading ? (
-                <tr><td colSpan={6} className="py-10 text-center text-slate-400">
+                <tr><td colSpan={6} className="py-10 text-center text-[var(--ink-3)]">
                   <span className="inline-flex items-center gap-2"><Loader2 size={16} className="animate-spin text-indigo-500" /> Loading…</span>
                 </td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={6} className="py-10 text-center text-slate-400">
+                <tr><td colSpan={6} className="py-10 text-center text-[var(--ink-3)]">
                   {issues.length === 0 ? 'No queries raised yet.' : 'No queries match your filters.'}
                 </td></tr>
               ) : filtered.map((issue) => {
@@ -500,7 +500,7 @@ function QueriesTab() {
                         <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0"><Wrench size={16} /></div>
                         <div className="flex flex-col">
                           <span className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{issue.device?.name ?? '—'}</span>
-                          <span className="text-[11px] text-slate-400">by {issue.raisedBy?.name ?? '—'}{issue.assignedTechnician?.user?.name ? ` · ${issue.assignedTechnician.user.name}` : ''}</span>
+                          <span className="text-[11px] text-[var(--ink-3)]">by {issue.raisedBy?.name ?? '—'}{issue.assignedTechnician?.user?.name ? ` · ${issue.assignedTechnician.user.name}` : ''}</span>
                         </div>
                       </div>
                     </td>
@@ -517,8 +517,8 @@ function QueriesTab() {
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex flex-col">
-                        <span className="font-semibold text-slate-800 flex items-center gap-1.5"><Calendar size={12} className="text-slate-400" />{fmt(updated)}</span>
-                        <span className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5"><Clock size={10} />{fmt(updated, true)} · {timeAgo(updated)}</span>
+                        <span className="font-semibold text-slate-800 flex items-center gap-1.5"><Calendar size={12} className="text-[var(--ink-3)]" />{fmt(updated)}</span>
+                        <span className="text-[11px] text-[var(--ink-3)] flex items-center gap-1 mt-0.5"><Clock size={10} />{fmt(updated, true)} · {timeAgo(updated)}</span>
                       </div>
                     </td>
                     <td className="py-4 px-4">
@@ -526,7 +526,7 @@ function QueriesTab() {
                         onClick={() => handleDelete(issue.id)}
                         disabled={isDeleting || deletingAll}
                         title="Delete query"
-                        className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-40"
+                        className="p-2 rounded-lg text-[var(--ink-3)] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer disabled:opacity-40"
                       >
                         {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                       </button>
@@ -588,11 +588,11 @@ function DevicesTab() {
       {error && <div className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold"><AlertTriangle size={13} />{error}</div>}
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-xs">
-        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
-          <Search size={15} className="text-slate-400 shrink-0" />
+        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 gap-2 flex-1 max-w-md focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-[var(--accent-soft)] transition-all">
+          <Search size={15} className="text-[var(--ink-3)] shrink-0" />
           <input type="text" placeholder="Search by name, serial no., or zone…" value={search} onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-slate-400" />
-          {search && <button onClick={() => setSearch('')} className="text-slate-400 hover:text-slate-600 cursor-pointer"><X size={13} /></button>}
+            className="bg-transparent text-xs font-medium text-slate-900 w-full outline-hidden placeholder:text-[var(--ink-3)]" />
+          {search && <button onClick={() => setSearch('')} className="text-[var(--ink-3)] hover:text-slate-600 cursor-pointer"><X size={13} /></button>}
         </div>
         <div className="flex items-center gap-1 flex-wrap">
           {[
@@ -602,7 +602,7 @@ function DevicesTab() {
             { key: 'retired', label: `Retired (${retired})` },
           ].map((t) => (
             <button key={t.key} onClick={() => setStatusFilter(t.key)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${statusFilter === t.key ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${statusFilter === t.key ? 'bg-[var(--surface-2)] text-[var(--ink)]' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
               {t.label}
             </button>
           ))}
@@ -623,11 +623,11 @@ function DevicesTab() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
               {loading ? (
-                <tr><td colSpan={5} className="py-10 text-center text-slate-400">
+                <tr><td colSpan={5} className="py-10 text-center text-[var(--ink-3)]">
                   <span className="inline-flex items-center gap-2"><Loader2 size={16} className="animate-spin text-indigo-500" /> Loading…</span>
                 </td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={5} className="py-10 text-center text-slate-400">
+                <tr><td colSpan={5} className="py-10 text-center text-[var(--ink-3)]">
                   {devices.length === 0 ? 'No devices registered yet.' : 'No devices match your filters.'}
                 </td></tr>
               ) : filtered.map((device) => {
@@ -637,12 +637,12 @@ function DevicesTab() {
                   <tr key={device.id} className={`hover:bg-slate-50/60 transition-colors group ${isRetired ? 'opacity-60' : ''}`}>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${isRetired ? 'bg-slate-100 text-slate-400 border-slate-200' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${isRetired ? 'bg-slate-100 text-[var(--ink-3)] border-slate-200' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
                           <Package size={16} />
                         </div>
                         <div className="flex flex-col">
                           <span className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{device.name ?? '—'}</span>
-                          <span className="text-[11px] text-slate-400">{device.hardwareType?.name ?? device.category?.name ?? '—'}</span>
+                          <span className="text-[11px] text-[var(--ink-3)]">{device.hardwareType?.name ?? device.category?.name ?? '—'}</span>
                         </div>
                       </div>
                     </td>
@@ -657,8 +657,8 @@ function DevicesTab() {
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex flex-col">
-                        <span className="font-semibold text-slate-800 flex items-center gap-1.5"><Calendar size={12} className="text-slate-400" />{fmt(device.createdAt)}</span>
-                        <span className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5"><Clock size={10} />{fmt(device.createdAt, true)} · {timeAgo(device.createdAt)}</span>
+                        <span className="font-semibold text-slate-800 flex items-center gap-1.5"><Calendar size={12} className="text-[var(--ink-3)]" />{fmt(device.createdAt)}</span>
+                        <span className="text-[11px] text-[var(--ink-3)] flex items-center gap-1 mt-0.5"><Clock size={10} />{fmt(device.createdAt, true)} · {timeAgo(device.createdAt)}</span>
                       </div>
                     </td>
                   </tr>
@@ -737,21 +737,21 @@ export default function DailyLogsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 py-1">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Activity Overview</h1>
-          <p className="text-xs md:text-sm text-slate-400 max-w-2xl">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--ink)] tracking-tight">Activity Overview</h1>
+          <p className="text-xs md:text-sm text-[var(--ink-3)] max-w-2xl">
             Live device logs, raised queries, and the full product lifecycle for your facility.
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           {lastUpdated && (
-            <span className="text-[11px] text-slate-400 hidden sm:block">
+            <span className="text-[11px] text-[var(--ink-3)] hidden sm:block">
               Refreshed {fmt(lastUpdated, true)}
             </span>
           )}
           <div className="flex items-center gap-2">
             <button
               onClick={() => setLogModalOpen(true)}
-              className="self-start inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm shadow-amber-200 transition-colors cursor-pointer"
+              className="self-start inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold shadow-sm shadow-amber-200 transition-colors cursor-pointer"
             >
               <ClipboardList size={14} /> Log Today's Status
             </button>

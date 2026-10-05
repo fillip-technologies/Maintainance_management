@@ -1,213 +1,200 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate, useOutletContext } from 'react-router-dom';
+import { MapPinOff, CalendarCheck, Megaphone, LayoutGrid, Users, Clock3, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { getDashboardSummary } from '../api/dashboardApi';
+import { getBoard } from '../api/boardApi';
 import { socketClient } from '../api/socketClient';
-import ZoneQueryView from '../common/ZoneQueryView';
 import DailyLogModal from '../common/DailyLogModal';
-import { RefreshCw, Wifi, WifiOff, MapPinOff, Boxes, CheckCircle2, AlertTriangle, ClipboardList, BarChart2, LayoutGrid } from 'lucide-react';
+import { PageHeader, RefreshButton, Sheet, EmptyState, Skeleton, TextLink } from '../ui/primitives';
+import { SignalHero, HeroSkeleton, LocationRows, TypeCards, ProblemFeed } from '../ui/overview';
+import { tallyHealth, agoLong, pct } from '../ui/status';
+import { locationRollup, categoryTallies, openProblems } from '../ui/boardModel';
 
 /**
- * Zone Officer overview. Shows ONLY the officer's in-scope facility health,
- * driven by GET /dashboard/summary with zone scope — the backend enforces that
- * the caller may only aggregate over their assigned zone subtree, so there is
- * no way to widen this to client- or platform-level data from here.
+ * Zone Officer overview — "my location". Big, icon-first actions for the
+ * things a location in-charge actually does (check, report, look), then the
+ * same health story as the client view, scoped by the backend to the
+ * officer's assigned zone subtree.
  *
- * If the officer has no zone assignment yet, we render an explicit empty state
- * and make NO request (a zone role has no valid platform/client scope to fall
- * back to — asking for one would 403).
+ * With no zone assignment we render an explicit empty state and make NO
+ * request (a zone role has no valid client/platform scope to fall back to).
  */
 export default function ZoneOverview() {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const outlet = useOutletContext() || {};
   const zoneId = currentUser?.zoneId ?? null;
 
-  const [stats, setStats] = useState({
-    totalDevices: 0,
-    workingDevices: 0,
-    faultyDevices: 0,
-    openIssues: 0,
-    missingLogs: 0,
-  });
+  const [board, setBoard] = useState(null);
   const [loading, setLoading] = useState(!!zoneId);
-  const [lastUpdated, setLastUpdated] = useState(null);
-  const [isLive, setIsLive] = useState(false);
-  const [activeTab, setActiveTab] = useState('analytics');
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
   const [logModalOpen, setLogModalOpen] = useState(false);
 
-  const fetchStats = useCallback(async () => {
-    if (!zoneId) return; // no assignment → nothing to fetch
+  const load = useCallback(async (silent = false) => {
+    if (!zoneId) return;
+    silent ? setRefreshing(true) : setLoading(true);
     try {
-      const data = await getDashboardSummary({ scope: 'zone', id: zoneId, includeSubzones: true });
-      if (data) setStats(data);
-      setLastUpdated(new Date());
+      setBoard(await getBoard({ scope: 'zone', id: zoneId }));
+      setError('');
     } catch (err) {
-      console.error('[ZoneOverview] Dashboard fetch error:', err.message);
+      setError(err.message || 'Could not load your location.');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, [zoneId]);
 
   useEffect(() => {
-    fetchStats();
-    const onFocus = () => fetchStats();
+    load(false);
+    const onFocus = () => load(true);
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
-  }, [fetchStats]);
+  }, [load]);
 
   useEffect(() => {
-    if (!zoneId) return;
-    const unsubCreated = socketClient.on('issue:created', () => fetchStats());
-    const unsubUpdated = socketClient.on('issue:updated', () => fetchStats());
-    const unsubLog = socketClient.on('log:submitted', () => fetchStats());
-    setIsLive(socketClient.isConnected);
-    return () => {
-      unsubCreated();
-      unsubUpdated();
-      unsubLog();
-    };
-  }, [fetchStats, zoneId]);
+    if (!zoneId) return undefined;
+    const offs = ['issue:created', 'issue:updated', 'log:submitted'].map((ev) => socketClient.on(ev, () => load(true)));
+    return () => offs.forEach((off) => off());
+  }, [load, zoneId]);
 
-  // No zone assigned — friendly empty state, no API call.
+  const tally = useMemo(() => tallyHealth(board?.devices), [board]);
+  const areas = useMemo(() => (board ? locationRollup(board, { rootId: zoneId }) : []), [board, zoneId]);
+  const cats = useMemo(() => (board ? categoryTallies(board) : []), [board]);
+  const problems = useMemo(() => (board ? openProblems(board) : []), [board]);
+  const catName = useMemo(() => new Map((board?.categories ?? []).map((c) => [c.id, c.name])), [board]);
+
   if (!zoneId) {
     return (
-      <div className="flex flex-col items-center justify-center text-center gap-3 py-24 animate-in fade-in duration-200">
-        <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center">
-          <MapPinOff size={26} />
-        </div>
-        <h1 className="text-xl font-extrabold text-slate-900">No zone assigned yet</h1>
-        <p className="text-sm text-slate-500 max-w-md">
-          Your account isn&apos;t assigned to a zone. Once an administrator assigns you
-          to a zone, your facility overview will appear here.
-        </p>
-      </div>
+      <Sheet className="max-w-xl mx-auto mt-10">
+        <EmptyState
+          icon={MapPinOff}
+          title="No location assigned yet"
+          body="You're signed in as a zone officer, but no location has been assigned to you. Ask your administrator to assign one — your equipment will appear here."
+        />
+      </Sheet>
     );
   }
 
-  const cards = [
-    { label: 'Total Devices', value: stats.totalDevices, icon: Boxes, tone: 'indigo' },
-    { label: 'Working', value: stats.workingDevices, icon: CheckCircle2, tone: 'emerald' },
-    { label: 'Faulty', value: stats.faultyDevices, icon: AlertTriangle, tone: 'rose' },
-    { label: 'Open Issues', value: stats.openIssues, icon: ClipboardList, tone: 'amber' },
+  const zoneName = currentUser?.zoneName || board?.zones?.find((z) => z.id === zoneId)?.name || 'My location';
+  const today = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+  const checkedPct = pct(tally.checked, tally.live);
+
+  const actions = [
+    {
+      key: 'check',
+      icon: CalendarCheck,
+      title: 'Daily check',
+      sub: tally.live ? `${tally.checked} of ${tally.live} done today` : 'Mark today\'s status',
+      onClick: () => setLogModalOpen(true),
+      progress: tally.live ? checkedPct : null,
+      primary: tally.unchecked > 0,
+    },
+    { key: 'report', icon: Megaphone, title: 'Report problem', sub: 'Something not working?', onClick: () => (outlet.onOpenRequestModal ? outlet.onOpenRequestModal({ zoneId }) : navigate('/zone/requests')) },
+    { key: 'board', icon: LayoutGrid, title: 'All equipment', sub: `${tally.total} devices here`, onClick: () => navigate('/zone/board') },
+    { key: 'team', icon: Users, title: 'My team', sub: 'People at this location', onClick: () => navigate('/zone/team') },
   ];
-  const tones = {
-    indigo: 'bg-indigo-50 text-indigo-600 border-indigo-100',
-    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-    rose: 'bg-rose-50 text-rose-600 border-rose-100',
-    amber: 'bg-amber-50 text-amber-600 border-amber-100',
-  };
 
   return (
-    <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200">
-      {/* Header — Title, Tab switcher moved upward, and Live status */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-1">
-        <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Zone Overview
-          </h1>
+    <div className="flex flex-col gap-6 pb-10">
+      <PageHeader
+        eyebrow={<>{today}</>}
+        title={zoneName}
+        meta={board && (
+          <>
+            {currentUser?.clientName && <span>{currentUser.clientName}</span>}
+            <span><span className="num font-[620] text-[var(--ink-2)]">{tally.total}</span> devices</span>
+            <span className="inline-flex items-center gap-1.5"><Clock3 size={13} /> Updated {agoLong(board.generatedAt)}</span>
+          </>
+        )}
+        actions={<RefreshButton onClick={() => load(true)} spinning={refreshing} />}
+      />
 
-          {/* Tab nav — moved upward */}
-          <div className="flex items-center bg-slate-100 rounded-2xl p-1.5 gap-1 shadow-inner">
-            <button
-              onClick={() => setActiveTab('analytics')}
-              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer
-                ${activeTab === 'analytics'
-                  ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
-                  : 'text-slate-500 hover:text-slate-700'}`}
-            >
-              <BarChart2 size={16} />
-              Analytics
-            </button>
-            <button
-              onClick={() => setActiveTab('zone')}
-              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer
-                ${activeTab === 'zone'
-                  ? 'bg-white text-indigo-700 shadow-md shadow-slate-200/80'
-                  : 'text-slate-500 hover:text-slate-700'}`}
-            >
-              <LayoutGrid size={16} />
-              Zone View
-            </button>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 shrink-0">
-          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
-            isLive ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'
-          }`}>
-            {isLive ? <Wifi size={13} className="animate-pulse" /> : <WifiOff size={13} />}
-            <span>{isLive ? 'Live Sync Active' : 'Offline'}</span>
-          </div>
-          {lastUpdated && (
-            <span className="text-[11px] text-slate-400 hidden sm:block">
-              Updated {lastUpdated.toLocaleTimeString()}
-            </span>
-          )}
+      {/* Big, icon-first actions */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {actions.map((a, i) => (
           <button
-            onClick={fetchStats}
-            disabled={loading}
-            className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-300 transition-all cursor-pointer disabled:opacity-40"
-            title="Refresh"
+            key={a.key}
+            type="button"
+            onClick={a.onClick}
+            className={`group fx-rise relative overflow-hidden text-left rounded-[14px] p-5 min-h-[128px] flex flex-col justify-between cursor-pointer transition-[transform,box-shadow] hover:-translate-y-[1px] ${
+              a.primary
+                ? 'bg-[var(--accent)] text-white shadow-[0_10px_30px_-12px_var(--accent-line)]'
+                : 'fx-sheet hover:shadow-[var(--shadow-2)]'
+            }`}
+            style={{ '--i': i }}
           >
-            <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
+            <span className={`w-11 h-11 rounded-[12px] grid place-items-center ${a.primary ? 'bg-white/15' : 'bg-[var(--surface-3)] text-[var(--ink)]'}`}>
+              <a.icon size={22} strokeWidth={1.9} />
+            </span>
+            <span>
+              <span className="block text-[16px] font-[650] tracking-[-0.02em]">{a.title}</span>
+              <span className={`block text-[12.5px] mt-0.5 ${a.primary ? 'text-white/80' : 'text-[var(--ink-3)]'}`}>{a.sub}</span>
+            </span>
+            {a.progress != null && (
+              <span className={`absolute left-0 bottom-0 h-[4px] ${a.primary ? 'bg-white/70' : 'bg-[var(--ok)]'}`} style={{ width: `${a.progress}%` }} />
+            )}
           </button>
-        </div>
+        ))}
       </div>
 
-      {/* Zone View tab — scoped to the incharge's own zone via backend auth */}
-      {activeTab === 'zone' && <ZoneQueryView />}
-
-      {/* Analytics tab */}
-      {activeTab === 'analytics' && <>
-
-      {/* Stat Cards */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl p-5 border border-slate-200 h-[120px] animate-pulse flex flex-col gap-3">
-              <div className="h-3 bg-slate-100 rounded w-1/2"></div>
-              <div className="h-8 bg-slate-100 rounded w-1/3"></div>
-            </div>
-          ))}
-        </div>
+        <>
+          <HeroSkeleton />
+          <Skeleton className="h-[320px] !rounded-[14px]" />
+        </>
+      ) : error ? (
+        <Sheet>
+          <EmptyState title="Couldn't load your location" body={error} action={<button className="fx-btn" onClick={() => load(false)}>Try again</button>} />
+        </Sheet>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {cards.map((c) => {
-            const Icon = c.icon;
-            return (
-              <div key={c.label} className="bg-white rounded-2xl p-5 border border-slate-200 flex flex-col gap-3 shadow-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500">{c.label}</span>
-                  <span className={`w-9 h-9 rounded-xl border flex items-center justify-center ${tones[c.tone]}`}>
-                    <Icon size={18} />
-                  </span>
-                </div>
-                <span className="text-3xl font-extrabold text-slate-900">{c.value ?? 0}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+        <>
+          <SignalHero
+            tally={tally}
+            places={areas.length > 1 ? `${areas.length} areas` : null}
+            openComplaints={problems.length}
+            onFilter={(show) => navigate(`/zone/board?show=${show}`)}
+          />
 
-      {stats.missingLogs > 0 && (
-        <button
-          type="button"
-          onClick={() => setLogModalOpen(true)}
-          className="flex items-center justify-between gap-2.5 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold w-full hover:bg-amber-100 hover:border-amber-300 transition-colors cursor-pointer text-left"
-        >
-          <div className="flex items-center gap-2.5">
-            <AlertTriangle size={15} />
-            {stats.missingLogs} device{stats.missingLogs === 1 ? '' : 's'} missing today&apos;s status log.
+          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-6 items-start">
+            {areas.length > 0 ? (
+              <LocationRows
+                rows={areas}
+                title="Areas"
+                eyebrow="Worst first"
+                onOpen={(z) => navigate(`/zone/board/${z.id}`)}
+              />
+            ) : (
+              <Sheet title="Equipment" eyebrow="By type" bodyClassName="px-5 pb-5">
+                <TypeCards cats={cats} onOpen={(c) => navigate(`/zone/board${c.id ? `?cat=${c.id}` : '?cat=none'}`)} />
+              </Sheet>
+            )}
+            <ProblemFeed
+              problems={problems}
+              catName={catName}
+              title="Open problems"
+              onOpen={(p) => navigate(`/zone/board/${p.device.zoneId}?device=${p.device.id}`)}
+              action={<TextLink onClick={() => navigate('/zone/requests')}>Track <ArrowRight size={13} /></TextLink>}
+            />
           </div>
-          <span className="text-[11px] font-bold text-amber-700 underline underline-offset-2">Log now →</span>
-        </button>
+
+          {areas.length > 0 && cats.length > 0 && (
+            <section className="flex flex-col gap-3">
+              <div>
+                <div className="fx-eyebrow mb-1">By equipment type</div>
+                <h2 className="text-[17px] font-[640] tracking-[-0.02em]">Equipment</h2>
+              </div>
+              <TypeCards cats={cats} onOpen={(c) => navigate(`/zone/board${c.id ? `?cat=${c.id}` : '?cat=none'}`)} />
+            </section>
+          )}
+        </>
       )}
 
       <DailyLogModal
         isOpen={logModalOpen}
         onClose={() => setLogModalOpen(false)}
-        onSubmitted={fetchStats}
+        onSubmitted={() => load(true)}
       />
-
-      </>} {/* end analytics tab */}
     </div>
   );
 }

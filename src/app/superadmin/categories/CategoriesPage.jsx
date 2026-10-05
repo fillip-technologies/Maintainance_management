@@ -190,10 +190,10 @@ export default function CategoriesPage() {
     <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 relative">
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 animate-in slide-in-from-bottom-4 duration-200">
-          <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+        <div className="fixed bottom-6 right-6 z-50 bg-[var(--surface-2)] text-[var(--ink)] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-[var(--line)] animate-in slide-in-from-bottom-4 duration-200">
+          <CheckCircle2 size={16} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
           <span className="text-xs font-semibold">{toast}</span>
-          <button onClick={() => setToast(null)} className="text-slate-400 hover:text-white p-1 ml-1 cursor-pointer"><X size={13} /></button>
+          <button onClick={() => setToast(null)} className="text-[var(--ink-3)] hover:text-[var(--ink)] p-1 ml-1 cursor-pointer"><X size={13} /></button>
         </div>
       )}
 
@@ -224,7 +224,7 @@ export default function CategoriesPage() {
         ].map(({ label, value, color }) => (
           <div key={label} className="bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-col shadow-xs">
             <span className={`text-2xl font-extrabold ${color}`}>{value}</span>
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span>
+            <span className="text-[11px] font-semibold text-[var(--ink-3)] uppercase tracking-wide">{label}</span>
           </div>
         ))}
       </div>
@@ -278,12 +278,12 @@ export default function CategoriesPage() {
 
             {/* Logo upload */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-700">Logo <span className="text-slate-400 font-normal">(optional)</span></label>
+              <label className="text-xs font-bold text-slate-700">Logo <span className="text-[var(--ink-3)] font-normal">(optional)</span></label>
               <div className="flex items-center gap-2">
                 {logoPreview
                   ? <img src={logoPreview} alt="preview" className="w-9 h-9 rounded-xl object-cover border border-slate-200 shrink-0" />
                   : <div className="w-9 h-9 rounded-xl border border-dashed border-slate-300 flex items-center justify-center shrink-0 bg-slate-50">
-                      <ImageIcon size={14} className="text-slate-400" />
+                      <ImageIcon size={14} className="text-[var(--ink-3)]" />
                     </div>
                 }
                 <label className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors">
@@ -296,7 +296,7 @@ export default function CategoriesPage() {
             <button
               type="submit"
               disabled={saving || !name.trim() || !code.trim()}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold cursor-pointer disabled:opacity-50 transition-colors whitespace-nowrap shadow-sm shadow-amber-200"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold cursor-pointer disabled:opacity-50 transition-colors whitespace-nowrap shadow-sm shadow-amber-200"
             >
               <Plus size={14} />
               {saving ? 'Creating…' : 'Add Category'}
@@ -326,7 +326,7 @@ export default function CategoriesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)]">
                 <th className="py-3 px-5">Logo</th>
                 <th className="py-3 px-5">Code Prefix</th>
                 <th className="py-3 px-5">Category Name</th>
@@ -337,9 +337,9 @@ export default function CategoriesPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
               {loading ? (
-                <tr><td colSpan="6" className="text-center py-14 text-slate-400">Loading categories…</td></tr>
+                <tr><td colSpan="6" className="text-center py-14 text-[var(--ink-3)]">Loading categories…</td></tr>
               ) : categories.length === 0 ? (
-                <tr><td colSpan="6" className="text-center py-14 text-slate-400">No categories yet. Add one above.</td></tr>
+                <tr><td colSpan="6" className="text-center py-14 text-[var(--ink-3)]">No categories yet. Add one above.</td></tr>
               ) : (
                 categories.map((cat) => {
                   const unitCount = cat._count?.devices ?? 0;
@@ -355,10 +355,10 @@ export default function CategoriesPage() {
                             : <div className="w-9 h-9 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center group-hover:border-amber-400 group-hover:bg-amber-50 transition-colors">
                                 {uploadingLogoId === cat.id
                                   ? <Loader2 size={13} className="animate-spin text-amber-500" />
-                                  : <ImageIcon size={13} className="text-slate-400 group-hover:text-amber-500" />}
+                                  : <ImageIcon size={13} className="text-[var(--ink-3)] group-hover:text-amber-500" />}
                               </div>
                           }
-                          <span className="text-[10px] font-semibold text-slate-400 group-hover:text-amber-600 transition-colors">
+                          <span className="text-[10px] font-semibold text-[var(--ink-3)] group-hover:text-amber-600 transition-colors">
                             {uploadingLogoId === cat.id ? 'Uploading…' : cat.imageUrl ? 'Change' : 'Upload'}
                           </span>
                           <input
@@ -395,7 +395,7 @@ export default function CategoriesPage() {
                           <button
                             onClick={() => toggleExpand(cat.id)}
                             title="Manage product types"
-                            className="p-2 rounded-xl border border-slate-200 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 cursor-pointer transition-colors"
+                            className="p-2 rounded-xl border border-slate-200 text-[var(--ink-3)] hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 cursor-pointer transition-colors"
                           >
                             {expandedCatId === cat.id
                               ? <ChevronDown size={15} />
@@ -407,8 +407,8 @@ export default function CategoriesPage() {
                             title={canDelete ? `Delete "${cat.name}"` : `Cannot delete — ${unitCount} product(s) use this category`}
                             className={`p-2 rounded-xl border transition-colors ${
                               canDelete
-                                ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 border-slate-200 cursor-pointer'
-                                : 'text-slate-200 border-slate-100 cursor-not-allowed'
+                                ? 'text-[var(--ink-3)] hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 border-slate-200 cursor-pointer'
+                                : 'text-[var(--ink)] border-slate-100 cursor-not-allowed'
                             }`}
                           >
                             <Trash2 size={15} />
@@ -427,14 +427,14 @@ export default function CategoriesPage() {
                           </div>
 
                           {ptLoading === cat.id ? (
-                            <div className="flex items-center gap-2 py-2 text-slate-400 text-xs">
+                            <div className="flex items-center gap-2 py-2 text-[var(--ink-3)] text-xs">
                               <Loader2 size={13} className="animate-spin" /> Loading…
                             </div>
                           ) : (
                             <>
                               {/* List of existing product types */}
                               {(productTypesByCat[cat.id] ?? []).length === 0 ? (
-                                <p className="text-[11px] text-slate-400 mb-3">No product types yet. Add one below.</p>
+                                <p className="text-[11px] text-[var(--ink-3)] mb-3">No product types yet. Add one below.</p>
                               ) : (
                                 <div className="flex flex-col divide-y divide-slate-200 mb-3 rounded-xl border border-slate-200 bg-white overflow-hidden">
                                   {(productTypesByCat[cat.id] ?? []).map((pt) => (
@@ -449,7 +449,7 @@ export default function CategoriesPage() {
                                           <img src={pt.imageUrl} alt={pt.name} className="w-8 h-8 rounded-lg object-cover border border-slate-200 group-hover/ptlogo:opacity-70 transition-opacity" />
                                         ) : (
                                           <div className="w-8 h-8 rounded-lg border border-dashed border-slate-300 bg-slate-50 flex items-center justify-center group-hover/ptlogo:border-indigo-400 group-hover/ptlogo:bg-indigo-50 transition-colors">
-                                            <ImageIcon size={12} className="text-slate-400 group-hover/ptlogo:text-indigo-500" />
+                                            <ImageIcon size={12} className="text-[var(--ink-3)] group-hover/ptlogo:text-indigo-500" />
                                           </div>
                                         )}
                                         <input
@@ -460,15 +460,15 @@ export default function CategoriesPage() {
                                         />
                                       </label>
                                       <span className="flex-1 text-xs font-semibold text-slate-800">{pt.name}</span>
-                                      <span className="text-[10px] text-slate-400">{pt._count?.devices ?? 0} product{(pt._count?.devices ?? 0) !== 1 ? 's' : ''}</span>
+                                      <span className="text-[10px] text-[var(--ink-3)]">{pt._count?.devices ?? 0} product{(pt._count?.devices ?? 0) !== 1 ? 's' : ''}</span>
                                       <button
                                         onClick={() => handleDeleteProductType(pt)}
                                         disabled={ptDeletingId === pt.id || (pt._count?.devices ?? 0) > 0}
                                         title={(pt._count?.devices ?? 0) > 0 ? 'Cannot delete — products reference this type' : `Delete "${pt.name}"`}
                                         className={`p-1.5 rounded-lg border transition-colors ${
                                           (pt._count?.devices ?? 0) > 0
-                                            ? 'text-slate-200 border-slate-100 cursor-not-allowed'
-                                            : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 border-slate-200 cursor-pointer'
+                                            ? 'text-[var(--ink)] border-slate-100 cursor-not-allowed'
+                                            : 'text-[var(--ink-3)] hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 border-slate-200 cursor-pointer'
                                         }`}
                                       >
                                         {ptDeletingId === pt.id ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
@@ -486,7 +486,7 @@ export default function CategoriesPage() {
                                   value={newTypeName}
                                   onChange={(e) => setNewTypeName(e.target.value)}
                                   onKeyDown={(e) => { if (e.key === 'Enter') handleAddProductType(cat.id); }}
-                                  className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 flex-1 min-w-[180px]"
+                                  className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-[var(--accent-soft)] flex-1 min-w-[180px]"
                                 />
                                 {/* Logo for new type */}
                                 <label className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer whitespace-nowrap">
@@ -508,7 +508,7 @@ export default function CategoriesPage() {
                                 <button
                                   onClick={() => handleAddProductType(cat.id)}
                                   disabled={!newTypeName.trim() || ptSaving === cat.id}
-                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer disabled:opacity-50 transition-colors whitespace-nowrap"
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold cursor-pointer disabled:opacity-50 transition-colors whitespace-nowrap"
                                 >
                                   {ptSaving === cat.id ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
                                   Add Type

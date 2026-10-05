@@ -36,14 +36,14 @@ export default function MapLocationPreviewField({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-          <MapPin size={13} className="text-blue-400" />
+        <label className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5">
+          <MapPin size={13} className="text-blue-700 dark:text-blue-400" />
           <span>Map Location &amp; Coordinates</span>
         </label>
         <button
           type="button"
           onClick={() => setShowManualFields(!showManualFields)}
-          className="text-[11px] text-slate-400 hover:text-slate-200 font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+          className="text-[11px] text-[var(--ink-3)] hover:text-[var(--ink)] font-semibold flex items-center gap-1 transition-colors cursor-pointer"
         >
           <Sliders size={11} />
           <span>{showManualFields ? 'Hide manual fields' : 'Manual entry'}</span>
@@ -52,11 +52,11 @@ export default function MapLocationPreviewField({
       </div>
 
       {/* Visual Placement Card */}
-      <div className="p-3 rounded-2xl border border-slate-800 bg-slate-900/90 flex items-center gap-3.5 shadow-md hover:border-slate-700 transition-colors">
+      <div className="p-3 rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] flex items-center gap-3.5 shadow-md hover:border-[var(--line-strong)] transition-colors">
         {/* Mini Map Thumbnail Preview */}
         <div
           onClick={() => setIsPickerOpen(true)}
-          className="relative w-20 h-16 rounded-xl overflow-hidden border border-slate-700 bg-slate-950 shrink-0 cursor-pointer group shadow-xs"
+          className="relative w-20 h-16 rounded-xl overflow-hidden border border-[var(--line)] bg-[var(--surface-2)] shrink-0 cursor-pointer group shadow-xs"
           title="Click to open map picker"
         >
           <img
@@ -81,7 +81,7 @@ export default function MapLocationPreviewField({
             </div>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <MapPin size={16} className="text-blue-400 animate-bounce" />
+              <MapPin size={16} className="text-blue-700 dark:text-blue-400 animate-bounce" />
             </div>
           )}
         </div>
@@ -90,23 +90,23 @@ export default function MapLocationPreviewField({
         <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
           {hasCoords ? (
             <div className="flex flex-col min-w-0">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--ink)]">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 shadow-xs shadow-emerald-500/50" />
                 <span className="truncate">Placed on Map</span>
               </div>
               {location && (
-                <span className="text-[11px] font-semibold text-slate-300 truncate mt-0.5 max-w-[240px]" title={location}>
+                <span className="text-[11px] font-semibold text-[var(--ink-2)] truncate mt-0.5 max-w-[240px]" title={location}>
                   📍 {location}
                 </span>
               )}
-              <div className="flex items-center gap-2 flex-wrap text-[10px] text-slate-300 font-mono mt-0.5">
+              <div className="flex items-center gap-2 flex-wrap text-[10px] text-[var(--ink-2)] font-mono mt-0.5">
                 {displayX != null && (
-                  <span className="bg-slate-950/80 px-2 py-0.5 rounded-md border border-slate-800 text-slate-300">
+                  <span className="bg-[var(--surface-2)] px-2 py-0.5 rounded-md border border-[var(--line)] text-[var(--ink-2)]">
                     X: {displayX}% • Y: {displayY}%
                   </span>
                 )}
                 {latitude && (
-                  <span className="bg-slate-950/80 px-2 py-0.5 rounded-md border border-slate-800 text-slate-300 truncate">
+                  <span className="bg-[var(--surface-2)] px-2 py-0.5 rounded-md border border-[var(--line)] text-[var(--ink-2)] truncate">
                     GPS: {Number(latitude).toFixed(4)}, {Number(longitude).toFixed(4)}
                   </span>
                 )}
@@ -114,8 +114,8 @@ export default function MapLocationPreviewField({
             </div>
           ) : (
             <div className="flex flex-col">
-              <span className="text-xs font-bold text-white">No Location Placed</span>
-              <span className="text-[11px] text-slate-400">Click button or map preview to place on map</span>
+              <span className="text-xs font-bold text-[var(--ink)]">No Location Placed</span>
+              <span className="text-[11px] text-[var(--ink-3)]">Click button or map preview to place on map</span>
             </div>
           )}
         </div>
@@ -133,11 +133,11 @@ export default function MapLocationPreviewField({
 
       {/* Expandable Manual Inputs */}
       {showManualFields && (
-        <div className="p-3.5 rounded-2xl border border-slate-800 bg-slate-950/70 flex flex-col gap-3 animate-in slide-in-from-top-2 duration-150">
+        <div className="p-3.5 rounded-2xl border border-[var(--line)] bg-[var(--surface-2)] flex flex-col gap-3 animate-in slide-in-from-top-2 duration-150">
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
-                <Navigation size={12} className="text-emerald-400" /> Latitude
+              <label className="text-[11px] font-bold text-[var(--ink-2)] flex items-center gap-1">
+                <Navigation size={12} className="text-emerald-700 dark:text-emerald-400" /> Latitude
               </label>
               <input
                 type="number"
@@ -153,12 +153,12 @@ export default function MapLocationPreviewField({
                     longitude,
                   })
                 }
-                className="w-full px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-900 text-white text-xs font-medium placeholder:text-slate-500 outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30"
+                className="w-full px-3 py-1.5 rounded-xl border border-[var(--line)] bg-[var(--surface-2)] text-[var(--ink)] text-xs font-medium placeholder:text-slate-500 outline-hidden focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent-soft)]"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
-                <Navigation size={12} className="text-emerald-400" /> Longitude
+              <label className="text-[11px] font-bold text-[var(--ink-2)] flex items-center gap-1">
+                <Navigation size={12} className="text-emerald-700 dark:text-emerald-400" /> Longitude
               </label>
               <input
                 type="number"
@@ -174,15 +174,15 @@ export default function MapLocationPreviewField({
                     longitude: e.target.value,
                   })
                 }
-                className="w-full px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-900 text-white text-xs font-medium placeholder:text-slate-500 outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30"
+                className="w-full px-3 py-1.5 rounded-xl border border-[var(--line)] bg-[var(--surface-2)] text-[var(--ink)] text-xs font-medium placeholder:text-slate-500 outline-hidden focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent-soft)]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
-                <Compass size={12} className="text-blue-400" /> Map X Position (%)
+              <label className="text-[11px] font-bold text-[var(--ink-2)] flex items-center gap-1">
+                <Compass size={12} className="text-blue-700 dark:text-blue-400" /> Map X Position (%)
               </label>
               <input
                 type="number"
@@ -200,12 +200,12 @@ export default function MapLocationPreviewField({
                     longitude,
                   })
                 }
-                className="w-full px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-900 text-white text-xs font-medium placeholder:text-slate-500 outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30"
+                className="w-full px-3 py-1.5 rounded-xl border border-[var(--line)] bg-[var(--surface-2)] text-[var(--ink)] text-xs font-medium placeholder:text-slate-500 outline-hidden focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent-soft)]"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
-                <Compass size={12} className="text-blue-400" /> Map Y Position (%)
+              <label className="text-[11px] font-bold text-[var(--ink-2)] flex items-center gap-1">
+                <Compass size={12} className="text-blue-700 dark:text-blue-400" /> Map Y Position (%)
               </label>
               <input
                 type="number"
@@ -223,7 +223,7 @@ export default function MapLocationPreviewField({
                     longitude,
                   })
                 }
-                className="w-full px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-900 text-white text-xs font-medium placeholder:text-slate-500 outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30"
+                className="w-full px-3 py-1.5 rounded-xl border border-[var(--line)] bg-[var(--surface-2)] text-[var(--ink)] text-xs font-medium placeholder:text-slate-500 outline-hidden focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent-soft)]"
               />
             </div>
           </div>

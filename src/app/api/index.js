@@ -24,3 +24,4 @@ export * from './companiesApi';
 export * from './clientsApi';
 export * from './usersApi';
 export * from './verticalsApi';
+export * from './boardApi';

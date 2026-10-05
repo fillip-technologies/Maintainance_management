@@ -63,7 +63,7 @@ export default function ZoneIssuesModal({ zoneId, zoneName, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
       <div
-        className="bg-[var(--bg-card)] text-white rounded-3xl shadow-2xl max-w-2xl w-full border border-[var(--border-color)] flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200 overflow-hidden"
+        className="bg-[var(--bg-card)] text-[var(--ink)] rounded-3xl shadow-2xl max-w-2xl w-full border border-[var(--border-color)] flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -73,7 +73,7 @@ export default function ZoneIssuesModal({ zoneId, zoneName, onClose }) {
               <XCircle size={20} />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">Not Working — {zoneName}</h2>
+              <h2 className="text-sm font-bold text-[var(--ink)]">Not Working — {zoneName}</h2>
               <p className="text-xs text-rose-100">Faulty devices and their open issues</p>
             </div>
           </div>
@@ -85,20 +85,20 @@ export default function ZoneIssuesModal({ zoneId, zoneName, onClose }) {
         {/* Body */}
         <div className="overflow-y-auto flex-1 p-5 flex flex-col gap-4">
           {loading && (
-            <div className="flex items-center justify-center gap-3 py-12 text-slate-400">
-              <Loader2 size={20} className="animate-spin text-rose-400" />
+            <div className="flex items-center justify-center gap-3 py-12 text-[var(--ink-3)]">
+              <Loader2 size={20} className="animate-spin text-rose-700 dark:text-rose-400" />
               <span className="text-sm">Loading…</span>
             </div>
           )}
 
           {error && (
-            <div className="flex items-center gap-2 p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-300 text-sm font-semibold">
+            <div className="flex items-center gap-2 p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-700 dark:text-rose-300 text-sm font-semibold">
               <AlertTriangle size={16} /> {error}
             </div>
           )}
 
           {!loading && !error && allBadDeviceIds.length === 0 && (
-            <div className="flex flex-col items-center gap-3 py-14 text-slate-400">
+            <div className="flex flex-col items-center gap-3 py-14 text-[var(--ink-3)]">
               <Package size={28} className="text-slate-500" />
               <p className="text-sm font-semibold">No faulty devices or open issues in this zone.</p>
             </div>
@@ -114,7 +114,7 @@ export default function ZoneIssuesModal({ zoneId, zoneName, onClose }) {
               <div key={deviceId} className="border border-[var(--border-color)] bg-[var(--bg-main)] rounded-2xl overflow-hidden">
                 {/* Device row */}
                 <div className="flex items-center gap-3 px-4 py-3 bg-rose-500/10 border-b border-rose-500/20">
-                  <div className="w-8 h-8 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-400 flex items-center justify-center shrink-0 overflow-hidden">
+                  <div className="w-8 h-8 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-700 dark:text-rose-400 flex items-center justify-center shrink-0 overflow-hidden">
                     {deviceImg ? (
                       <img src={deviceImg} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -122,27 +122,27 @@ export default function ZoneIssuesModal({ zoneId, zoneName, onClose }) {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-white truncate">{deviceName}</p>
-                    {device?.code && <p className="text-[10px] text-slate-400 font-mono">{device.code}</p>}
+                    <p className="text-xs font-bold text-[var(--ink)] truncate">{deviceName}</p>
+                    {device?.code && <p className="text-[10px] text-[var(--ink-3)] font-mono">{device.code}</p>}
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 shrink-0">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30 shrink-0">
                     {device?.status ?? 'faulty'}
                   </span>
                 </div>
 
                 {/* Issues for this device */}
                 {deviceIssues.length === 0 ? (
-                  <p className="text-[11px] text-slate-400 px-4 py-2">No open issues logged yet.</p>
+                  <p className="text-[11px] text-[var(--ink-3)] px-4 py-2">No open issues logged yet.</p>
                 ) : (
                   <div className="divide-y divide-[var(--border-color)]">
                     {deviceIssues.map((iss) => (
                       <div key={iss.id} className="px-4 py-3 flex items-start gap-3">
-                        <Tag size={13} className="text-slate-400 mt-0.5 shrink-0" />
+                        <Tag size={13} className="text-[var(--ink-3)] mt-0.5 shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-slate-200 truncate">
+                          <p className="text-xs font-semibold text-[var(--ink)] truncate">
                             {iss.category?.name ?? 'Issue'} — {iss.description?.slice(0, 60)}{iss.description?.length > 60 ? '…' : ''}
                           </p>
-                          <p className="text-[10px] text-slate-400 mt-0.5">
+                          <p className="text-[10px] text-[var(--ink-3)] mt-0.5">
                             {new Date(iss.createdAt).toLocaleDateString()} · raised by {iss.raisedBy?.name ?? 'unknown'}
                           </p>
                         </div>
@@ -163,9 +163,9 @@ export default function ZoneIssuesModal({ zoneId, zoneName, onClose }) {
           })}
         </div>
 
-        <div className="px-5 py-3 border-t border-[var(--border-color)] text-[11px] text-slate-400 flex items-center gap-1.5 bg-[var(--bg-card)]">
-          <AlertTriangle size={11} className="text-rose-400" />
-          Showing faulty devices and all non-closed issues in <span className="font-bold text-slate-200">{zoneName}</span>.
+        <div className="px-5 py-3 border-t border-[var(--border-color)] text-[11px] text-[var(--ink-3)] flex items-center gap-1.5 bg-[var(--bg-card)]">
+          <AlertTriangle size={11} className="text-rose-700 dark:text-rose-400" />
+          Showing faulty devices and all non-closed issues in <span className="font-bold text-[var(--ink)]">{zoneName}</span>.
         </div>
       </div>
     </div>

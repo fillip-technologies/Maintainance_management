@@ -38,10 +38,10 @@ function StatusBadge({ status }) {
 function Toast({ msg, onDismiss }) {
   if (!msg) return null;
   return (
-    <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 animate-in slide-in-from-bottom-4 duration-200">
-      <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+    <div className="fixed bottom-6 right-6 z-50 bg-[var(--surface-2)] text-[var(--ink)] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-[var(--line)] animate-in slide-in-from-bottom-4 duration-200">
+      <CheckCircle2 size={16} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
       <span className="text-xs font-semibold">{msg}</span>
-      <button onClick={onDismiss} className="text-slate-400 hover:text-white p-1 ml-1 cursor-pointer"><X size={13} /></button>
+      <button onClick={onDismiss} className="text-[var(--ink-3)] hover:text-[var(--ink)] p-1 ml-1 cursor-pointer"><X size={13} /></button>
     </div>
   );
 }
@@ -152,17 +152,17 @@ function AddUnitModal({ companies, categories, onClose, onAdded, onCategoryCreat
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-        <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-6 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center border border-indigo-500/30"><Boxes size={20} /></div>
+            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center border border-indigo-500/30"><Boxes size={20} /></div>
             <div>
               <h2 className="text-base font-bold">Add Product to Inventory</h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[var(--ink-3)]">
                 {step === 1 ? 'Step 1 — Select an organization' : `Step 2 — Product details for ${companies.find(c=>c.id===companyId)?.name}`}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"><X size={16} /></button>
+          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center cursor-pointer"><X size={16} /></button>
         </div>
 
         <div className="p-6 flex flex-col gap-4 overflow-y-auto text-slate-900">
@@ -198,20 +198,20 @@ function AddUnitModal({ companies, categories, onClose, onAdded, onCategoryCreat
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-bold text-slate-700">Category <span className="text-rose-500">*</span></label>
                 <select required value={form.categoryId} onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer text-slate-900">
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] cursor-pointer text-slate-900">
                   <option value="" disabled>Select a category…</option>
                   {categories.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
                 </select>
-                <p className="text-[11px] text-slate-400">A unique code (e.g. CAM-000123) is auto-generated from the category prefix.</p>
+                <p className="text-[11px] text-[var(--ink-3)]">A unique code (e.g. CAM-000123) is auto-generated from the category prefix.</p>
               </div>
 
               {/* Product Type */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-bold text-slate-700">Product Type <span className="text-rose-500">*</span></label>
                 {!form.categoryId ? (
-                  <div className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-400">Select a category first</div>
+                  <div className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-[var(--ink-3)]">Select a category first</div>
                 ) : ptLoading ? (
-                  <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-400">
+                  <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-[var(--ink-3)]">
                     <Loader2 size={12} className="animate-spin" /> Loading types…
                   </div>
                 ) : (
@@ -219,7 +219,7 @@ function AddUnitModal({ companies, categories, onClose, onAdded, onCategoryCreat
                     <div className="flex items-center gap-2">
                       {selectedType?.imageUrl && <img src={selectedType.imageUrl} alt={selectedType.name} className="w-8 h-8 rounded-lg object-contain border border-slate-200 shrink-0" />}
                       <select value={showNewTypeForm ? '__new__' : form.productTypeId} onChange={(e) => handleProductTypeChange(e.target.value)}
-                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer text-slate-900">
+                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] cursor-pointer text-slate-900">
                         <option value="" disabled>Select a product type…</option>
                         {productTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
                         <option value="__new__">＋ Add new product type…</option>
@@ -230,20 +230,20 @@ function AddUnitModal({ companies, categories, onClose, onAdded, onCategoryCreat
                         <p className="text-[11px] font-bold text-indigo-700">New Product Type</p>
                         <input type="text" placeholder="e.g. LPR Camera" value={newTypeName}
                           onChange={(e) => setNewTypeName(e.target.value)} autoFocus
-                          className="px-3 py-2 rounded-lg border border-indigo-200 text-xs font-medium outline-none focus:border-indigo-500 bg-white text-slate-900" />
+                          className="px-3 py-2 rounded-lg border border-indigo-200 text-xs font-medium outline-none focus:border-[var(--accent)] bg-white text-slate-900" />
                         <div className="flex items-center gap-2">
                           <label className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer flex-1">
-                            {newTypePreview ? <img src={newTypePreview} alt="preview" className="w-4 h-4 rounded object-cover" /> : <ImageIcon size={12} className="text-slate-400" />}
+                            {newTypePreview ? <img src={newTypePreview} alt="preview" className="w-4 h-4 rounded object-cover" /> : <ImageIcon size={12} className="text-[var(--ink-3)]" />}
                             {newTypeFile ? 'Logo selected' : 'Add logo (optional)'}
                             <input ref={newTypeFileRef} type="file" accept="image/*" className="hidden"
                               onChange={(e) => { const f = e.target.files?.[0]; if (!f) return; setNewTypeFile(f); setNewTypePreview(URL.createObjectURL(f)); }} />
                           </label>
                           <button type="button" onClick={handleSaveNewType} disabled={!newTypeName.trim() || savingType}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer disabled:opacity-50 whitespace-nowrap">
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold cursor-pointer disabled:opacity-50 whitespace-nowrap">
                             {savingType ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />} Save Type
                           </button>
                           <button type="button" onClick={() => { setShowNewTypeForm(false); setNewTypeName(''); setNewTypeFile(null); setNewTypePreview(null); }}
-                            className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600 cursor-pointer"><X size={13} /></button>
+                            className="p-1.5 rounded-lg border border-slate-200 text-[var(--ink-3)] hover:text-slate-600 cursor-pointer"><X size={13} /></button>
                         </div>
                       </div>
                     )}
@@ -255,23 +255,23 @@ function AddUnitModal({ companies, categories, onClose, onAdded, onCategoryCreat
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <MapPin size={12} className="text-indigo-500" />
-                  Deploy to Zone <span className="text-slate-400 font-normal">(optional — blank = in stock)</span>
+                  Deploy to Zone <span className="text-[var(--ink-3)] font-normal">(optional — blank = in stock)</span>
                 </label>
                 <select value={form.zoneId} onChange={(e) => setForm({...form, zoneId:e.target.value})} disabled={loadingZones}
-                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer disabled:opacity-60 text-slate-900">
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] cursor-pointer disabled:opacity-60 text-slate-900">
                   <option value="">In stock (no zone)</option>
                   {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
                 </select>
-                {!loadingZones && zones.length === 0 && <p className="text-[11px] text-slate-400">No zones for this org yet — product will be added to stock.</p>}
+                {!loadingZones && zones.length === 0 && <p className="text-[11px] text-[var(--ink-3)]">No zones for this org yet — product will be added to stock.</p>}
               </div>
 
               {/* Quantity */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700">Quantity <span className="text-slate-400 font-normal">(max 50)</span></label>
+                <label className="text-xs font-bold text-slate-700">Quantity <span className="text-[var(--ink-3)] font-normal">(max 50)</span></label>
                 <input type="number" min="1" max="50" step="1" value={form.quantity}
                   onChange={(e) => setForm({ ...form, quantity: e.target.value })}
                   onBlur={(e) => setForm({ ...form, quantity: Math.max(1, Math.min(50, Number(e.target.value) || 1)) })}
-                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 w-28 text-slate-900 bg-white" />
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] w-28 text-slate-900 bg-white" />
                 {Number(form.quantity) > 1 && (
                   <p className="text-[11px] text-indigo-600 font-semibold">{Number(form.quantity)} products will be created, each with a unique auto-generated code.</p>
                 )}
@@ -283,12 +283,12 @@ function AddUnitModal({ companies, categories, onClose, onAdded, onCategoryCreat
                   <label className="text-xs font-bold text-slate-700">Price (₹) per unit</label>
                   <input type="number" min="0" step="1" placeholder="optional" value={form.price}
                     onChange={(e) => setForm({...form, price:e.target.value})}
-                    className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 text-slate-900 bg-white placeholder:text-slate-400" />
+                    className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] text-slate-900 bg-white placeholder:text-[var(--ink-3)]" />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-bold text-slate-700">Purchase Date</label>
                   <input type="date" value={form.purchaseDate} onChange={(e) => setForm({...form, purchaseDate:e.target.value})}
-                    className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 text-slate-900 bg-white" />
+                    className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] text-slate-900 bg-white" />
                 </div>
               </div>
 
@@ -341,12 +341,12 @@ function DeployModal({ unit, onClose, onDeployed }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-        <div className="bg-slate-900 text-white px-5 py-4 flex items-center justify-between">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center"><MapPin size={18} /></div>
-            <div><div className="text-sm font-bold">Deploy Unit</div><div className="text-[11px] text-slate-400 font-mono">{unit?.code}</div></div>
+            <div className="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center"><MapPin size={18} /></div>
+            <div><div className="text-sm font-bold">Deploy Unit</div><div className="text-[11px] text-[var(--ink-3)] font-mono">{unit?.code}</div></div>
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"><X size={14} /></button>
+          <button onClick={onClose} className="w-7 h-7 rounded-lg bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center cursor-pointer"><X size={14} /></button>
         </div>
         <div className="p-5 flex flex-col gap-4">
           <p className="text-xs text-slate-600">Deploy <strong>{unit?.name}</strong> from stock into a zone. Status will change to <strong>Active</strong>.</p>
@@ -354,16 +354,16 @@ function DeployModal({ unit, onClose, onDeployed }) {
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Destination Zone <span className="text-rose-500">*</span></label>
             <select value={zoneId} onChange={(e) => setZoneId(e.target.value)} disabled={loading}
-              className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer disabled:opacity-60">
+              className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] cursor-pointer disabled:opacity-60">
               <option value="">{loading ? 'Loading zones…' : 'Select a zone…'}</option>
               {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
             </select>
-            {!loading && zones.length === 0 && <p className="text-[11px] text-slate-400">No zones for this org. Create zones first.</p>}
+            {!loading && zones.length === 0 && <p className="text-[11px] text-[var(--ink-3)]">No zones for this org. Create zones first.</p>}
           </div>
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
             <button onClick={onClose} className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold cursor-pointer hover:bg-slate-50">Cancel</button>
             <button onClick={handle} disabled={submitting || !zoneId}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer disabled:opacity-50 transition-colors">
+              className="px-4 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold cursor-pointer disabled:opacity-50 transition-colors">
               {submitting ? 'Deploying…' : 'Deploy'}
             </button>
           </div>
@@ -387,10 +387,10 @@ function RetireModal({ unit, onClose, onRetired }) {
       <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
         <div className="bg-rose-700 text-white px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-rose-500/30 text-rose-200 flex items-center justify-center"><Archive size={18} /></div>
-            <div><div className="text-sm font-bold">Retire Unit</div><div className="text-[11px] text-rose-300 font-mono">{unit?.code}</div></div>
+            <div className="w-9 h-9 rounded-xl bg-rose-500/30 text-rose-800 dark:text-rose-200 flex items-center justify-center"><Archive size={18} /></div>
+            <div><div className="text-sm font-bold">Retire Unit</div><div className="text-[11px] text-rose-700 dark:text-rose-300 font-mono">{unit?.code}</div></div>
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg bg-rose-800 text-rose-300 hover:text-white flex items-center justify-center cursor-pointer"><X size={14} /></button>
+          <button onClick={onClose} className="w-7 h-7 rounded-lg bg-rose-800 text-rose-300 hover:text-[var(--ink)] flex items-center justify-center cursor-pointer"><X size={14} /></button>
         </div>
         <div className="p-5 flex flex-col gap-4">
           <p className="text-xs text-slate-600">Soft-retire <strong>{unit?.name}</strong> from <strong>{unit?.companyName}</strong>. It stays in the system for audit but is removed from active inventory.</p>
@@ -512,7 +512,7 @@ export default function ProductsList() {
         <button onClick={() => setOrgFilter('all')}
           className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
             orgFilter === 'all'
-              ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+              ? 'bg-[var(--accent)] text-white border-indigo-600 shadow-sm'
               : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-400'
           }`}>
           <Boxes size={13} />All Organizations
@@ -521,7 +521,7 @@ export default function ProductsList() {
           <button key={c.id} onClick={() => setOrgFilter(c.id)}
             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
               orgFilter === c.id
-                ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                ? 'bg-[var(--accent)] text-white border-indigo-600 shadow-sm'
                 : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-400'
             }`}>
             <Building2 size={13} />{c.name}
@@ -558,7 +558,7 @@ export default function ProductsList() {
           { key:'active',            label:'Active',      val: counts.active ?? 0,            color:'text-emerald-600' },
           { key:'under_maintenance', label:'Maintenance', val: counts.under_maintenance ?? 0, color:'text-amber-600' },
           { key:'faulty',            label:'Faulty',      val: counts.faulty ?? 0,            color:'text-rose-600' },
-          { key:'retired',           label:'Retired',     val: counts.retired ?? 0,           color:'text-slate-400' },
+          { key:'retired',           label:'Retired',     val: counts.retired ?? 0,           color:'text-[var(--ink-3)]' },
           { key:'value',             label:'Total Value', val: `₹${totalValue.toLocaleString('en-IN',{maximumFractionDigits:0})}`, color:'text-indigo-600', noFilter:true },
         ].map(({ key, label, val, color, noFilter }) => (
           <button key={key} disabled={noFilter}
@@ -571,7 +571,7 @@ export default function ProductsList() {
               )
             }`}>
             <span className={`text-xl font-extrabold leading-tight ${color}`}>{val}</span>
-            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mt-0.5">{label}</span>
+            <span className="text-[10px] font-semibold text-[var(--ink-3)] uppercase tracking-wide mt-0.5">{label}</span>
           </button>
         ))}
       </div>
@@ -579,17 +579,17 @@ export default function ProductsList() {
       {/* ── Search + Status tabs ── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-md">
         <div className="flex items-center gap-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-3 py-2 flex-1 min-w-[200px]">
-          <Search size={14} className="text-slate-400 shrink-0" />
+          <Search size={14} className="text-[var(--ink-3)] shrink-0" />
           <input type="text" placeholder="Search name, code, category, org, zone…"
             value={search} onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent outline-none text-xs text-white placeholder:text-slate-500 w-full" />
-          {search && <button onClick={() => setSearch('')} className="text-slate-400 hover:text-white cursor-pointer"><X size={13} /></button>}
+            className="bg-transparent outline-none text-xs text-[var(--ink)] placeholder:text-slate-500 w-full" />
+          {search && <button onClick={() => setSearch('')} className="text-[var(--ink-3)] hover:text-[var(--ink)] cursor-pointer"><X size={13} /></button>}
         </div>
         <div className="flex items-center bg-[var(--bg-main)] p-1 rounded-xl text-xs font-semibold gap-0.5 flex-wrap border border-[var(--border-color)]">
           {STATUS_TABS.map((tab) => (
             <button key={tab} onClick={() => setStatusTab(tab)}
               className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                statusTab === tab ? 'bg-blue-600 text-white shadow-xs font-bold' : 'text-slate-400 hover:text-white'
+                statusTab === tab ? 'bg-[var(--accent)] text-white shadow-xs font-bold' : 'text-[var(--ink-3)] hover:text-[var(--ink)]'
               }`}>
               {tab === 'all' ? 'All' : tab === 'provisioned' ? 'In Stock' : tab === 'under_maintenance' ? 'Maintenance' : tab.replace(/_/g,' ')}
             </button>
@@ -608,7 +608,7 @@ export default function ProductsList() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)]">
                 <th className="py-3 px-4">Code</th>
                 <th className="py-3 px-4">Unit</th>
                 <th className="py-3 px-4">Category</th>
@@ -622,9 +622,9 @@ export default function ProductsList() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
               {loading ? (
-                <tr><td colSpan="9" className="text-center py-16 text-slate-400">Loading inventory…</td></tr>
+                <tr><td colSpan="9" className="text-center py-16 text-[var(--ink-3)]">Loading inventory…</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan="9" className="text-center py-16 text-slate-400">
+                <tr><td colSpan="9" className="text-center py-16 text-[var(--ink-3)]">
                   {products.length === 0 ? 'No units yet. Add one or bulk import.' : 'No units match your filters.'}
                 </td></tr>
               ) : (
@@ -636,7 +636,7 @@ export default function ProductsList() {
                       <td className="py-3.5 px-4 font-mono font-bold text-indigo-600 whitespace-nowrap">{p.code}</td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0"><Package size={14} className="text-slate-400" /></div>
+                          <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0"><Package size={14} className="text-[var(--ink-3)]" /></div>
                           <span className="font-bold text-slate-900">{p.name}</span>
                         </div>
                       </td>
@@ -645,14 +645,14 @@ export default function ProductsList() {
                       </td>
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
-                          <Building2 size={12} className="text-slate-400 shrink-0" />
+                          <Building2 size={12} className="text-[var(--ink-3)] shrink-0" />
                           <span className="text-slate-700 font-semibold">{p.companyName || '—'}</span>
                         </div>
                       </td>
                       <td className="py-3.5 px-4 whitespace-nowrap"><StatusBadge status={p.status} /></td>
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         {p.inStock ? (
-                          <span className="text-slate-400 text-[11px]">In stock</span>
+                          <span className="text-[var(--ink-3)] text-[11px]">In stock</span>
                         ) : (
                           <div className="flex items-center gap-1">
                             <MapPin size={11} className="text-indigo-500 shrink-0" />
@@ -662,7 +662,7 @@ export default function ProductsList() {
                       </td>
                       <td className="py-3.5 px-4 font-semibold text-slate-700 whitespace-nowrap">{money(p.unitPrice)}</td>
                       <td className="py-3.5 px-4 text-slate-500 whitespace-nowrap">
-                        <div className="flex items-center gap-1"><Clock size={11} className="text-slate-400" />{fmtDate(p.purchaseDate)}</div>
+                        <div className="flex items-center gap-1"><Clock size={11} className="text-[var(--ink-3)]" />{fmtDate(p.purchaseDate)}</div>
                       </td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center justify-end gap-1">
@@ -703,7 +703,7 @@ export default function ProductsList() {
         <div className="overflow-x-auto border border-slate-200 rounded-xl">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)]">
                 <th className="py-3 px-4">Date Added</th>
                 <th className="py-3 px-4">Added By</th>
                 <th className="py-3 px-4">Code</th>
@@ -716,21 +716,21 @@ export default function ProductsList() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
               {loading ? (
-                <tr><td colSpan="8" className="text-center py-10 text-slate-400">Loading…</td></tr>
+                <tr><td colSpan="8" className="text-center py-10 text-[var(--ink-3)]">Loading…</td></tr>
               ) : products.length === 0 ? (
-                <tr><td colSpan="8" className="text-center py-10 text-slate-400">No units added yet.</td></tr>
+                <tr><td colSpan="8" className="text-center py-10 text-[var(--ink-3)]">No units added yet.</td></tr>
               ) : (
                 [...products]
                   .sort((a, b) => new Date(b.createdAt ?? 0) - new Date(a.createdAt ?? 0))
                   .map((p) => (
                     <tr key={p.id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="py-3 px-4 text-slate-600 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5"><Calendar size={12} className="text-slate-400" />{fmtDateTime(p.createdAt)}</div>
+                        <div className="flex items-center gap-1.5"><Calendar size={12} className="text-[var(--ink-3)]" />{fmtDateTime(p.createdAt)}</div>
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         {p.addedByName ? (
                           <div className="flex items-center gap-1.5"><UserCheck size={12} className="text-indigo-500 shrink-0" /><span className="font-semibold text-slate-800">{p.addedByName}</span></div>
-                        ) : <span className="text-slate-400">—</span>}
+                        ) : <span className="text-[var(--ink-3)]">—</span>}
                       </td>
                       <td className="py-3 px-4 font-mono font-bold text-indigo-600 whitespace-nowrap">{p.code}</td>
                       <td className="py-3 px-4 font-semibold text-slate-900 max-w-[160px] truncate">{p.name}</td>
@@ -738,7 +738,7 @@ export default function ProductsList() {
                         <span className="bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-md text-[11px] font-semibold whitespace-nowrap">{p.category}</span>
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5"><Building2 size={12} className="text-slate-400 shrink-0" /><span className="text-slate-700 font-semibold">{p.companyName}</span></div>
+                        <div className="flex items-center gap-1.5"><Building2 size={12} className="text-[var(--ink-3)] shrink-0" /><span className="text-slate-700 font-semibold">{p.companyName}</span></div>
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         {p.inStock ? (

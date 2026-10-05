@@ -48,17 +48,17 @@ function AssignStaffModal({ zoneId, clientId, assignedIds, onClose, onAssigned }
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-800 dark:text-amber-400 flex items-center justify-center border border-amber-500/30">
               <UserPlus size={20} />
             </div>
             <div>
               <h2 className="text-base font-bold">Assign Zone Staff</h2>
-              <p className="text-xs text-slate-400">Add a staff member to your zone</p>
+              <p className="text-xs text-[var(--ink-3)]">Add a staff member to your zone</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer">
             <X size={16} />
           </button>
         </div>
@@ -71,11 +71,11 @@ function AssignStaffModal({ zoneId, clientId, assignedIds, onClose, onAssigned }
           )}
 
           {loading ? (
-            <div className="flex items-center gap-2 justify-center py-8 text-slate-400 text-xs">
+            <div className="flex items-center gap-2 justify-center py-8 text-[var(--ink-3)] text-xs">
               <Loader2 size={16} className="animate-spin" /> Loading staff…
             </div>
           ) : available.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-400">
+            <div className="py-8 text-center text-xs text-[var(--ink-3)]">
               {users.length === 0
                 ? 'No zone staff accounts found. Ask your admin to create staff accounts first.'
                 : 'All available staff are already assigned to this zone.'}
@@ -189,7 +189,7 @@ export default function ZoneTeamPage() {
           {isIncharge && (
             <button
               onClick={() => setAssignModal(true)}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-colors cursor-pointer shadow-sm shadow-amber-200"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold transition-colors cursor-pointer shadow-sm shadow-amber-200"
             >
               <UserPlus size={14} /> Assign Staff
             </button>
@@ -224,7 +224,7 @@ export default function ZoneTeamPage() {
       {/* Empty state */}
       {!loading && !error && assignments.length === 0 && (
         <div className="flex flex-col items-center gap-3 p-16 bg-white rounded-2xl border border-slate-200">
-          <Users size={24} className="text-slate-300" />
+          <Users size={24} className="text-[var(--ink-2)]" />
           <p className="text-sm font-semibold text-slate-500">
             {isIncharge
               ? 'No staff assigned yet — use "Assign Staff" to add team members.'
@@ -265,7 +265,7 @@ export default function ZoneTeamPage() {
                         onClick={() => handleRemove(a.id)}
                         disabled={removingId === a.id}
                         title="Remove from zone"
-                        className="flex items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-rose-600 hover:bg-rose-50 px-2 py-1 rounded-lg transition-colors cursor-pointer disabled:opacity-40"
+                        className="flex items-center gap-1 text-[11px] font-bold text-[var(--ink-3)] hover:text-rose-600 hover:bg-rose-50 px-2 py-1 rounded-lg transition-colors cursor-pointer disabled:opacity-40"
                       >
                         {removingId === a.id
                           ? <Loader2 size={12} className="animate-spin" />

@@ -93,7 +93,7 @@ export default function SuperadminZonesPage() {
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => setCreateModal(true)}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors cursor-pointer shadow-sm shadow-indigo-200"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold transition-colors cursor-pointer shadow-sm shadow-indigo-200"
             >
               <Plus size={14} /> Create Zone
             </button>
@@ -108,22 +108,22 @@ export default function SuperadminZonesPage() {
       {/* Company selector */}
       <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 shadow-md flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex items-center gap-2 shrink-0">
-          <Building2 size={15} className="text-blue-400" />
-          <span className="text-xs font-bold text-slate-300">Company:</span>
+          <Building2 size={15} className="text-blue-700 dark:text-blue-400" />
+          <span className="text-xs font-bold text-[var(--ink-2)]">Company:</span>
         </div>
         <select
           value={selectedClientId}
           onChange={(e) => setSelected(e.target.value)}
           disabled={loadingClients}
-          className="flex-1 px-3.5 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-white text-xs font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer disabled:opacity-60"
+          className="flex-1 px-3.5 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--ink)] text-xs font-medium outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] cursor-pointer disabled:opacity-60"
         >
-          <option value="" className="bg-slate-900 text-white">{loadingClients ? 'Loading…' : '— choose a company —'}</option>
+          <option value="" className="bg-[var(--surface-2)] text-[var(--ink)]">{loadingClients ? 'Loading…' : '— choose a company —'}</option>
           {clients.map((c) => (
-            <option key={c.id} value={c.id} className="bg-slate-900 text-white">{c.name}{c.location ? ` · ${c.location}` : ''}</option>
+            <option key={c.id} value={c.id} className="bg-[var(--surface-2)] text-[var(--ink)]">{c.name}{c.location ? ` · ${c.location}` : ''}</option>
           ))}
         </select>
         {selectedClient?.location && (
-          <span className="text-[11px] text-slate-400 flex items-center gap-1 shrink-0">
+          <span className="text-[11px] text-[var(--ink-3)] flex items-center gap-1 shrink-0">
             <MapPin size={10} /> {selectedClient.location}
           </span>
         )}
@@ -133,7 +133,7 @@ export default function SuperadminZonesPage() {
       {!selectedClientId && !loadingClients && (
         <div className="flex flex-col items-center gap-3 p-16 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] text-center">
           <MapPin size={28} className="text-slate-500" />
-          <p className="text-sm font-semibold text-slate-400">Select a company above to view and manage its zones.</p>
+          <p className="text-sm font-semibold text-[var(--ink-3)]">Select a company above to view and manage its zones.</p>
         </div>
       )}
 
@@ -142,17 +142,17 @@ export default function SuperadminZonesPage() {
         <>
           {/* Search + filter */}
           <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex items-center gap-2 flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
-              <Search size={14} className="text-slate-400 shrink-0" />
+            <div className="flex items-center gap-2 flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 focus-within:border-[var(--accent)] focus-within:ring-2 focus-within:ring-[var(--accent-soft)] transition-all">
+              <Search size={14} className="text-[var(--ink-3)] shrink-0" />
               <input
                 type="text"
                 placeholder="Search zones…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="bg-transparent text-xs font-medium text-white outline-none w-full placeholder:text-slate-500"
+                className="bg-transparent text-xs font-medium text-[var(--ink)] outline-none w-full placeholder:text-slate-500"
               />
               {search && (
-                <button onClick={() => setSearch('')} className="text-slate-400 hover:text-white cursor-pointer">
+                <button onClick={() => setSearch('')} className="text-[var(--ink-3)] hover:text-[var(--ink)] cursor-pointer">
                   <X size={13} />
                 </button>
               )}
@@ -168,8 +168,8 @@ export default function SuperadminZonesPage() {
                 <button key={t.key} onClick={() => setStatusFilter(t.key)}
                   className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
                     statusFilter === t.key
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                      ? 'bg-[var(--accent)] text-white shadow-sm'
+                      : 'bg-[var(--surface-3)] text-[var(--ink-2)] hover:bg-[var(--surface-3)] hover:text-[var(--ink)]'
                   }`}>
                   {t.label}
                 </button>
@@ -180,12 +180,12 @@ export default function SuperadminZonesPage() {
           {loading && (
             <div className="flex items-center gap-3 justify-center p-16 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)]">
               <Loader2 size={20} className="animate-spin text-blue-500" />
-              <span className="text-xs text-slate-400">Loading zones…</span>
+              <span className="text-xs text-[var(--ink-3)]">Loading zones…</span>
             </div>
           )}
 
           {error && (
-            <div className="flex items-center gap-3 p-5 bg-rose-950/40 border border-rose-800/60 rounded-2xl text-rose-300 text-sm font-semibold">
+            <div className="flex items-center gap-3 p-5 bg-rose-500/10 border border-rose-500/25 rounded-2xl text-rose-700 dark:text-rose-300 text-sm font-semibold">
               <AlertTriangle size={16} /> {error}
             </div>
           )}
@@ -193,7 +193,7 @@ export default function SuperadminZonesPage() {
           {!loading && !error && filtered.length === 0 && (
             <div className="flex flex-col items-center gap-3 p-16 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)]">
               <MapPin size={24} className="text-slate-500" />
-              <p className="text-sm font-semibold text-slate-400">
+              <p className="text-sm font-semibold text-[var(--ink-3)]">
                 {zones.length === 0 ? 'No zones yet — use the Zone Management tool to create zones for this company.' : 'No zones match your search.'}
               </p>
             </div>
@@ -206,7 +206,6 @@ export default function SuperadminZonesPage() {
                   key={zone.id}
                   zone={zone}
                   stats={statsMap[zone.id] ?? {}}
-                  index={i}
                   basePath="/superadmin"
                   onNotWorkingClick={(zoneId, zoneName) => setIssuesModal({ zoneId, zoneName })}
                   onRaiseIssue={(zoneId) => setRaiseModal({ zoneId })}

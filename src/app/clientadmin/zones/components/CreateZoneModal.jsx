@@ -69,16 +69,16 @@ export default function CreateZoneModal({ isOpen, clientId, initialParentZoneId,
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 flex items-center justify-center border border-indigo-500/30">
               <MapPin size={20} />
             </div>
             <div>
               <h2 className="text-base font-bold">
                 {isParentLocked ? 'Add Sub-Zone' : 'Create Zone'}
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[var(--ink-3)]">
                 {isParentLocked && parentZoneName
                   ? `Under: ${parentZoneName}`
                   : 'Define a new zone for this facility'}
@@ -87,7 +87,7 @@ export default function CreateZoneModal({ isOpen, clientId, initialParentZoneId,
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={16} />
           </button>
@@ -112,14 +112,14 @@ export default function CreateZoneModal({ isOpen, clientId, initialParentZoneId,
               placeholder="e.g. Ground Floor, Block A, Server Room"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+              className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]"
             />
           </div>
 
           {/* Logo Upload */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">
-              Zone Logo <span className="text-slate-400 font-normal">(optional)</span>
+              Zone Logo <span className="text-[var(--ink-3)] font-normal">(optional)</span>
             </label>
             <div className="flex items-center gap-3">
               <div
@@ -129,7 +129,7 @@ export default function CreateZoneModal({ isOpen, clientId, initialParentZoneId,
                 {logoPreview ? (
                   <img src={logoPreview} alt="logo preview" className="w-full h-full object-cover" />
                 ) : (
-                  <Image size={24} className="text-slate-300" />
+                  <Image size={24} className="text-[var(--ink-2)]" />
                 )}
               </div>
               <div className="flex flex-col gap-1">
@@ -141,7 +141,7 @@ export default function CreateZoneModal({ isOpen, clientId, initialParentZoneId,
                   <Upload size={13} /> {logoPreview ? 'Change logo' : 'Upload logo'}
                 </button>
                 {logoFile && (
-                  <p className="text-[11px] text-slate-400 truncate max-w-[180px]">{logoFile.name}</p>
+                  <p className="text-[11px] text-[var(--ink-3)] truncate max-w-[180px]">{logoFile.name}</p>
                 )}
               </div>
               <input
@@ -158,13 +158,13 @@ export default function CreateZoneModal({ isOpen, clientId, initialParentZoneId,
           {!isParentLocked && (
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-slate-700">
-                Parent Zone <span className="text-slate-400 font-normal">(optional — leave blank for top-level)</span>
+                Parent Zone <span className="text-[var(--ink-3)] font-normal">(optional — leave blank for top-level)</span>
               </label>
               <select
                 value={parentZoneId}
                 onChange={(e) => setParentZoneId(e.target.value)}
                 disabled={loadingZones}
-                className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer disabled:opacity-60"
+                className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] cursor-pointer disabled:opacity-60"
               >
                 <option value="">{loadingZones ? 'Loading zones…' : 'No parent (top-level zone)'}</option>
                 {zones.map((z) => (

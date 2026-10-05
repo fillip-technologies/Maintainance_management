@@ -50,7 +50,7 @@ export default function ClientRecentInvoices({ invoices, onNotify }) {
                     </span>
                   </div>
                   <span className="text-[11px] text-slate-600 mt-0.5 line-clamp-1">{inv.description}</span>
-                  <span className="text-[10px] text-slate-400">{inv.date}</span>
+                  <span className="text-[10px] text-[var(--ink-3)]">{inv.date}</span>
                 </div>
               </div>
 

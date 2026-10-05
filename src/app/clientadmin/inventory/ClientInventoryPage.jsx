@@ -53,15 +53,15 @@ function DeployModal({ unit, zones, onDeploy, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-        <div className="bg-slate-900 text-white px-5 py-4 flex items-center justify-between">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center"><MapPin size={18} /></div>
+            <div className="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center"><MapPin size={18} /></div>
             <div>
               <div className="text-sm font-bold">Deploy Unit</div>
-              <div className="text-[11px] text-slate-400 font-mono">{unit.code}</div>
+              <div className="text-[11px] text-[var(--ink-3)] font-mono">{unit.code}</div>
             </div>
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"><X size={14} /></button>
+          <button onClick={onClose} className="w-7 h-7 rounded-lg bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center cursor-pointer"><X size={14} /></button>
         </div>
         <div className="p-5 flex flex-col gap-4">
           <p className="text-xs text-slate-600">
@@ -75,16 +75,16 @@ function DeployModal({ unit, zones, onDeploy, onClose }) {
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Destination Zone <span className="text-rose-500">*</span></label>
             <select value={zoneId} onChange={(e) => setZoneId(e.target.value)}
-              className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer">
+              className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)] cursor-pointer">
               <option value="">Select a zone…</option>
               {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
             </select>
-            {zones.length === 0 && <p className="text-[11px] text-slate-400">No zones available. Create zones first.</p>}
+            {zones.length === 0 && <p className="text-[11px] text-[var(--ink-3)]">No zones available. Create zones first.</p>}
           </div>
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
             <button onClick={onClose} className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold cursor-pointer hover:bg-slate-50">Cancel</button>
             <button onClick={handleDeploy} disabled={loading || !zoneId}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer disabled:opacity-50 transition-colors">
+              className="px-4 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold cursor-pointer disabled:opacity-50 transition-colors">
               {loading ? 'Deploying…' : 'Deploy'}
             </button>
           </div>
@@ -110,13 +110,13 @@ function RetireModal({ unit, onRetire, onClose }) {
       <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
         <div className="bg-rose-700 text-white px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-rose-500/30 text-rose-200 flex items-center justify-center"><Archive size={18} /></div>
+            <div className="w-9 h-9 rounded-xl bg-rose-500/30 text-rose-800 dark:text-rose-200 flex items-center justify-center"><Archive size={18} /></div>
             <div>
               <div className="text-sm font-bold">Retire Unit</div>
-              <div className="text-[11px] text-rose-300 font-mono">{unit.code}</div>
+              <div className="text-[11px] text-rose-700 dark:text-rose-300 font-mono">{unit.code}</div>
             </div>
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg bg-rose-800 text-rose-300 hover:text-white flex items-center justify-center cursor-pointer"><X size={14} /></button>
+          <button onClick={onClose} className="w-7 h-7 rounded-lg bg-rose-800 text-rose-300 hover:text-[var(--ink)] flex items-center justify-center cursor-pointer"><X size={14} /></button>
         </div>
         <div className="p-5 flex flex-col gap-4">
           <p className="text-xs text-slate-600">
@@ -224,15 +224,15 @@ function AddProductModal({ categories, zones, loadingZones, onAdd, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-        <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30"><Boxes size={20} /></div>
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/30"><Boxes size={20} /></div>
             <div>
               <h2 className="text-base font-bold">Add Product to Inventory</h2>
-              <p className="text-xs text-slate-400">A unique code is auto-generated. Optionally deploy to a zone now.</p>
+              <p className="text-xs text-[var(--ink-3)]">A unique code is auto-generated. Optionally deploy to a zone now.</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"><X size={16} /></button>
+          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center cursor-pointer"><X size={16} /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4 overflow-y-auto text-slate-900">
@@ -251,18 +251,18 @@ function AddProductModal({ categories, zones, loadingZones, onAdd, onClose }) {
               <option value="" disabled>Select a category…</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
             </select>
-            <p className="text-[11px] text-slate-400">Unique code (e.g. {categories[0]?.code || 'CAM'}-000123) is generated automatically.</p>
+            <p className="text-[11px] text-[var(--ink-3)]">Unique code (e.g. {categories[0]?.code || 'CAM'}-000123) is generated automatically.</p>
           </div>
 
           {/* Product Type */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-slate-700">Product Type <span className="text-rose-500">*</span></label>
             {!form.categoryId ? (
-              <div className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-400">
+              <div className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-[var(--ink-3)]">
                 Select a category first
               </div>
             ) : ptLoading ? (
-              <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-400">
+              <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-[var(--ink-3)]">
                 <Loader2 size={12} className="animate-spin" /> Loading types…
               </div>
             ) : (
@@ -300,7 +300,7 @@ function AddProductModal({ categories, zones, loadingZones, onAdd, onClose }) {
                       <label className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer flex-1">
                         {newTypePreview
                           ? <img src={newTypePreview} alt="preview" className="w-4 h-4 rounded object-cover" />
-                          : <ImageIcon size={12} className="text-slate-400" />}
+                          : <ImageIcon size={12} className="text-[var(--ink-3)]" />}
                         {newTypeFile ? 'Logo selected' : 'Add logo (optional)'}
                         <input ref={newTypeFileRef} type="file" accept="image/*" className="hidden"
                           onChange={(e) => {
@@ -317,7 +317,7 @@ function AddProductModal({ categories, zones, loadingZones, onAdd, onClose }) {
                         Save Type
                       </button>
                       <button type="button" onClick={() => { setShowNewTypeForm(false); setNewTypeName(''); setNewTypeFile(null); setNewTypePreview(null); }}
-                        className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600 cursor-pointer">
+                        className="p-1.5 rounded-lg border border-slate-200 text-[var(--ink-3)] hover:text-slate-600 cursor-pointer">
                         <X size={13} />
                       </button>
                     </div>
@@ -332,7 +332,7 @@ function AddProductModal({ categories, zones, loadingZones, onAdd, onClose }) {
             <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
               <MapPin size={12} className="text-indigo-500" />
               Deploy to Zone
-              <span className="text-slate-400 font-medium">(optional — leave blank to add to stock)</span>
+              <span className="text-[var(--ink-3)] font-medium">(optional — leave blank to add to stock)</span>
             </label>
             <select value={form.zoneId} onChange={(e) => setForm({ ...form, zoneId: e.target.value })}
               disabled={loadingZones}
@@ -341,7 +341,7 @@ function AddProductModal({ categories, zones, loadingZones, onAdd, onClose }) {
               {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
             </select>
             {!loadingZones && zones.length === 0 && (
-              <p className="text-[11px] text-slate-400">No zones set up — product will be added to stock.</p>
+              <p className="text-[11px] text-[var(--ink-3)]">No zones set up — product will be added to stock.</p>
             )}
           </div>
 
@@ -351,7 +351,7 @@ function AddProductModal({ categories, zones, loadingZones, onAdd, onClose }) {
               <label className="text-xs font-bold text-slate-700">Price (₹)</label>
               <input type="number" min="0" step="1" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })}
                 placeholder="optional"
-                className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 text-slate-900 bg-white placeholder:text-slate-400" />
+                className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 text-slate-900 bg-white placeholder:text-[var(--ink-3)]" />
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-slate-700">Purchase Date</label>
@@ -512,18 +512,18 @@ export default function ClientInventoryPage() {
     <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 relative">
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700 animate-in slide-in-from-bottom-4 duration-200">
-          <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><CheckCircle2 size={16} /></div>
+        <div className="fixed bottom-6 right-6 z-50 bg-[var(--surface-2)] text-[var(--ink)] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-[var(--line)] animate-in slide-in-from-bottom-4 duration-200">
+          <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center justify-center"><CheckCircle2 size={16} /></div>
           <span className="text-xs font-semibold">{toast}</span>
-          <button onClick={() => setToast(null)} className="text-slate-400 hover:text-white p-1 ml-2 cursor-pointer"><X size={14} /></button>
+          <button onClick={() => setToast(null)} className="text-[var(--ink-3)] hover:text-[var(--ink)] p-1 ml-2 cursor-pointer"><X size={14} /></button>
         </div>
       )}
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 py-1">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Inventory</h1>
-          <p className="text-xs text-slate-400">Hardware products for your organization — add, deploy, track status, raise defects.</p>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--ink)] tracking-tight">Inventory</h1>
+          <p className="text-xs text-[var(--ink-3)]">Hardware products for your organization — add, deploy, track status, raise defects.</p>
         </div>
         <div className="flex items-center gap-2.5 flex-wrap">
           <button onClick={fetchProducts} disabled={loading}
@@ -549,7 +549,7 @@ export default function ClientInventoryPage() {
           { key: 'active',            label: 'Active',      val: counts.active ?? 0,            color: 'text-emerald-600' },
           { key: 'under_maintenance', label: 'Maintenance', val: counts.under_maintenance ?? 0, color: 'text-amber-600' },
           { key: 'faulty',            label: 'Faulty',      val: counts.faulty ?? 0,            color: 'text-rose-600' },
-          { key: 'retired',           label: 'Retired',     val: counts.retired ?? 0,           color: 'text-slate-400' },
+          { key: 'retired',           label: 'Retired',     val: counts.retired ?? 0,           color: 'text-[var(--ink-3)]' },
         ].map(({ key, label, val, color }) => (
           <button key={key}
             onClick={() => setStatusTab(key === 'total' ? 'all' : key)}
@@ -559,7 +559,7 @@ export default function ClientInventoryPage() {
                 : 'border-slate-200 hover:border-slate-300'
             }`}>
             <span className={`text-2xl font-extrabold ${color}`}>{val}</span>
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">{label}</span>
+            <span className="text-[11px] font-semibold text-[var(--ink-3)] uppercase tracking-wide">{label}</span>
           </button>
         ))}
       </div>
@@ -567,11 +567,11 @@ export default function ClientInventoryPage() {
       {/* Search + Status tabs row */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
         <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex-1 min-w-[200px]">
-          <Search size={14} className="text-slate-400 shrink-0" />
+          <Search size={14} className="text-[var(--ink-3)] shrink-0" />
           <input type="text" placeholder="Search by name, code, category…" value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent outline-none text-xs text-slate-900 placeholder:text-slate-400 w-full" />
-          {search && <button onClick={() => setSearch('')} className="text-slate-400 hover:text-slate-600 cursor-pointer"><X size={13} /></button>}
+            className="bg-transparent outline-none text-xs text-slate-900 placeholder:text-[var(--ink-3)] w-full" />
+          {search && <button onClick={() => setSearch('')} className="text-[var(--ink-3)] hover:text-slate-600 cursor-pointer"><X size={13} /></button>}
         </div>
 
         <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold gap-0.5 flex-wrap">
@@ -598,7 +598,7 @@ export default function ClientInventoryPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-[var(--ink-3)]">
                 <th className="py-3 px-4">Code</th>
                 <th className="py-3 px-4">Unit</th>
                 <th className="py-3 px-4">Category</th>
@@ -612,9 +612,9 @@ export default function ClientInventoryPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
               {loading ? (
-                <tr><td colSpan="9" className="text-center py-14 text-slate-400">Loading inventory…</td></tr>
+                <tr><td colSpan="9" className="text-center py-14 text-[var(--ink-3)]">Loading inventory…</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan="9" className="text-center py-14 text-slate-400">
+                <tr><td colSpan="9" className="text-center py-14 text-[var(--ink-3)]">
                   {products.length === 0 ? 'No products yet. Add one or bulk import.' : 'No products matching the selected filter.'}
                 </td></tr>
               ) : (
@@ -638,7 +638,7 @@ export default function ClientInventoryPage() {
                             ) : p.imageUrl ? (
                               <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover group-hover/img:opacity-70 transition-opacity" />
                             ) : (
-                              <ImageIcon size={13} className="text-slate-400 group-hover/img:text-indigo-500 transition-colors" />
+                              <ImageIcon size={13} className="text-[var(--ink-3)] group-hover/img:text-indigo-500 transition-colors" />
                             )}
                             <input
                               type="file"
@@ -660,7 +660,7 @@ export default function ClientInventoryPage() {
                       </td>
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         {p.inStock ? (
-                          <span className="text-slate-400 text-[11px] font-medium">In stock</span>
+                          <span className="text-[var(--ink-3)] text-[11px] font-medium">In stock</span>
                         ) : (
                           <div className="flex items-center gap-1">
                             <MapPin size={11} className="text-indigo-500 shrink-0" />
@@ -675,13 +675,13 @@ export default function ClientInventoryPage() {
                             {openCount} open
                           </span>
                         ) : (
-                          <span className="text-slate-300 text-[11px]">—</span>
+                          <span className="text-[var(--ink-2)] text-[11px]">—</span>
                         )}
                       </td>
                       <td className="py-3.5 px-4 font-semibold text-slate-700 whitespace-nowrap">{money(p.unitPrice)}</td>
                       <td className="py-3.5 px-4 text-slate-500 whitespace-nowrap">
                         <div className="flex items-center gap-1">
-                          <Clock size={11} className="text-slate-400" />
+                          <Clock size={11} className="text-[var(--ink-3)]" />
                           {fmt(p.purchaseDate)}
                         </div>
                       </td>

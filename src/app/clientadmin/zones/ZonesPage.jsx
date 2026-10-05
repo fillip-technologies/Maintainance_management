@@ -91,23 +91,23 @@ export default function ZonesPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 text-slate-100">
+    <div className="flex flex-col gap-6 pb-12 animate-in fade-in duration-200 text-[var(--ink)]">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Zones</h1>
-          <p className="text-xs text-slate-400 mt-0.5">Click "Not Working" on any card to see active issues. Click "Raise Issue" to log a new defect.</p>
+          <h1 className="text-2xl font-extrabold text-[var(--ink)] tracking-tight">Locations</h1>
+          <p className="text-[13px] text-[var(--ink-3)] mt-2">Every location you look after. Open a board to see each device, or tap “not working” for the open complaints.</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setCreateModal(true)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors cursor-pointer shadow-sm shadow-indigo-900/30"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold transition-colors cursor-pointer shadow-sm shadow-indigo-900/30"
           >
             <Plus size={14} /> Create Zone
           </button>
           <button onClick={load} disabled={loading}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[var(--border-color)] text-slate-300 hover:text-white bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] text-xs font-bold transition-colors cursor-pointer disabled:opacity-50">
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[var(--border-color)] text-[var(--ink-2)] hover:text-[var(--ink)] bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] text-xs font-bold transition-colors cursor-pointer disabled:opacity-50">
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
           </button>
         </div>
@@ -115,17 +115,17 @@ export default function ZonesPage() {
 
       {/* Search + filter */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex items-center gap-2 flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
-          <Search size={14} className="text-slate-400 shrink-0" />
+        <div className="flex items-center gap-2 flex-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 focus-within:border-[var(--accent)] focus-within:ring-2 focus-within:ring-[var(--accent-soft)] transition-all">
+          <Search size={14} className="text-[var(--ink-3)] shrink-0" />
           <input
             type="text"
             placeholder="Search zones…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-xs font-medium text-white outline-none w-full placeholder:text-slate-500"
+            className="bg-transparent text-xs font-medium text-[var(--ink)] outline-none w-full placeholder:text-slate-500"
           />
           {search && (
-            <button onClick={() => setSearch('')} className="text-slate-400 hover:text-slate-200 cursor-pointer">
+            <button onClick={() => setSearch('')} className="text-[var(--ink-3)] hover:text-[var(--ink)] cursor-pointer">
               <X size={13} />
             </button>
           )}
@@ -141,8 +141,8 @@ export default function ZonesPage() {
             <button key={t.key} onClick={() => setStatusFilter(t.key)}
               className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
                 statusFilter === t.key
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'bg-[var(--bg-card)] border border-[var(--border-color)] text-slate-300 hover:text-white hover:bg-[var(--bg-card-hover)]'
+                  ? 'bg-[var(--accent)] text-white shadow-sm'
+                  : 'bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--ink-2)] hover:text-[var(--ink)] hover:bg-[var(--bg-card-hover)]'
               }`}>
               {t.label}
             </button>
@@ -153,13 +153,13 @@ export default function ZonesPage() {
       {/* States */}
       {loading && (
         <div className="flex items-center gap-3 justify-center p-16 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)]">
-          <Loader2 size={20} className="animate-spin text-indigo-400" />
-          <span className="text-xs text-slate-400">Loading zones…</span>
+          <Loader2 size={20} className="animate-spin text-indigo-700 dark:text-indigo-400" />
+          <span className="text-xs text-[var(--ink-3)]">Loading zones…</span>
         </div>
       )}
 
       {error && (
-        <div className="flex items-center gap-3 p-5 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-300 text-sm font-semibold">
+        <div className="flex items-center gap-3 p-5 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-700 dark:text-rose-300 text-sm font-semibold">
           <AlertTriangle size={16} /> {error}
         </div>
       )}
@@ -167,7 +167,7 @@ export default function ZonesPage() {
       {!loading && !error && filtered.length === 0 && (
         <div className="flex flex-col items-center gap-3 p-16 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)]">
           <MapPin size={24} className="text-slate-500" />
-          <p className="text-sm font-semibold text-slate-400">
+          <p className="text-sm font-semibold text-[var(--ink-3)]">
             {zones.length === 0 ? 'No zones yet — ask your administrator to create zones.' : 'No zones match your search.'}
           </p>
         </div>
@@ -175,12 +175,11 @@ export default function ZonesPage() {
 
       {!loading && !error && filtered.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filtered.map((zone, i) => (
+          {filtered.map((zone) => (
             <ZoneCard
               key={zone.id}
               zone={zone}
               stats={statsMap[zone.id] ?? {}}
-              index={i}
               onNotWorkingClick={(zoneId, zoneName) => setIssuesModal({ zoneId, zoneName })}
               onRaiseIssue={(zoneId) => setRaiseModal({ zoneId })}
               onDeleted={(deletedId) => setZones((prev) => prev.filter((z) => z.id !== deletedId))}

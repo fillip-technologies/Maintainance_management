@@ -40,7 +40,7 @@ export default function ClientMaintenanceSchedule({ schedule, onNotify }) {
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
                     {item.type}
                   </span>
-                  <span className="text-[10px] font-medium text-slate-400">ID: {item.id}</span>
+                  <span className="text-[10px] font-medium text-[var(--ink-3)]">ID: {item.id}</span>
                 </div>
                 <h3 className="text-xs font-bold text-slate-900 mt-1">{item.title}</h3>
                 <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mt-0.5">
@@ -53,7 +53,7 @@ export default function ClientMaintenanceSchedule({ schedule, onNotify }) {
             <div className="flex flex-col sm:items-end shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200">
               <span className="text-xs font-bold text-slate-800">{item.date}</span>
               <span className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                <Clock size={11} className="text-slate-400" />
+                <Clock size={11} className="text-[var(--ink-3)]" />
                 {item.time}
               </span>
             </div>

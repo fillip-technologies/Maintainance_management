@@ -56,7 +56,7 @@ function ActivityFeed({ zoneId }) {
 
   if (loading && items.length === 0) {
     return (
-      <div className="flex items-center gap-3 py-10 justify-center text-slate-400">
+      <div className="flex items-center gap-3 py-10 justify-center text-[var(--ink-3)]">
         <Loader2 size={18} className="animate-spin" /> Loading activity…
       </div>
     );
@@ -70,8 +70,8 @@ function ActivityFeed({ zoneId }) {
   }
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 py-14 text-slate-400">
-        <Activity size={22} className="text-slate-300" />
+      <div className="flex flex-col items-center gap-2 py-14 text-[var(--ink-3)]">
+        <Activity size={22} className="text-[var(--ink-2)]" />
         <p className="text-xs font-semibold">No activity yet — status changes will appear here.</p>
       </div>
     );
@@ -95,13 +95,13 @@ function ActivityFeed({ zoneId }) {
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className={`text-[11px] font-bold ${s.text}`}>{s.label}</span>
                   {item.fromStatus && (
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-[var(--ink-3)]">
                       from <span className="font-semibold text-slate-600">{item.fromStatus?.replace('_', ' ')}</span>
                     </span>
                   )}
                   <span className={`w-1.5 h-1.5 rounded-full ${pDot} shrink-0`} title={item.issue?.priority} />
                 </div>
-                <span className="text-[10px] text-slate-400 shrink-0 whitespace-nowrap">
+                <span className="text-[10px] text-[var(--ink-3)] shrink-0 whitespace-nowrap">
                   {new Date(item.changedAt).toLocaleDateString()} {new Date(item.changedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
@@ -121,8 +121,8 @@ function ActivityFeed({ zoneId }) {
               />
 
               <div className="flex items-center gap-1.5 mt-1">
-                <User size={10} className="text-slate-400" />
-                <span className="text-[10px] text-slate-400">
+                <User size={10} className="text-[var(--ink-3)]" />
+                <span className="text-[10px] text-[var(--ink-3)]">
                   {item.changedBy?.name ?? 'System'}
                 </span>
               </div>
@@ -146,18 +146,18 @@ function ActivityFeed({ zoneId }) {
 
 // ── Status config ────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
-  active:            { dot: 'bg-emerald-500', ring: 'ring-emerald-500/30', label: 'Working',     text: 'text-emerald-400',  bg: 'bg-emerald-500/10  border-emerald-500/25' },
-  faulty:            { dot: 'bg-rose-500',    ring: 'ring-rose-500/30',    label: 'Faulty',      text: 'text-rose-400',     bg: 'bg-rose-500/10     border-rose-500/25' },
-  under_maintenance: { dot: 'bg-amber-500',   ring: 'ring-amber-500/30',   label: 'Maintenance', text: 'text-amber-400',    bg: 'bg-amber-500/10    border-amber-500/25' },
-  provisioned:       { dot: 'bg-slate-500',   ring: 'ring-slate-500/30',   label: 'Provisioned', text: 'text-slate-400',    bg: 'bg-slate-700/40    border-slate-600' },
-  retired:           { dot: 'bg-slate-600',   ring: 'ring-slate-600/20',   label: 'Retired',     text: 'text-slate-500',    bg: 'bg-slate-800/60    border-slate-700' },
+  active:            { dot: 'bg-emerald-500', ring: 'ring-emerald-500/30', label: 'Working',     text: 'text-emerald-700 dark:text-emerald-400',  bg: 'bg-emerald-500/10  border-emerald-500/25' },
+  faulty:            { dot: 'bg-rose-500',    ring: 'ring-rose-500/30',    label: 'Faulty',      text: 'text-rose-700 dark:text-rose-400',     bg: 'bg-rose-500/10     border-rose-500/25' },
+  under_maintenance: { dot: 'bg-amber-500',   ring: 'ring-amber-500/30',   label: 'Maintenance', text: 'text-amber-800 dark:text-amber-400',    bg: 'bg-amber-500/10    border-amber-500/25' },
+  provisioned:       { dot: 'bg-slate-500',   ring: 'ring-slate-500/30',   label: 'Provisioned', text: 'text-[var(--ink-3)]',    bg: 'bg-[var(--line)]    border-[var(--line-strong)]' },
+  retired:           { dot: 'bg-slate-600',   ring: 'ring-[var(--line-strong)]',   label: 'Retired',     text: 'text-slate-500',    bg: 'bg-[var(--surface-3)]    border-[var(--line)]' },
 };
 
 // ── Device list (shown when zone has no sub-zones) ────────────────────────
 function DeviceList({ devices, onRaiseIssue }) {
   if (devices.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 py-14 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl text-slate-400">
+      <div className="flex flex-col items-center gap-2 py-14 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl text-[var(--ink-3)]">
         <Package size={22} className="text-slate-600" />
         <p className="text-xs font-semibold">No devices deployed in this zone yet.</p>
       </div>
@@ -166,7 +166,7 @@ function DeviceList({ devices, onRaiseIssue }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">
+      <p className="text-[11px] font-bold text-[var(--ink-3)] uppercase tracking-wider px-1">
         {devices.length} Device{devices.length !== 1 ? 's' : ''} in this zone
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -182,8 +182,8 @@ function DeviceList({ devices, onRaiseIssue }) {
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-bold text-white truncate">{device.name}</p>
-                <p className="text-[10px] text-slate-400 font-medium truncate">
+                <p className="text-[13px] font-bold text-[var(--ink)] truncate">{device.name}</p>
+                <p className="text-[10px] text-[var(--ink-3)] font-medium truncate">
                   {device.code ?? '—'}
                   {device.productType?.name ? ` · ${device.productType.name}` : ''}
                 </p>
@@ -230,12 +230,12 @@ function SubzoneCard({ zone, stats = {}, onDeleted, onRaiseIssue, backRoute }) {
       <div className="px-4 pt-4 pb-3 flex items-start justify-between gap-2">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
-            <MapPin size={14} className="text-indigo-400" />
+            <MapPin size={14} className="text-indigo-700 dark:text-indigo-400" />
           </div>
           <div className="min-w-0">
             <h4
               onClick={() => navigate(`${backRoute}/${zone.id}`)}
-              className="text-[13px] font-extrabold text-white group-hover:text-indigo-400 transition-colors cursor-pointer leading-tight truncate"
+              className="text-[13px] font-extrabold text-[var(--ink)] group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors cursor-pointer leading-tight truncate"
             >
               {zone.name}
             </h4>
@@ -247,9 +247,9 @@ function SubzoneCard({ zone, stats = {}, onDeleted, onRaiseIssue, backRoute }) {
           </div>
         </div>
         <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-          zone.status === 'active'   ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25' :
-          zone.status === 'inactive' ? 'bg-slate-700 text-slate-400 border-slate-600' :
-                                       'bg-amber-500/10 text-amber-400 border-amber-500/25'
+          zone.status === 'active'   ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/25' :
+          zone.status === 'inactive' ? 'bg-[var(--line)] text-[var(--ink-3)] border-[var(--line-strong)]' :
+                                       'bg-amber-500/10 text-amber-800 dark:text-amber-400 border-amber-500/25'
         }`}>{zone.status}</span>
       </div>
 
@@ -257,14 +257,14 @@ function SubzoneCard({ zone, stats = {}, onDeleted, onRaiseIssue, backRoute }) {
       <div className="px-4 pb-3 flex flex-col gap-2">
         {/* Total + progress bar */}
         <div className="flex items-center justify-between mb-0.5">
-          <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
+          <span className="text-[11px] font-bold text-[var(--ink-3)] flex items-center gap-1.5">
             <Package size={11} /> Total Devices
           </span>
-          <span className="text-sm font-black text-white">{total}</span>
+          <span className="text-sm font-black text-[var(--ink)]">{total}</span>
         </div>
 
         {total > 0 && (
-          <div className="h-1.5 w-full rounded-full bg-slate-700 overflow-hidden">
+          <div className="h-1.5 w-full rounded-full bg-[var(--line)] overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 workPct === 100 ? 'bg-emerald-500' :
@@ -278,20 +278,20 @@ function SubzoneCard({ zone, stats = {}, onDeleted, onRaiseIssue, backRoute }) {
 
         <div className="grid grid-cols-2 gap-2 mt-1">
           <div className="flex flex-col gap-0.5 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-            <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wide flex items-center gap-1">
+            <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide flex items-center gap-1">
               <CheckCircle2 size={10} /> Working
             </span>
-            <span className="text-lg font-black text-emerald-400 leading-none">{working}</span>
+            <span className="text-lg font-black text-emerald-700 dark:text-emerald-400 leading-none">{working}</span>
           </div>
           <div className={`flex flex-col gap-0.5 px-3 py-2 rounded-xl border ${
             notWorking > 0
               ? 'bg-rose-500/10 border-rose-500/20'
-              : 'bg-slate-700/30 border-slate-700'
+              : 'bg-[var(--line)] border-[var(--line)]'
           }`}>
-            <span className={`text-[10px] font-bold uppercase tracking-wide flex items-center gap-1 ${notWorking > 0 ? 'text-rose-400' : 'text-slate-500'}`}>
+            <span className={`text-[10px] font-bold uppercase tracking-wide flex items-center gap-1 ${notWorking > 0 ? 'text-rose-700 dark:text-rose-400' : 'text-slate-500'}`}>
               <XCircle size={10} /> Faulty
             </span>
-            <span className={`text-lg font-black leading-none ${notWorking > 0 ? 'text-rose-400' : 'text-slate-500'}`}>{notWorking}</span>
+            <span className={`text-lg font-black leading-none ${notWorking > 0 ? 'text-rose-700 dark:text-rose-400' : 'text-slate-500'}`}>{notWorking}</span>
           </div>
         </div>
       </div>
@@ -300,7 +300,7 @@ function SubzoneCard({ zone, stats = {}, onDeleted, onRaiseIssue, backRoute }) {
       <div className="px-4 py-2.5 mt-auto border-t border-[var(--border-color)] flex items-center justify-between gap-2">
         <button
           onClick={() => onRaiseIssue?.(zone.id)}
-          className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer transition-colors"
+          className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1 cursor-pointer transition-colors"
         >
           <Plus size={10} /> Raise Issue
         </button>
@@ -310,14 +310,14 @@ function SubzoneCard({ zone, stats = {}, onDeleted, onRaiseIssue, backRoute }) {
             disabled={deleting || hasChildren}
             title={hasChildren ? 'Remove sub-zones first' : 'Delete'}
             className={`p-1 rounded-lg transition-colors disabled:opacity-30 ${
-              hasChildren ? 'text-slate-700 cursor-not-allowed' : 'text-slate-500 hover:text-rose-400 cursor-pointer'
+              hasChildren ? 'text-slate-700 cursor-not-allowed' : 'text-slate-500 hover:text-rose-700 dark:hover:text-rose-400 cursor-pointer'
             }`}
           >
             {deleting ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
           </button>
           <button
             onClick={() => navigate(`${backRoute}/${zone.id}`)}
-            className="flex items-center gap-1 text-[10px] font-bold text-slate-400 hover:text-indigo-400 transition-colors cursor-pointer"
+            className="flex items-center gap-1 text-[10px] font-bold text-[var(--ink-3)] hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors cursor-pointer"
           >
             View <ArrowUpRight size={11} />
           </button>
@@ -377,7 +377,7 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-3 justify-center min-h-[40vh] text-slate-400">
+      <div className="flex items-center gap-3 justify-center min-h-[40vh] text-[var(--ink-3)]">
         <Loader2 size={24} className="animate-spin text-indigo-500" />
         <span className="text-sm">Loading zone…</span>
       </div>
@@ -387,10 +387,10 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
   if (error || !zone) {
     return (
       <div className="flex flex-col items-center gap-4 min-h-[40vh] justify-center">
-        <AlertTriangle size={32} className="text-slate-300" />
+        <AlertTriangle size={32} className="text-[var(--ink-2)]" />
         <p className="text-sm font-semibold text-slate-500">{error || 'Zone not found.'}</p>
         <button onClick={() => navigate(backRoute)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold cursor-pointer">
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--accent)] text-white text-xs font-bold cursor-pointer">
           <ArrowLeft size={13} /> Back to Zones
         </button>
       </div>
@@ -413,7 +413,7 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
         </button>
         <div className="flex-1 min-w-0">
           <h1 className="text-xl font-extrabold text-slate-900 truncate">{zone.name}</h1>
-          <p className="text-[11px] text-slate-400 flex items-center gap-1">
+          <p className="text-[11px] text-[var(--ink-3)] flex items-center gap-1">
             <MapPin size={10} />
             <span className={`font-bold ${zone.status === 'active' ? 'text-emerald-600' : 'text-amber-600'}`}>{zone.status}</span>
             &nbsp;·&nbsp;{descendants.length} sub-zone{descendants.length !== 1 ? 's' : ''}
@@ -429,11 +429,11 @@ export default function ZoneDetailPage({ backRoute = '/clientadmin/zones' }) {
             <Settings size={12} /> Manage Zone
           </button>
           <button onClick={() => setRaiseModal({ zoneId })}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-colors cursor-pointer">
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold transition-colors cursor-pointer">
             <Plus size={12} /> Raise Issue
           </button>
           <button onClick={load}
-            className="p-2 rounded-xl border border-slate-200 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer">
+            className="p-2 rounded-xl border border-slate-200 text-[var(--ink-3)] hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer">
             <RefreshCw size={14} />
           </button>
         </div>

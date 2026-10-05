@@ -97,19 +97,19 @@ export default function ManageAssignmentsModal({ isOpen, technician, onClose, on
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-6 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-800 dark:text-amber-400 flex items-center justify-center border border-amber-500/30">
               <Settings2 size={20} />
             </div>
             <div>
               <h2 className="text-base font-bold">Manage Coverage</h2>
-              <p className="text-xs text-slate-400">{technician.user?.name} — {technician.user?.email}</p>
+              <p className="text-xs text-[var(--ink-3)]">{technician.user?.name} — {technician.user?.email}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={16} />
           </button>
@@ -135,7 +135,7 @@ export default function ManageAssignmentsModal({ isOpen, technician, onClose, on
 
             {assignments.length === 0 ? (
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 border-dashed text-center">
-                <span className="text-xs text-slate-400">No coverage assigned yet. Add one below.</span>
+                <span className="text-xs text-[var(--ink-3)]">No coverage assigned yet. Add one below.</span>
               </div>
             ) : (
               <div className="flex flex-col gap-2">
@@ -178,7 +178,7 @@ export default function ManageAssignmentsModal({ isOpen, technician, onClose, on
                         type="button"
                         disabled={removingId === a.id}
                         onClick={() => handleRemove(a.id)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer disabled:opacity-40 shrink-0"
+                        className="p-1.5 text-[var(--ink-3)] hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer disabled:opacity-40 shrink-0"
                         title="Remove this assignment"
                       >
                         <Trash2 size={14} />
@@ -251,7 +251,7 @@ export default function ManageAssignmentsModal({ isOpen, technician, onClose, on
                     onClick={() => { setScope('zone'); setAddError(''); }}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
                       scope === 'zone'
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                        ? 'bg-[var(--accent)] text-white border-indigo-600 shadow-sm'
                         : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-400'
                     }`}
                   >
@@ -293,7 +293,7 @@ export default function ManageAssignmentsModal({ isOpen, technician, onClose, on
                   type="button"
                   onClick={handleAdd}
                   disabled={!canAdd}
-                  className="flex items-center gap-1.5 self-start px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-sm shadow-amber-200 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-1.5 self-start px-4 py-2 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold shadow-sm shadow-amber-200 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Plus size={14} />
                   {adding ? 'Adding…' : 'Add Assignment'}

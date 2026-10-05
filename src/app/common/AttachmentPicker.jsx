@@ -39,14 +39,14 @@ function FileThumb({ file, onRemove, disabled }) {
             <X size={13} />
           </button>
         )}
-        <span className="text-[9px] text-white font-semibold text-center leading-tight px-1 truncate w-full text-center">
+        <span className="text-[9px] text-[var(--ink)] font-semibold text-center leading-tight px-1 truncate w-full text-center">
           {mb} MB
         </span>
       </div>
 
       {/* Type badge */}
-      <div className={`absolute top-1 left-1 w-5 h-5 rounded-lg flex items-center justify-center ${isVideo ? 'bg-violet-600' : 'bg-indigo-600'} shadow`}>
-        {isVideo ? <Video size={10} className="text-white" /> : <Image size={10} className="text-white" />}
+      <div className={`absolute top-1 left-1 w-5 h-5 rounded-lg flex items-center justify-center ${isVideo ? 'bg-violet-600' : 'bg-[var(--accent)]'} shadow`}>
+        {isVideo ? <Video size={10} className="text-[var(--ink)]" /> : <Image size={10} className="text-[var(--ink)]" />}
       </div>
 
       {/* Remove button always visible on mobile */}
@@ -54,7 +54,7 @@ function FileThumb({ file, onRemove, disabled }) {
         <button
           type="button"
           onClick={() => onRemove(file)}
-          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-slate-900/70 text-white flex items-center justify-center group-hover:hidden"
+          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-[var(--surface-2)] text-[var(--ink)] flex items-center justify-center group-hover:hidden"
         >
           <X size={9} />
         </button>
@@ -98,9 +98,9 @@ export default function AttachmentPicker({ files = [], onFilesChange, disabled =
         <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
           <Upload size={12} className="text-slate-500" />
           Photos &amp; Videos
-          <span className="text-[10px] font-normal text-slate-400 ml-1">— optional</span>
+          <span className="text-[10px] font-normal text-[var(--ink-3)] ml-1">— optional</span>
         </label>
-        <span className="text-[10px] font-semibold text-slate-400">
+        <span className="text-[10px] font-semibold text-[var(--ink-3)]">
           {files.length}/{MAX_FILES} · max {MAX_MB} MB each
         </span>
       </div>
@@ -137,7 +137,7 @@ export default function AttachmentPicker({ files = [], onFilesChange, disabled =
               >
                 <Plus size={20} className="text-indigo-500 group-hover:scale-110 transition-transform" />
                 <span className="text-[10px] font-bold text-indigo-500">Add more</span>
-                <span className="text-[9px] text-indigo-400">{remaining} left</span>
+                <span className="text-[9px] text-indigo-700 dark:text-indigo-400">{remaining} left</span>
               </button>
             )}
           </div>
@@ -147,13 +147,13 @@ export default function AttachmentPicker({ files = [], onFilesChange, disabled =
         {files.length === 0 && (
           <div className="flex flex-col items-center justify-center py-5 gap-2 pointer-events-none">
             <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${dragging ? 'bg-indigo-100' : 'bg-slate-100'}`}>
-              <Upload size={20} className={dragging ? 'text-indigo-600' : 'text-slate-400'} />
+              <Upload size={20} className={dragging ? 'text-indigo-600' : 'text-[var(--ink-3)]'} />
             </div>
             <div className="text-center">
               <p className="text-xs font-bold text-slate-600">
                 {dragging ? 'Drop to attach' : 'Click or drag & drop'}
               </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className="text-[11px] text-[var(--ink-3)] mt-0.5">
                 Images &amp; videos · up to {MAX_FILES} files · {MAX_MB} MB each
               </p>
             </div>
@@ -162,7 +162,7 @@ export default function AttachmentPicker({ files = [], onFilesChange, disabled =
 
         {/* Full state label */}
         {full && (
-          <p className="text-[11px] text-slate-400 font-medium text-center py-1">
+          <p className="text-[11px] text-[var(--ink-3)] font-medium text-center py-1">
             Maximum {MAX_FILES} files attached — remove one to add another.
           </p>
         )}

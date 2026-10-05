@@ -65,7 +65,7 @@ export default function ZoneDetailsModal({ zone, isOpen, onClose, searchQuery: i
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Modal Header ── */}
-        <div className="bg-slate-900 text-white px-5 sm:px-6 py-4 flex items-center justify-between gap-4 shrink-0">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-5 sm:px-6 py-4 flex items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             {/* Zone Badge */}
             <div
@@ -83,15 +83,15 @@ export default function ZoneDetailsModal({ zone, isOpen, onClose, searchQuery: i
                 <span
                   className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                     isOp
-                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                      : "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                      ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                      : "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/30"
                   }`}
                 >
                   {isOp ? <CheckCircle2 size={10} /> : <AlertTriangle size={10} />}
                   {isOp ? "Operational" : "Maintenance"}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 truncate">
+              <p className="text-xs text-[var(--ink-3)] truncate">
                 Detailed view of sub-zones, telemetry logs, and equipment operational readiness
               </p>
             </div>
@@ -99,7 +99,7 @@ export default function ZoneDetailsModal({ zone, isOpen, onClose, searchQuery: i
 
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            className="w-9 h-9 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--surface-3)] flex items-center justify-center transition-colors cursor-pointer shrink-0"
             title="Close modal (Esc)"
           >
             <X size={18} />
@@ -124,7 +124,7 @@ export default function ZoneDetailsModal({ zone, isOpen, onClose, searchQuery: i
             </div>
 
             <span className="flex items-center gap-1.5 text-xs text-slate-500">
-              <Building2 size={13} className="text-slate-400" />
+              <Building2 size={13} className="text-[var(--ink-3)]" />
               {zone.coverage}
             </span>
           </div>
@@ -160,19 +160,19 @@ export default function ZoneDetailsModal({ zone, isOpen, onClose, searchQuery: i
           </div>
 
           {/* Mini Search within Subzones */}
-          <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-full sm:w-60 focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
-            <Search size={13} className="text-slate-400 shrink-0" />
+          <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-full sm:w-60 focus-within:bg-white focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-[var(--accent-soft)] transition-all">
+            <Search size={13} className="text-[var(--ink-3)] shrink-0" />
             <input
               type="text"
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               placeholder="Search sub-zones…"
-              className="bg-transparent border-none text-xs text-slate-900 w-full outline-hidden placeholder:text-slate-400"
+              className="bg-transparent border-none text-xs text-slate-900 w-full outline-hidden placeholder:text-[var(--ink-3)]"
             />
             {localSearch && (
               <button
                 onClick={() => setLocalSearch("")}
-                className="text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="text-[var(--ink-3)] hover:text-slate-700 cursor-pointer"
               >
                 <X size={12} />
               </button>
@@ -183,8 +183,8 @@ export default function ZoneDetailsModal({ zone, isOpen, onClose, searchQuery: i
         {/* ── Sub-zones Grid (Scrollable) ── */}
         <div className="p-5 sm:p-6 overflow-y-auto flex-1 bg-slate-50/40">
           {displaySubs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-slate-400 text-xs font-medium">
-              <Layers size={28} className="mb-2 text-slate-300" />
+            <div className="flex flex-col items-center justify-center py-12 text-[var(--ink-3)] text-xs font-medium">
+              <Layers size={28} className="mb-2 text-[var(--ink-2)]" />
               No sub-zones found matching "{localSearch}".
             </div>
           ) : (
@@ -198,7 +198,7 @@ export default function ZoneDetailsModal({ zone, isOpen, onClose, searchQuery: i
 
         {/* ── Modal Footer ── */}
         <div className="px-5 sm:px-6 py-3.5 bg-white border-t border-slate-200 flex items-center justify-between shrink-0">
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-xs text-[var(--ink-3)] font-medium">
             Facility Zone ID: <span className="font-semibold text-slate-600">{zone.id}</span>
           </span>
           <button

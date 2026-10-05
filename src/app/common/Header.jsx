@@ -1,115 +1,91 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, Menu, Building2 } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { Menu, Search, Moon, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { socketClient } from '../api/socketClient';
 import NotificationBell from './NotificationBell';
+import { currentNavItem, openCommandPalette } from '../ui/nav';
+import { useTheme } from '../ui/theme';
 
+/**
+ * Top bar: where am I, find anything (⌘K), is data live, theme, alerts.
+ * Sign-out lives in the rail footer.
+ */
 export default function Header({ onToggleMobileSidebar }) {
-  const { currentUser, isClientAdmin, isZoneOfficer, logout } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-
+  const { currentUser } = useAuth();
+  const { pathname } = useLocation();
+  const { theme, toggle } = useTheme();
   const [isLive, setIsLive] = useState(socketClient.isConnected);
 
   useEffect(() => {
-    const unsubConnect = socketClient.on('connect', () => setIsLive(true));
-    const unsubDisconnect = socketClient.on('disconnect', () => setIsLive(false));
-    // Sync in case socket connected between the initial render and this effect.
+    const offC = socketClient.on('connect', () => setIsLive(true));
+    const offD = socketClient.on('disconnect', () => setIsLive(false));
     setIsLive(socketClient.isConnected);
-
-    return () => {
-      unsubConnect();
-      unsubDisconnect();
-    };
+    return () => { offC(); offD(); };
   }, []);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login', { replace: true });
-  };
-
-  const companyName = currentUser?.clientName ?? '';
-
-  const getPageMeta = () => {
-    const path = location.pathname.toLowerCase();
-    if (path.includes('/users') || path.includes('/team')) {
-      return { title: 'Team & Roles', subtitle: 'Manage team access and permissions' };
-    }
-    if (path.includes('/requests') || path.includes('/raise-query')) {
-      return { title: 'Raise Query', subtitle: 'Submit and track service tickets' };
-    }
-    if (path.includes('/logs') || path.includes('/daily-logs')) {
-      return { title: 'Daily Logs', subtitle: 'Review inspection and activity logs' };
-    }
-    if (path.includes('/zones')) {
-      return { title: 'Zones', subtitle: 'Facility zones and operational areas' };
-    }
-    return { title: 'Dashboard', subtitle: 'Overview of your equipment and maintenance status' };
-  };
-
-  const { title: pageTitle, subtitle: pageSubtitle } = getPageMeta();
+  const item = currentNavItem(currentUser?.role, pathname);
+  const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || '');
 
   return (
-    <header className="h-[70px] bg-[var(--bg-header)] border-b border-[var(--border-color)] flex items-center px-3 sm:px-6 sticky top-0 z-30 shadow-xs gap-3">
+    <header className="h-[60px] sticky top-0 z-30 flex items-center gap-3 px-3 sm:px-6 bg-[var(--paper)]/85 backdrop-blur-md border-b border-[var(--line)]">
+      <button
+        type="button"
+        onClick={onToggleMobileSidebar}
+        className="md:hidden w-9 h-9 grid place-items-center rounded-[10px] text-[var(--ink-2)] hover:bg-[var(--color-interactive-hover)] cursor-pointer"
+        aria-label="Open menu"
+      >
+        <Menu size={19} />
+      </button>
 
-      {/* Left: mobile hamburger + Page Title */}
-      <div className="flex items-center gap-3.5 flex-1 min-w-0">
-        <button
-          type="button"
-          onClick={onToggleMobileSidebar}
-          className="md:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-[var(--bg-card)] border border-[var(--border-color)] shrink-0 cursor-pointer"
-          aria-label="Open Menu"
-        >
-          <Menu size={19} />
-        </button>
-
-        <div className="flex flex-col min-w-0">
-          <h1 className="text-lg sm:text-xl font-extrabold text-white tracking-tight leading-tight truncate">
-            {pageTitle}
-          </h1>
-          <p className="text-[11px] text-slate-400 hidden xl:block truncate">
-            {pageSubtitle}
-          </p>
-        </div>
+      <div className="min-w-0 flex items-center gap-2 text-[13px]">
+        {item?.group && <span className="hidden sm:inline text-[var(--ink-3)]">{item.group}</span>}
+        {item?.group && <span className="hidden sm:inline text-[var(--ink-4)]">/</span>}
+        <span className="font-[620] text-[var(--ink)] truncate">{item?.name ?? 'Fixly'}</span>
       </div>
 
-      {/* Centre: company name */}
-      <div className="flex-1 flex items-center justify-center">
-        {(isClientAdmin || isZoneOfficer) && companyName && (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-white shadow-xs">
-            <Building2 size={15} className="text-blue-400 shrink-0" />
-            <span className="text-sm font-bold text-white max-w-[260px] truncate">
-              {companyName}
-            </span>
-          </div>
-        )}
+      <div className="flex-1" />
+
+      <button
+        type="button"
+        onClick={openCommandPalette}
+        className="hidden sm:flex items-center gap-2.5 h-9 w-[260px] lg:w-[320px] pl-3 pr-2 rounded-[10px] border border-[var(--line)] bg-[var(--surface)] text-[13px] text-[var(--ink-3)] hover:border-[var(--line-strong)] cursor-pointer transition-colors"
+      >
+        <Search size={15} />
+        <span className="flex-1 text-left truncate">Search locations, equipment…</span>
+        <span className="fx-kbd">{isMac ? '⌘' : 'Ctrl'} K</span>
+      </button>
+      <button
+        type="button"
+        onClick={openCommandPalette}
+        className="sm:hidden w-9 h-9 grid place-items-center rounded-[10px] text-[var(--ink-2)] hover:bg-[var(--color-interactive-hover)] cursor-pointer"
+        aria-label="Search"
+      >
+        <Search size={18} />
+      </button>
+
+      <div
+        className="hidden md:flex items-center gap-2 h-9 px-3 rounded-[10px] text-[12px] font-[560] text-[var(--ink-2)]"
+        title={isLive ? 'Receiving live updates' : 'Live updates paused — data refreshes on load'}
+      >
+        <span
+          className={`w-2 h-2 rounded-full ${isLive ? 'fx-live-dot' : ''}`}
+          style={{ background: isLive ? 'var(--ok)' : 'var(--idle)', color: 'var(--ok)' }}
+        />
+        {isLive ? 'Live' : 'Offline'}
       </div>
 
-      {/* Right: Online status pill, Notification bell, Logout */}
-      <div className="flex-1 flex items-center justify-end gap-2.5">
+      <button
+        type="button"
+        onClick={toggle}
+        className="w-9 h-9 grid place-items-center rounded-[10px] text-[var(--ink-2)] hover:text-[var(--ink)] hover:bg-[var(--color-interactive-hover)] cursor-pointer"
+        title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}
+        aria-label="Toggle theme"
+      >
+        {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+      </button>
 
-        {/* Status badge */}
-        <div className={`hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border shadow-xs ${
-          isLive
-            ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60'
-            : 'bg-[var(--bg-card)] text-slate-400 border-[var(--border-color)]'
-        }`}>
-          <span className={`w-2 h-2 rounded-full ${isLive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
-          <span>{isLive ? 'Online' : 'Offline'}</span>
-        </div>
-
-        <NotificationBell />
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-400 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/60 shadow-xs transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <LogOut size={15} />
-          <span>Logout</span>
-        </button>
-      </div>
-
+      <NotificationBell />
     </header>
   );
 }
-

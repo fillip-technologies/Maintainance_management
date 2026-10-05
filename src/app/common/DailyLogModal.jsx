@@ -50,7 +50,7 @@ function DeviceRow({ device, entry, onChange, existingLog }) {
           <div className="min-w-0">
             <p className="text-xs font-bold text-slate-900 truncate">{device.name}</p>
             {device.zone?.name && (
-              <p className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+              <p className="text-[10px] text-[var(--ink-3)] flex items-center gap-1 mt-0.5">
                 <MapPin size={9} />{device.zone.name}
               </p>
             )}
@@ -86,12 +86,12 @@ function DeviceRow({ device, entry, onChange, existingLog }) {
             placeholder="Add a note (optional)…"
             value={entry.notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+            className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 text-[11px] font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-[var(--accent-soft)] transition-all"
           />
           <button
             type="button"
             onClick={() => { setNotes(''); setShowNotes(false); }}
-            className="text-slate-400 hover:text-slate-600 cursor-pointer"
+            className="text-[var(--ink-3)] hover:text-slate-600 cursor-pointer"
           >
             <ChevronUp size={13} />
           </button>
@@ -100,7 +100,7 @@ function DeviceRow({ device, entry, onChange, existingLog }) {
         <button
           type="button"
           onClick={() => setShowNotes(true)}
-          className="self-start flex items-center gap-1 text-[10px] font-semibold text-slate-400 hover:text-indigo-500 transition-colors cursor-pointer"
+          className="self-start flex items-center gap-1 text-[10px] font-semibold text-[var(--ink-3)] hover:text-indigo-500 transition-colors cursor-pointer"
         >
           <ChevronDown size={11} /> Add note
         </button>
@@ -216,14 +216,14 @@ export default function DailyLogModal({ isOpen, onClose, onSubmitted }) {
       <div className="relative z-10 w-full max-w-lg bg-white h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-250">
 
         {/* Header */}
-        <div className="bg-slate-900 text-white px-5 py-4 flex items-center justify-between shrink-0">
+        <div className="bg-[var(--surface-2)] text-[var(--ink)] px-5 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
-              <ClipboardList size={17} className="text-amber-400" />
+              <ClipboardList size={17} className="text-amber-800 dark:text-amber-400" />
             </div>
             <div>
               <h2 className="text-sm font-bold">Submit Today's Status</h2>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-[var(--ink-3)]">
                 {fmtDate(today)}
                 {!loading && unlogged.length > 0 && ` · ${unlogged.length} not yet logged`}
               </p>
@@ -231,7 +231,7 @@ export default function DailyLogModal({ isOpen, onClose, onSubmitted }) {
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[var(--surface-3)] text-[var(--ink-3)] hover:text-[var(--ink)] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={15} />
           </button>
@@ -248,7 +248,7 @@ export default function DailyLogModal({ isOpen, onClose, onSubmitted }) {
           )}
 
           {!loading && devices.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 gap-2 text-slate-400">
+            <div className="flex flex-col items-center justify-center py-20 gap-2 text-[var(--ink-3)]">
               <Package size={28} className="opacity-40" />
               <p className="text-sm font-medium">No deployed devices in your scope</p>
             </div>
@@ -305,7 +305,7 @@ export default function DailyLogModal({ isOpen, onClose, onSubmitted }) {
                 <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
                   Already Logged
                 </span>
-                <span className="text-[10px] font-semibold text-slate-400">
+                <span className="text-[10px] font-semibold text-[var(--ink-3)]">
                   change to update
                 </span>
               </div>
@@ -338,7 +338,7 @@ export default function DailyLogModal({ isOpen, onClose, onSubmitted }) {
               type="button"
               disabled={pendingCount === 0 || submitting}
               onClick={handleSubmit}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm shadow-amber-200 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold shadow-sm shadow-amber-200 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               {submitting
                 ? <><Loader2 size={14} className="animate-spin" /> Submitting…</>

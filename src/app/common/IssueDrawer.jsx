@@ -1,23 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  ClipboardList, X, ChevronRight, User, Clock, History,
-  Paperclip, Loader2
-} from 'lucide-react';
+import { X, User, Paperclip, MapPin, Tag, Cpu, UserRound, CalendarClock, CheckCircle2 } from 'lucide-react';
 import { getIssueById, getIssueHistory } from '../api/issuesApi';
-import { getPriorityBadge, getIssueStatusBadge } from '../../tokens';
 import StatusHistoryLocationBadge from './components/StatusHistoryLocationBadge';
-
-const pretty = (s) => (s ?? '').replace(/_/g, ' ');
+import { HEALTH, STAGE, PRIORITY, ticketRef, agoLong } from '../ui/status';
+import { Skeleton, Avatar } from '../ui/primitives';
 
 const fmtDate = (v) => {
   if (!v) return '—';
   const d = new Date(v);
   return Number.isNaN(d.getTime()) ? String(v) : d.toLocaleString(undefined, {
-    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
   });
 };
 
-export default function IssueDrawer({ issueId, onClose, onUpdated }) {
+const JOURNEY = ['open', 'assigned', 'in_progress', 'resolved', 'closed'];
+
+function Fact({ icon: Icon, label, children }) {
+  return (
+    <div className="flex items-start gap-3 py-2.5 border-b border-[var(--line)] last:border-b-0">
+      <Icon size={15} className="text-[var(--ink-3)] mt-[1px] shrink-0" />
+      <div className="w-[110px] shrink-0 text-[12.5px] text-[var(--ink-3)]">{label}</div>
+      <div className="flex-1 min-w-0 text-[13px] text-[var(--ink)] font-[520]">{children}</div>
+    </div>
+  );
+}
+
+/** Complaint detail: where it is in the repair journey, facts, evidence, and the full audit trail. */
+export default function IssueDrawer({ issueId, onClose }) {
   const [issue, setIssue] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,10 +37,7 @@ export default function IssueDrawer({ issueId, onClose, onUpdated }) {
     setLoading(true);
     setError('');
     try {
-      const [iss, hist] = await Promise.all([
-        getIssueById(issueId),
-        getIssueHistory(issueId)
-      ]);
+      const [iss, hist] = await Promise.all([getIssueById(issueId), getIssueHistory(issueId)]);
       setIssue(iss);
       setHistory(hist ?? []);
     } catch (err) {
@@ -42,188 +48,127 @@ export default function IssueDrawer({ issueId, onClose, onUpdated }) {
     }
   }, [issueId]);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  useEffect(() => { loadData(); }, [loadData]);
 
-  // Handle escape key to close
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') onClose?.();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    const onKey = (e) => { if (e.key === 'Escape') onClose?.(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  return (
-    <div className="fixed inset-0 z-50 flex justify-end">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
-        onClick={onClose}
-      />
+  const stage = issue ? STAGE[issue.status] : null;
+  const tone = stage?.tone ?? 'idle';
+  const p = issue ? PRIORITY[issue.priority] : null;
+  const journeyIdx = issue
+    ? (issue.status === 'reopened' ? 0 : issue.status === 'on_hold' ? 2 : JOURNEY.indexOf(issue.status))
+    : -1;
 
-      {/* Drawer Panel */}
-      <div className="relative z-10 w-full max-w-xl h-full bg-[var(--bg-card)] border-l border-[var(--border-color)] text-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
-        {/* Drawer Header */}
-        <div className="bg-slate-900/90 text-white px-5 py-4 flex items-center justify-between shrink-0 border-b border-[var(--border-color)]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center border border-indigo-500/30">
-              <ClipboardList size={20} />
-            </div>
-            <div>
-              <div className="text-base font-bold text-white flex items-center gap-2">
-                <span>Issue Detail & Log</span>
-              </div>
-              <div className="text-xs text-slate-400 font-mono">
-                {issueId ? (issueId.length > 12 ? `${issueId.slice(0, 8).toUpperCase()}...` : issueId) : ''}
-              </div>
-            </div>
+  return (
+    <div className="fixed inset-0 z-[70] flex justify-end" role="dialog" aria-modal="true" aria-label="Complaint details">
+      <div className="absolute inset-0 bg-[rgba(12,14,17,0.32)] backdrop-blur-[2px]" onClick={onClose} />
+      <aside
+        className="relative h-full w-full max-w-[520px] bg-[var(--surface)] border-l border-[var(--line)] shadow-[var(--shadow-pop)] flex flex-col"
+        style={{ animation: 'fx-slide-in 220ms cubic-bezier(.2,.7,.2,1) both' }}
+      >
+        <div className="px-6 pt-5 pb-5" style={{ background: issue ? `linear-gradient(180deg, ${HEALTH[tone].soft}, transparent)` : undefined }}>
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-[11px] text-[var(--ink-3)]">Complaint {ticketRef(issueId)}</span>
+            <button onClick={onClose} className="w-8 h-8 grid place-items-center rounded-lg text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--color-interactive-hover)] cursor-pointer" aria-label="Close" title="Close (Esc)">
+              <X size={17} />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors border border-slate-700"
-            title="Close drawer (Esc)"
-          >
-            <X size={16} />
-          </button>
+          {loading ? (
+            <div className="mt-3 flex flex-col gap-2"><Skeleton className="h-7 w-3/4" /><Skeleton className="h-4 w-1/2" /></div>
+          ) : issue && (
+            <>
+              <h2 className="mt-3 text-[21px] font-[650] tracking-[-0.025em] leading-snug">{issue.description || 'Problem reported'}</h2>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {p && (
+                  <span className="inline-flex items-center gap-1.5 h-[24px] px-2 rounded-[7px] text-[11.5px] font-[620] text-white" style={{ background: p.color }}>
+                    <span className="font-mono">{p.code}</span> {p.label}
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1.5 h-[24px] px-2.5 rounded-full text-[12px] font-[620]" style={{ background: HEALTH[tone].soft, color: HEALTH[tone].ink }}>
+                  <span className="w-[7px] h-[7px] rounded-full" style={{ background: HEALTH[tone].color }} />
+                  {stage?.label ?? issue.status}
+                </span>
+                <span className="text-[12px] text-[var(--ink-3)]">opened {agoLong(issue.createdAt)}</span>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Drawer Content */}
-        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6">
+        <div className="flex-1 overflow-y-auto fx-scroll px-6 pb-8">
           {loading ? (
-            <div className="py-24 text-center text-slate-400 text-xs flex flex-col items-center justify-center gap-3">
-              <Loader2 size={24} className="animate-spin text-indigo-400" />
-              <span>Loading issue details…</span>
-            </div>
+            <div className="flex flex-col gap-3 pt-2">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-10" />)}</div>
           ) : error ? (
-            <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
-              {error}
-            </div>
+            <div className="mt-2 px-4 py-3 rounded-[12px] text-[13px]" style={{ background: 'var(--down-soft)', color: 'var(--down-ink)' }}>{error}</div>
           ) : !issue ? (
-            <div className="py-24 text-center text-slate-400 text-xs">
-              Issue not found.
-            </div>
+            <p className="py-20 text-center text-[13px] text-[var(--ink-3)]">Complaint not found.</p>
           ) : (
             <>
-              {/* Status & Priority Overview Badges */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <div className="flex flex-col gap-1 p-3 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)]">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</span>
-                  <span className={`inline-block text-center px-2 py-0.5 rounded border text-[11px] font-bold capitalize ${getIssueStatusBadge(issue.status)}`}>
-                    {pretty(issue.status)}
-                  </span>
+              {/* Repair journey */}
+              <div className="mb-6">
+                <div className="fx-eyebrow mb-3">Repair journey</div>
+                <div className="flex items-center">
+                  {JOURNEY.map((s, i) => {
+                    const reached = i <= journeyIdx;
+                    const current = i === journeyIdx;
+                    return (
+                      <React.Fragment key={s}>
+                        <div className="flex flex-col items-center gap-1.5 min-w-0" style={{ flex: '0 0 auto' }}>
+                          <span
+                            className="w-6 h-6 rounded-full grid place-items-center text-[10px] font-[700] transition-colors"
+                            style={{
+                              background: reached ? (current ? HEALTH[tone].color : 'var(--ink)') : 'var(--surface-3)',
+                              color: reached ? '#fff' : 'var(--ink-4)',
+                              boxShadow: current ? `0 0 0 4px ${HEALTH[tone].soft}` : 'none',
+                            }}
+                          >
+                            {reached && !current ? <CheckCircle2 size={13} /> : i + 1}
+                          </span>
+                          <span className={`text-[10.5px] whitespace-nowrap ${current ? 'font-[650] text-[var(--ink)]' : 'text-[var(--ink-3)]'}`}>{STAGE[s].label.replace(' · verify', '')}</span>
+                        </div>
+                        {i < JOURNEY.length - 1 && <span className="flex-1 h-[2px] mx-1 mb-5 rounded-full" style={{ background: i < journeyIdx ? 'var(--ink)' : 'var(--line)' }} />}
+                      </React.Fragment>
+                    );
+                  })}
                 </div>
-                <div className="flex flex-col gap-1 p-3 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)]">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Priority</span>
-                  <span className={`inline-block text-center px-2 py-0.5 rounded border text-[11px] font-bold capitalize ${getPriorityBadge(issue.priority)}`}>
-                    {issue.priority}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1 p-3 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)]">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Raised</span>
-                  <span className="text-xs font-semibold text-slate-200 truncate">
-                    {fmtDate(issue.createdAt)}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1 p-3 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)]">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Resolved</span>
-                  <span className="text-xs font-semibold text-slate-200 truncate">
-                    {fmtDate(issue.resolvedAt)}
-                  </span>
-                </div>
+                {issue.status === 'on_hold' && <p className="mt-3 text-[12px] text-[var(--ink-3)]">Work is paused — waiting on a part, access or approval.</p>}
+                {issue.status === 'reopened' && <p className="mt-3 text-[12px] text-[var(--down-ink)]">Reopened — the fix didn't hold.</p>}
               </div>
 
-              {/* Core Information Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)]">
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Unit / Asset</span>
-                  <span className="text-xs font-semibold text-slate-100">{issue.device?.name ?? '—'}</span>
-                  {issue.device?.serialNumber && (
-                    <span className="text-[11px] text-slate-400 font-mono">SN: {issue.device.serialNumber}</span>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Zone</span>
-                  <span className="text-xs font-semibold text-indigo-400">
-                    {issue.device?.zone?.name ?? issue.zone?.name ?? '—'}
-                  </span>
-                </div>
-
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Category</span>
-                  <span className="text-xs font-semibold text-slate-200">{issue.category?.name ?? '—'}</span>
-                </div>
-
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Raised By</span>
-                  <span className="text-xs font-semibold text-slate-200">{issue.raisedBy?.name ?? '—'}</span>
-                  {issue.raisedBy?.email && (
-                    <span className="text-[11px] text-slate-400">{issue.raisedBy.email}</span>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-0.5 sm:col-span-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Assigned Technician</span>
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-200 mt-0.5">
-                    <User size={13} className={issue.assignedTechnician ? 'text-emerald-400' : 'text-slate-500'} />
-                    <span>{issue.assignedTechnician?.user?.name ?? 'Unassigned'}</span>
-                    {issue.assignedTechnician?.phone && (
-                      <span className="text-slate-400 font-mono text-[11px]">({issue.assignedTechnician.phone})</span>
-                    )}
-                  </div>
-                </div>
+              <div className="fx-eyebrow mb-1">Details</div>
+              <div className="mb-6">
+                <Fact icon={Cpu} label="Device">{issue.device?.name ?? '—'}</Fact>
+                <Fact icon={MapPin} label="Location">{issue.device?.zone?.name ?? issue.zone?.name ?? '—'}{issue.device?.zone?.client?.name ? ` · ${issue.device.zone.client.name}` : ''}</Fact>
+                <Fact icon={Tag} label="Problem type">{issue.category?.name ?? '—'}</Fact>
+                <Fact icon={UserRound} label="Technician">
+                  {issue.assignedTechnician?.user?.name ? (
+                    <span className="inline-flex items-center gap-2"><Avatar name={issue.assignedTechnician.user.name} size={22} />{issue.assignedTechnician.user.name}</span>
+                  ) : <span className="text-[var(--down-ink)]">Nobody assigned yet</span>}
+                </Fact>
+                <Fact icon={User} label="Reported by">{issue.raisedBy?.name ?? '—'}</Fact>
+                <Fact icon={CalendarClock} label="Reported">{fmtDate(issue.createdAt)}</Fact>
+                {issue.resolvedAt && <Fact icon={CheckCircle2} label="Fixed">{fmtDate(issue.resolvedAt)}</Fact>}
               </div>
 
-              {/* Description */}
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Description</span>
-                <div className="text-xs text-slate-200 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl p-3.5 leading-relaxed whitespace-pre-wrap">
-                  {issue.description || 'No description provided.'}
-                </div>
-              </div>
-
-              {/* Attachments if any */}
               {Array.isArray(issue.attachments) && issue.attachments.length > 0 && (
-                <div className="flex flex-col gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                    <Paperclip size={12} className="text-indigo-400" />
-                    Attachments ({issue.attachments.length})
-                  </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                <div className="mb-6">
+                  <div className="fx-eyebrow mb-2 flex items-center gap-1.5"><Paperclip size={11} /> Evidence ({issue.attachments.length})</div>
+                  <div className="grid grid-cols-3 gap-2">
                     {issue.attachments.map((att, idx) => {
                       const url = typeof att === 'string' ? att : att?.url;
                       const name = typeof att === 'object' && att?.name ? att.name : `File ${idx + 1}`;
-                      const isImg = typeof url === 'string' && (
-                        url.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i) ||
-                        url.includes('cloudinary') ||
-                        url.includes('image')
-                      );
+                      const isImg = typeof url === 'string' && (/\.(jpeg|jpg|gif|png|webp)($|\?)/i.test(url) || url.includes('cloudinary') || url.includes('image'));
                       return (
-                        <a
-                          key={idx}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="group relative rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] overflow-hidden p-2 flex flex-col items-center gap-1.5 hover:border-indigo-500/60 transition-all text-center"
-                          title="Click to view file"
-                        >
+                        <a key={idx} href={url} target="_blank" rel="noopener noreferrer" title={name}
+                          className="group rounded-[10px] border border-[var(--line)] overflow-hidden bg-[var(--surface-2)] hover:border-[var(--line-strong)]">
                           {isImg ? (
-                            <img
-                              src={url}
-                              alt={name}
-                              className="w-full h-24 object-cover rounded-lg group-hover:scale-105 transition-transform duration-200"
-                              loading="lazy"
-                            />
+                            <img src={url} alt={name} loading="lazy" className="w-full h-24 object-cover group-hover:scale-[1.03] transition-transform" />
                           ) : (
-                            <div className="w-full h-24 flex flex-col items-center justify-center bg-slate-800/80 rounded-lg text-slate-400 group-hover:text-indigo-300">
-                              <Paperclip size={24} />
-                            </div>
+                            <span className="w-full h-24 grid place-items-center text-[var(--ink-3)]"><Paperclip size={20} /></span>
                           )}
-                          <span className="text-[11px] text-slate-300 font-medium truncate w-full group-hover:text-indigo-300">
-                            {name}
-                          </span>
                         </a>
                       );
                     })}
@@ -231,68 +176,36 @@ export default function IssueDrawer({ issueId, onClose, onUpdated }) {
                 </div>
               )}
 
-              {/* Status History Log with GPS Badges */}
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                  <History size={15} className="text-indigo-400" />
-                  <span className="text-xs font-bold text-white">Status History Log</span>
-                  <span className="text-[11px] text-slate-400 font-medium">({history.length} events)</span>
-                </div>
-
-                {history.length === 0 ? (
-                  <p className="text-xs text-slate-400 pl-4">No history recorded yet.</p>
-                ) : (
-                  <ol className="relative border-l-2 border-slate-700 ml-2 flex flex-col gap-0">
-                    {history.map((h, idx) => (
-                      <li key={h.id ?? idx} className="pl-4 pb-4 relative">
-                        {/* Timeline node */}
-                        <span className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-slate-900 border-2 border-indigo-400" />
-
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[11px] font-mono text-slate-400">
-                              {h.fromStatus ? pretty(h.fromStatus) : 'created'}
-                            </span>
-                            <ChevronRight size={11} className="text-slate-500" />
-                            <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded border capitalize ${getIssueStatusBadge(h.toStatus)}`}>
-                              {pretty(h.toStatus)}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-3 text-[11px] text-slate-400 flex-wrap mt-0.5">
-                            {h.changedBy?.name && (
-                              <span className="flex items-center gap-1">
-                                <User size={10} className="text-slate-400" />
-                                {h.changedBy.name}
-                              </span>
-                            )}
-                            <span className="flex items-center gap-1">
-                              <Clock size={10} className="text-slate-400" />
-                              {fmtDate(h.changedAt)}
-                            </span>
-                          </div>
-
-                          {/* Coordinates / Location Display with Map Preview & Google Maps */}
-                          <StatusHistoryLocationBadge
-                            latitude={h.latitude}
-                            longitude={h.longitude}
-                          />
-
-                          {h.notes && (
-                            <p className="text-[11px] text-slate-300 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-lg px-2.5 py-1.5 mt-1 leading-relaxed">
-                              {h.notes}
-                            </p>
-                          )}
+              <div className="fx-eyebrow mb-3">History · {history.length} events</div>
+              {history.length === 0 ? (
+                <p className="text-[13px] text-[var(--ink-3)]">No history recorded yet.</p>
+              ) : (
+                <ol className="relative flex flex-col gap-4 before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-px before:bg-[var(--line)]">
+                  {history.map((h, idx) => {
+                    const t = STAGE[h.toStatus]?.tone ?? 'idle';
+                    return (
+                      <li key={h.id ?? idx} className="relative pl-7">
+                        <span className="absolute left-0 top-1 w-[15px] h-[15px] rounded-full border-[3px] border-[var(--surface)]" style={{ background: HEALTH[t].color }} />
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <span className="text-[13px] font-[620]">{STAGE[h.toStatus]?.label ?? h.toStatus}</span>
+                          {h.fromStatus && <span className="text-[11.5px] text-[var(--ink-3)]">from {STAGE[h.fromStatus]?.label ?? h.fromStatus}</span>}
                         </div>
+                        <div className="text-[12px] text-[var(--ink-3)] mt-0.5">
+                          {h.changedBy?.name ? `${h.changedBy.name} · ` : ''}{fmtDate(h.changedAt)}
+                        </div>
+                        <StatusHistoryLocationBadge latitude={h.latitude} longitude={h.longitude} />
+                        {h.notes && (
+                          <p className="mt-1.5 text-[12.5px] text-[var(--ink-2)] bg-[var(--surface-2)] border border-[var(--line)] rounded-[9px] px-3 py-2 leading-relaxed">{h.notes}</p>
+                        )}
                       </li>
-                    ))}
-                  </ol>
-                )}
-              </div>
+                    );
+                  })}
+                </ol>
+              )}
             </>
           )}
         </div>
-      </div>
+      </aside>
     </div>
   );
 }
