@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Bell, X, AlertTriangle, CheckCircle2, ClipboardList, Info } from 'lucide-react';
+import { Bell, X, AlertTriangle, CheckCircle2, ClipboardList, Info, Repeat } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { socketClient } from '../api/socketClient';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -51,6 +53,24 @@ function buildNotification(event, payload) {
         : 'A daily status log has been submitted',
     };
   }
+  if (event.startsWith('replacement:')) {
+    const unit = payload?.issue?.device?.name ?? 'Equipment';
+    const who = payload?.requestedBy?.name ?? 'A technician';
+    const titles = {
+      'replacement:requested': 'Replacement approval needed',
+      'replacement:approved': 'Replacement approved',
+      'replacement:rejected': 'Replacement rejected',
+      'replacement:completed': 'Replacement completed',
+    };
+    return {
+      ...base,
+      type: 'replacement',
+      title: titles[event] ?? 'Replacement update',
+      body: event === 'replacement:requested'
+        ? `${who} requests a replacement for ${unit} (${(payload?.reason ?? '').replace(/_/g, ' ')})`
+        : `${unit}${payload?.reviewedBy?.name ? ` · by ${payload.reviewedBy.name}` : ''}`,
+    };
+  }
   return { ...base, type: 'info', title: 'Notification', body: JSON.stringify(payload) };
 }
 
@@ -61,6 +81,8 @@ function NotifIcon({ type }) {
     return <AlertTriangle size={16} className="text-rose-500 shrink-0 mt-0.5" />;
   if (type === 'issue_updated')
     return <CheckCircle2 size={16} className="text-indigo-500 shrink-0 mt-0.5" />;
+  if (type === 'replacement')
+    return <Repeat size={16} className="text-amber-400 shrink-0 mt-0.5" />;
   if (type === 'log_submitted')
     return <ClipboardList size={16} className="text-emerald-500 shrink-0 mt-0.5" />;
   return <Info size={16} className="text-slate-400 shrink-0 mt-0.5" />;
@@ -75,6 +97,11 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const panelRef = useRef(null);
   const bellRef  = useRef(null);
+  const navigate = useNavigate();
+  const { isSuperAdmin, isClientAdmin } = useAuth();
+  const replacementPath = isSuperAdmin
+    ? '/superadmin/replacement-requests'
+    : isClientAdmin ? '/clientadmin/replacement-requests' : null;
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -91,6 +118,10 @@ export default function NotificationBell() {
       socketClient.on('issue:created', addNotification('issue:created')),
       socketClient.on('issue:updated', addNotification('issue:updated')),
       socketClient.on('log:submitted', addNotification('log:submitted')),
+      socketClient.on('replacement:requested', addNotification('replacement:requested')),
+      socketClient.on('replacement:approved', addNotification('replacement:approved')),
+      socketClient.on('replacement:rejected', addNotification('replacement:rejected')),
+      socketClient.on('replacement:completed', addNotification('replacement:completed')),
     ];
     return () => unsubs.forEach((u) => u());
   }, [addNotification]);
@@ -199,9 +230,10 @@ export default function NotificationBell() {
               notifications.map((n) => (
                 <div
                   key={n.id}
+                  onClick={n.type === 'replacement' && replacementPath ? () => { setOpen(false); navigate(replacementPath); } : undefined}
                   className={`flex items-start gap-3 px-4 py-3 transition-colors ${
                     n.read ? 'bg-[var(--bg-card)]' : 'bg-[#0f1f3d]/50'
-                  }`}
+                  } ${n.type === 'replacement' && replacementPath ? 'cursor-pointer hover:bg-[var(--bg-card-hover)]' : ''}`}
                 >
                   <div className="mt-0.5">
                     <NotifIcon type={n.type} />

@@ -16,6 +16,9 @@ import ZoneDailyLogPage from './app/zone/ZoneDailyLogPage';
 // Shared "Raise Query" panel (client_admin + zone officers)
 import RaiseQueryPage from './app/common/RaiseQueryPage';
 
+// Replacement approval queue (super_admin + client_admin)
+import ReplacementRequestsPage from './app/common/ReplacementRequestsPage';
+
 // Superadmin Layout & Views
 import SuperadminLayout from './app/superadmin/SuperadminLayout';
 import Overview from './app/superadmin/overview/Overview';
@@ -91,6 +94,7 @@ function AppRoutes() {
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="defect-categories" element={<DefectCategoriesPage />} />
             <Route path="issues" element={<IssuesPage />} />
+            <Route path="replacement-requests" element={<ReplacementRequestsPage />} />
           </Route>
         </Route>
 
@@ -117,6 +121,7 @@ function AppRoutes() {
             <Route path="daily-logs" element={<DailyLogsPage />} />
             <Route path="users" element={<ClientUsersPage />} />
 <Route path="requests" element={<RaiseQueryPage />} />
+            <Route path="replacement-requests" element={<ReplacementRequestsPage />} />
             <Route path="assets" element={<ClientAssetsPage />} />
             <Route path="invoices" element={<ClientInvoicesPage />} />
             <Route path="zones" element={<ZonesPage />} />

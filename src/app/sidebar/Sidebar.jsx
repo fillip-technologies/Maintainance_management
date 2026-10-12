@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -18,9 +18,12 @@ import {
   ShieldAlert,
   X,
   UserCog,
-  Camera
+  Camera,
+  Repeat
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getReplacementRequests } from '../api/replacementRequestsApi';
+import { socketClient } from '../api/socketClient';
 
 export default function Sidebar({
   isCollapsed,
@@ -28,8 +31,29 @@ export default function Sidebar({
   isMobileOpen = false,
   setIsMobileOpen
 }) {
-  const { currentUser, isSuperAdmin, logout } = useAuth();
+  const { currentUser, isSuperAdmin, isClientAdmin, logout } = useAuth();
   const navigate = useNavigate();
+
+  // Pending replacement approvals → badge on the "Replacement Requests" item.
+  const canReviewReplacements = isSuperAdmin || isClientAdmin;
+  const [pendingReplacements, setPendingReplacements] = useState(0);
+  const refreshPendingReplacements = useCallback(async () => {
+    if (!canReviewReplacements) return;
+    try {
+      const res = await getReplacementRequests({ status: 'pending', limit: 1 });
+      setPendingReplacements(res?.totalItems ?? res?.meta?.totalItems ?? res?.items?.length ?? 0);
+    } catch {
+      // Badge is best-effort; never break the sidebar over it.
+    }
+  }, [canReviewReplacements]);
+
+  useEffect(() => {
+    if (!canReviewReplacements) return undefined;
+    refreshPendingReplacements();
+    const offs = ['replacement:requested', 'replacement:approved', 'replacement:rejected', 'replacement:completed']
+      .map((evt) => socketClient.on(evt, refreshPendingReplacements));
+    return () => offs.forEach((off) => off());
+  }, [canReviewReplacements, refreshPendingReplacements]);
 
   const handleSignOut = async () => {
     if (setIsMobileOpen) setIsMobileOpen(false);
@@ -95,6 +119,12 @@ export default function Sidebar({
           name: 'Issues & Defects',
           path: '/superadmin/issues',
           icon: AlertTriangle
+        },
+        {
+          name: 'Replacement Requests',
+          path: '/superadmin/replacement-requests',
+          icon: Repeat,
+          badge: pendingReplacements
         }
       ]
     }
@@ -125,6 +155,14 @@ export default function Sidebar({
           icon: ClipboardList
         },
         {
+          name: 'Replacement Requests',
+          path: '/clientadmin/replacement-requests',
+          icon: Repeat,
+          badge: pendingReplacements,
+          // Technicians share this layout but must not see the approval queue.
+          reviewersOnly: true
+        },
+        {
           name: 'Daily Logs',
           path: '/clientadmin/daily-logs',
           icon: CalendarCheck
@@ -138,7 +176,10 @@ export default function Sidebar({
     }
   ];
 
-  const navItems = isSuperAdmin ? superAdminNav : clientAdminNav;
+  const navItems = (isSuperAdmin ? superAdminNav : clientAdminNav).map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !item.reviewersOnly || canReviewReplacements),
+  }));
 
   const getInitials = (name) => {
     if (!name) return 'FX';
@@ -278,6 +319,15 @@ export default function Sidebar({
                           } transition-colors shrink-0`}
                         />
                         {!isCollapsed && <span>{item.name}</span>}
+                        {item.badge > 0 && (
+                          <span
+                            className={`min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center leading-none ${
+                              isCollapsed ? 'absolute -top-1 -right-1' : 'ml-auto'
+                            }`}
+                          >
+                            {item.badge > 99 ? '99+' : item.badge}
+                          </span>
+                        )}
                       </div>
                     )}
                   </NavLink>

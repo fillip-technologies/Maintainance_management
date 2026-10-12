@@ -6,6 +6,10 @@ import {
 import { getIssueById, getIssueHistory } from '../api/issuesApi';
 import { getPriorityBadge, getIssueStatusBadge } from '../../tokens';
 import StatusHistoryLocationBadge from './components/StatusHistoryLocationBadge';
+import {
+  getReplacementRequests, approveReplacementRequest, rejectReplacementRequest,
+} from '../api/replacementRequestsApi';
+import { useAuth } from '../context/AuthContext';
 
 const pretty = (s) => (s ?? '').replace(/_/g, ' ');
 
@@ -22,29 +26,58 @@ export default function IssueDrawer({ issueId, onClose, onUpdated }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { isSuperAdmin, isClientAdmin } = useAuth();
+  const canReview = isSuperAdmin || isClientAdmin;
+  const [replacement, setReplacement] = useState(null);
+  const [reviewing, setReviewing] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!issueId) return;
     setLoading(true);
     setError('');
     try {
-      const [iss, hist] = await Promise.all([
+      const [iss, hist, repl] = await Promise.all([
         getIssueById(issueId),
-        getIssueHistory(issueId)
+        getIssueHistory(issueId),
+        // Replacement requests are only listable by admins (and technicians).
+        canReview
+          ? getReplacementRequests({ issueId, limit: 5 }).catch(() => ({ items: [] }))
+          : Promise.resolve({ items: [] }),
       ]);
       setIssue(iss);
       setHistory(hist ?? []);
+      setReplacement(repl?.items?.[0] ?? null);
     } catch (err) {
       console.error('Failed to load issue details:', err);
       setError(err.message || 'Failed to load issue details.');
     } finally {
       setLoading(false);
     }
-  }, [issueId]);
+  }, [issueId, canReview]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const reviewReplacement = async (approve) => {
+    if (!replacement) return;
+    let note = '';
+    if (!approve) {
+      note = window.prompt('Reason for rejecting this replacement (optional):', '');
+      if (note === null) return; // cancelled
+    }
+    setReviewing(true);
+    try {
+      if (approve) await approveReplacementRequest(replacement.id);
+      else await rejectReplacementRequest(replacement.id, note.trim());
+      await loadData();
+      onUpdated?.();
+    } catch (err) {
+      setError(err.message || 'Failed to review replacement request.');
+    } finally {
+      setReviewing(false);
+    }
+  };
 
   // Handle escape key to close
   useEffect(() => {
@@ -133,6 +166,61 @@ export default function IssueDrawer({ issueId, onClose, onUpdated }) {
                   </span>
                 </div>
               </div>
+
+              {/* Replacement request raised by the technician (approval gate) */}
+              {replacement && ['pending', 'approved', 'rejected'].includes(replacement.status) && (
+                <div className={`p-4 rounded-xl border flex flex-col gap-3 ${
+                  replacement.status === 'pending'
+                    ? 'bg-amber-500/10 border-amber-500/40'
+                    : replacement.status === 'approved'
+                      ? 'bg-emerald-500/10 border-emerald-500/40'
+                      : 'bg-rose-500/10 border-rose-500/40'
+                }`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        Replacement request · {replacement.status}
+                      </span>
+                      <span className="text-sm font-semibold text-white capitalize">
+                        {pretty(replacement.reason)}
+                        <span className="text-slate-400 font-normal normal-case">
+                          {' '}— {replacement.replacementChoice === 'in_stock'
+                            ? `in-stock spare ${replacement.spareDeviceName ?? ''}${replacement.spareDeviceCode ? ` (${replacement.spareDeviceCode})` : ''}`
+                            : replacement.replacementChoice === 'new_device' ? 'new hardware unit' : 'no replacement'}
+                        </span>
+                      </span>
+                      <span className="text-xs text-slate-400">
+                        Requested by {replacement.requestedBy?.name ?? 'technician'} · {fmtDate(replacement.createdAt)}
+                      </span>
+                      {replacement.notes && <span className="text-xs text-slate-300">{replacement.notes}</span>}
+                      {replacement.reviewedBy && (
+                        <span className="text-xs text-slate-400">
+                          {replacement.status === 'rejected' ? 'Rejected' : 'Approved'} by {replacement.reviewedBy.name}
+                          {replacement.reviewNote ? ` — “${replacement.reviewNote}”` : ''}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {replacement.status === 'pending' && canReview && (
+                    <div className="flex gap-2 justify-end">
+                      <button
+                        onClick={() => reviewReplacement(false)}
+                        disabled={reviewing}
+                        className="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-rose-500/50 text-rose-300 hover:bg-rose-500/10 cursor-pointer disabled:opacity-50"
+                      >
+                        Reject
+                      </button>
+                      <button
+                        onClick={() => reviewReplacement(true)}
+                        disabled={reviewing}
+                        className="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer disabled:opacity-50"
+                      >
+                        {reviewing ? 'Saving…' : 'Approve replacement'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Core Information Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-xl bg-[var(--bg-main)] border border-[var(--border-color)]">
