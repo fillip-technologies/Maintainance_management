@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useActiveZone } from './useActiveZone';
+import ZoneSwitcher from './ZoneSwitcher';
 import { getZoneAssignments, assignUserToZone, removeUserFromZone } from '../api/zonesApi';
 import { getUsers } from '../api/usersApi';
 import {
@@ -118,7 +120,7 @@ function AssignStaffModal({ zoneId, clientId, assignedIds, onClose, onAssigned }
 // ── Main Page ─────────────────────────────────────────────────────────────
 export default function ZoneTeamPage() {
   const { currentUser } = useAuth();
-  const zoneId   = currentUser?.zoneId ?? null;
+  const { zones, activeZoneId: zoneId, setActiveZoneId } = useActiveZone();
   const clientId = currentUser?.clientId ?? null;
   const isIncharge = currentUser?.role === 'zone_incharge';
 
@@ -186,6 +188,7 @@ export default function ZoneTeamPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          <ZoneSwitcher zones={zones} activeZoneId={zoneId} onChange={setActiveZoneId} />
           {isIncharge && (
             <button
               onClick={() => setAssignModal(true)}

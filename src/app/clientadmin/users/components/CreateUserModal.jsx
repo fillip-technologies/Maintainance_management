@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { X, UserPlus, Lock, Eye, EyeOff, MapPin } from 'lucide-react';
 import { createUser } from '../../../api/usersApi';
-import { getZones, assignUserToZone } from '../../../api/zonesApi';
+import { getAllZones, assignUserToZone } from '../../../api/zonesApi';
 import { useAuth } from '../../../context/AuthContext';
+import ZoneMultiSelect from './ZoneMultiSelect';
 
 export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: propClientId }) {
   const { currentUser } = useAuth();
@@ -14,12 +15,15 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
     role: 'zone_staff',
     password: ''
   });
-  const [selectedZoneId, setSelectedZoneId] = useState('');
+  const [selectedZoneIds, setSelectedZoneIds] = useState([]);
   const [zones, setZones] = useState([]);
   const [loadingZones, setLoadingZones] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  // Set when the user was created but some zone assignments failed; a resubmit
+  // then only retries the assignments instead of creating the user again.
+  const [createdUser, setCreatedUser] = useState(null);
 
   const isZoneOfficer = formData.role === 'zone_staff' || formData.role === 'zone_incharge';
 
@@ -28,14 +32,20 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
     if (!isOpen || !clientId) return;
     let cancelled = false;
     setLoadingZones(true);
-    getZones({ clientId, limit: 100 })
-      .then((d) => { if (!cancelled) setZones(d.items ?? []); })
+    getAllZones({ clientId })
+      .then((items) => { if (!cancelled) setZones(items ?? []); })
       .catch(() => {})
       .finally(() => { if (!cancelled) setLoadingZones(false); });
     return () => { cancelled = true; };
   }, [isOpen, clientId]);
 
   if (!isOpen) return null;
+
+  // A half-finished create must not leak into the next time the modal opens.
+  const handleClose = () => {
+    setCreatedUser(null);
+    onClose();
+  };
 
   const roles = [
     { id: 'zone_staff',    label: 'Zone Floor Staff',   desc: 'Submits daily device logs and reports faults' },
@@ -49,8 +59,8 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
       setErrorMsg('Password is mandatory and must contain at least 8 characters.');
       return;
     }
-    if (isZoneOfficer && !selectedZoneId) {
-      setErrorMsg('Please select a zone to assign this officer to.');
+    if (isZoneOfficer && selectedZoneIds.length === 0) {
+      setErrorMsg('Please select at least one zone to assign this officer to.');
       return;
     }
 
@@ -58,8 +68,8 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
     setIsSubmitting(true);
 
     try {
-      // 1. Create the user
-      const newUser = await createUser({
+      // 1. Create the user (skipped when retrying assignments after a partial failure)
+      const newUser = createdUser ?? await createUser({
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         role: formData.role,
@@ -67,16 +77,30 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
         ...(clientId ? { clientId } : {}),
       });
 
-      // 2. Assign to zone immediately if one was selected
-      if (selectedZoneId && newUser?.id) {
+      // 2. Assign to every selected zone
+      if (selectedZoneIds.length && newUser?.id) {
         const assignRole = formData.role === 'zone_incharge' ? 'incharge' : 'staff';
-        await assignUserToZone(selectedZoneId, newUser.id, assignRole);
+        const results = await Promise.allSettled(
+          selectedZoneIds.map((zid) => assignUserToZone(zid, newUser.id, assignRole))
+        );
+        const failed = results.filter((r) => r.status === 'rejected');
+        if (failed.length) {
+          if (!createdUser) onCreated(newUser);
+          setCreatedUser(newUser);
+          // Keep only the failed zones selected so "retry" doesn't hit duplicates.
+          setSelectedZoneIds(selectedZoneIds.filter((_, i) => results[i].status === 'rejected'));
+          setErrorMsg(
+            `User created, but ${failed.length} of ${results.length} zone assignments failed. Press the button again to retry them.`
+          );
+          return;
+        }
       }
 
-      onCreated(newUser);
-      onClose();
+      onCreated(newUser); // refreshes the list, incl. zones assigned on a retry
+      handleClose();
       setFormData({ name: '', email: '', role: 'zone_staff', password: '' });
-      setSelectedZoneId('');
+      setSelectedZoneIds([]);
+      setCreatedUser(null);
     } catch (err) {
       setErrorMsg(err.message || 'Failed to create user. Email may already exist.');
     } finally {
@@ -101,7 +125,7 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
               <p className="text-xs text-slate-400">Define role, assign to a zone, set credentials</p>
             </div>
           </div>
-          <button onClick={onClose}
+          <button onClick={handleClose}
             className="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
             <X size={16} />
           </button>
@@ -170,19 +194,14 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
             <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
               <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                 <MapPin size={12} className="text-indigo-500" />
-                Assign to Zone <span className="text-rose-500">*</span>
+                Assign to Zone(s) <span className="text-rose-500">*</span>
               </label>
-              <select
-                value={selectedZoneId}
-                onChange={(e) => setSelectedZoneId(e.target.value)}
-                disabled={loadingZones}
-                className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer disabled:opacity-60"
-              >
-                <option value="">{loadingZones ? 'Loading zones…' : 'Select a zone…'}</option>
-                {zones.map((z) => (
-                  <option key={z.id} value={z.id}>{z.name}</option>
-                ))}
-              </select>
+              <ZoneMultiSelect
+                zones={zones}
+                value={selectedZoneIds}
+                onChange={setSelectedZoneIds}
+                loading={loadingZones}
+              />
               {zones.length === 0 && !loadingZones && (
                 <p className="text-[11px] text-amber-600 font-medium">
                   No zones found — create zones first before assigning officers.
@@ -217,7 +236,7 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 mt-2">
-            <button type="button" onClick={onClose}
+            <button type="button" onClick={handleClose}
               className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer">
               Cancel
             </button>
@@ -228,11 +247,11 @@ export default function CreateUserModal({ isOpen, onClose, onCreated, clientId: 
                 !formData.name.trim() ||
                 !formData.email.trim() ||
                 !formData.password.trim() ||
-                (isZoneOfficer && !selectedZoneId)
+                (isZoneOfficer && selectedZoneIds.length === 0)
               }
               className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white text-xs font-bold shadow-md shadow-indigo-200 transition-all disabled:opacity-50 cursor-pointer"
             >
-              {isSubmitting ? 'Creating…' : 'Add User & Assign Zone'}
+              {isSubmitting ? 'Creating…' : createdUser ? 'Retry Zone Assignments' : 'Add User & Assign Zones'}
             </button>
           </div>
         </form>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useActiveZone } from './useActiveZone';
+import ZoneSwitcher from './ZoneSwitcher';
 import { getDashboardSummary } from '../api/dashboardApi';
 import { socketClient } from '../api/socketClient';
 import ZoneQueryView from '../common/ZoneQueryView';
@@ -17,8 +18,7 @@ import { RefreshCw, Wifi, WifiOff, MapPinOff, Boxes, CheckCircle2, AlertTriangle
  * back to — asking for one would 403).
  */
 export default function ZoneOverview() {
-  const { currentUser } = useAuth();
-  const zoneId = currentUser?.zoneId ?? null;
+  const { zones, activeZoneId: zoneId, setActiveZoneId } = useActiveZone();
 
   const [stats, setStats] = useState({
     totalDevices: 0,
@@ -103,6 +103,8 @@ export default function ZoneOverview() {
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
             Zone Overview
           </h1>
+
+          <ZoneSwitcher zones={zones} activeZoneId={zoneId} onChange={setActiveZoneId} />
 
           {/* Tab nav — moved upward */}
           <div className="flex items-center bg-slate-100 rounded-2xl p-1.5 gap-1 shadow-inner">

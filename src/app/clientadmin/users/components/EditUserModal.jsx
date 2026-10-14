@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { X, UserCheck, AlertTriangle, Trash2 } from 'lucide-react';
-import { updateUser, deleteUser } from '../../../api/usersApi';
-import { getZones, assignUserToZone, removeUserFromZone } from '../../../api/zonesApi';
+import { updateUser, deleteUser, getUserById } from '../../../api/usersApi';
+import { getAllZones, assignUserToZone, removeUserFromZone } from '../../../api/zonesApi';
 import { useAuth } from '../../../context/AuthContext';
+import ZoneMultiSelect from './ZoneMultiSelect';
 
 export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDeleted, clientId: propClientId }) {
   const { currentUser } = useAuth();
 
   const [formData, setFormData] = useState({ name: '', role: 'zone_staff', accountStatus: 'active' });
-  const [selectedZoneId, setSelectedZoneId] = useState('');
+  const [selectedZoneIds, setSelectedZoneIds] = useState([]);
+  // Active assignments the save diff is computed against; refreshed after a partial failure.
+  const [baselineAssignments, setBaselineAssignments] = useState([]);
   const [zones, setZones] = useState([]);
   const [loadingZones, setLoadingZones] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,9 +35,11 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
       role: user.role || 'zone_staff',
       accountStatus: user.accountStatus || 'active',
     });
-    // Pre-select user's current zone assignment
-    const current = user.zoneAssignments?.[0];
-    setSelectedZoneId(current?.zone?.id ?? '');
+    // Pre-select all of the user's current zone assignments
+    setBaselineAssignments(user.zoneAssignments ?? []);
+    setSelectedZoneIds(
+      [...new Set((user.zoneAssignments ?? []).map((a) => a.zone?.id).filter(Boolean))]
+    );
   }, [isOpen, user]);
 
   useEffect(() => {
@@ -42,11 +47,11 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
     const clientId = propClientId ?? currentUser?.clientId;
     if (!clientId) return;
     setLoadingZones(true);
-    getZones({ clientId, limit: 100 })
-      .then((res) => setZones(res.items ?? []))
+    getAllZones({ clientId })
+      .then((items) => setZones(items ?? []))
       .catch(() => setZones([]))
       .finally(() => setLoadingZones(false));
-  }, [isOpen, currentUser?.clientId]);
+  }, [isOpen, propClientId, currentUser?.clientId]);
 
   if (!isOpen || !user) return null;
 
@@ -62,21 +67,35 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
         accountStatus: formData.accountStatus,
       });
 
-      // Handle zone assignment when zone picker is visible
+      // Diff the selected zones against current assignments (zone picker visible only)
       if (showZonePicker) {
-        const currentAssignment = user.zoneAssignments?.[0];
-        const currentZoneId = currentAssignment?.zone?.id ?? '';
         const assignmentRole = formData.role === 'zone_incharge' ? 'incharge' : 'staff';
-        const zoneChanged = selectedZoneId !== currentZoneId;
-        const roleChanged = assignmentRole !== (currentAssignment?.role ?? '');
+        const current = baselineAssignments;
+        const selected = new Set(selectedZoneIds);
 
-        if (zoneChanged || roleChanged) {
-          if (currentAssignment) {
-            await removeUserFromZone(currentZoneId, currentAssignment.id).catch(() => {});
-          }
-          if (selectedZoneId) {
-            await assignUserToZone(selectedZoneId, user.id, assignmentRole);
-          }
+        // Remove assignments for deselected zones, or whose role no longer matches
+        const toRemove = current.filter(
+          (a) => !selected.has(a.zone?.id) || a.role !== assignmentRole
+        );
+        // Add selected zones that have no assignment with the correct role
+        const kept = new Set(
+          current
+            .filter((a) => selected.has(a.zone?.id) && a.role === assignmentRole)
+            .map((a) => a.zone.id)
+        );
+        const toAdd = selectedZoneIds.filter((zid) => !kept.has(zid));
+
+        const results = await Promise.allSettled([
+          ...toRemove.map((a) => removeUserFromZone(a.zone.id, a.id)),
+          ...toAdd.map((zid) => assignUserToZone(zid, user.id, assignmentRole)),
+        ]);
+        const failed = results.filter((r) => r.status === 'rejected').length;
+        if (failed) {
+          // Re-sync with what actually got saved so a retry diffs correctly.
+          const fresh = await getUserById(user.id).catch(() => null);
+          if (fresh?.zoneAssignments) setBaselineAssignments(fresh.zoneAssignments);
+          setError(`${failed} of ${results.length} zone changes failed. Review the selection and save again.`);
+          return;
         }
       }
 
@@ -178,26 +197,18 @@ export default function EditUserModal({ isOpen, user, onClose, onUpdated, onDele
           {/* Assigned Zone — only for zone roles, populated from DB */}
           {showZonePicker && (
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-700">Assigned Facility Zone</label>
-              {loadingZones ? (
-                <div className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-400">
-                  Loading zones…
-                </div>
-              ) : zones.length === 0 ? (
+              <label className="text-xs font-bold text-slate-700">Assigned Facility Zones</label>
+              {!loadingZones && zones.length === 0 ? (
                 <div className="px-3.5 py-2.5 rounded-xl border border-amber-200 bg-amber-50 text-xs text-amber-700 font-medium">
                   No zones found. Create zones first from the Zones page.
                 </div>
               ) : (
-                <select
-                  value={selectedZoneId}
-                  onChange={(e) => setSelectedZoneId(e.target.value)}
-                  className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 cursor-pointer"
-                >
-                  <option value="">— No zone assigned —</option>
-                  {zones.map((z) => (
-                    <option key={z.id} value={z.id}>{z.name}</option>
-                  ))}
-                </select>
+                <ZoneMultiSelect
+                  zones={zones}
+                  value={selectedZoneIds}
+                  onChange={setSelectedZoneIds}
+                  loading={loadingZones}
+                />
               )}
             </div>
           )}

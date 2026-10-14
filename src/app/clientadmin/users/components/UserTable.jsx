@@ -132,9 +132,19 @@ export default function UserTable({ users = [], onEditUser }) {
 
                     {/* Assigned Zone */}
                     <td className="py-3 px-4">
-                      <span className="text-slate-800 font-semibold">
-                        {u.zoneAssignments?.[0]?.zone?.name || 'Entire Facility'}
-                      </span>
+                      {u.zoneAssignments?.length ? (
+                        <div className="flex flex-wrap gap-1">
+                          {[...new Map(u.zoneAssignments.map((a) => [a.zone?.id, a.zone?.name])).entries()]
+                            .filter(([id]) => id)
+                            .map(([id, name]) => (
+                              <span key={id} className="text-slate-800 font-semibold bg-slate-100 border border-slate-200 rounded-md px-1.5 py-0.5">
+                                {name}
+                              </span>
+                            ))}
+                        </div>
+                      ) : (
+                        <span className="text-slate-800 font-semibold">Entire Facility</span>
+                      )}
                     </td>
 
                     {/* Status */}
