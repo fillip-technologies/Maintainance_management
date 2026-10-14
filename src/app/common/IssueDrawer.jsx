@@ -9,6 +9,7 @@ import StatusHistoryLocationBadge from './components/StatusHistoryLocationBadge'
 import {
   getReplacementRequests, approveReplacementRequest, rejectReplacementRequest,
 } from '../api/replacementRequestsApi';
+import { resolveZoneHierarchy } from './zoneResolver';
 import { useAuth } from '../context/AuthContext';
 
 const pretty = (s) => (s ?? '').replace(/_/g, ' ');
@@ -71,6 +72,7 @@ export default function IssueDrawer({ issueId, onClose, onUpdated }) {
       if (approve) await approveReplacementRequest(replacement.id);
       else await rejectReplacementRequest(replacement.id, note.trim());
       await loadData();
+      window.dispatchEvent(new CustomEvent('fixly:replacement_updated'));
       onUpdated?.();
     } catch (err) {
       setError(err.message || 'Failed to review replacement request.');
@@ -179,7 +181,7 @@ export default function IssueDrawer({ issueId, onClose, onUpdated }) {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-col gap-1 min-w-0">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                        Replacement request · {replacement.status}
+                        Replacement request · {replacement.status === 'pending' ? 'Awaiting approval' : pretty(replacement.status)}
                       </span>
                       <span className="text-sm font-semibold text-white capitalize">
                         {pretty(replacement.reason)}
@@ -192,7 +194,11 @@ export default function IssueDrawer({ issueId, onClose, onUpdated }) {
                       <span className="text-xs text-slate-400">
                         Requested by {replacement.requestedBy?.name ?? 'technician'} · {fmtDate(replacement.createdAt)}
                       </span>
-                      {replacement.notes && <span className="text-xs text-slate-300">{replacement.notes}</span>}
+                      {replacement.notes && (
+                        <span className="text-xs text-slate-300">
+                          {replacement.notes.replace(/^\[[^\]]+\]\s*/, '')}
+                        </span>
+                      )}
                       {replacement.reviewedBy && (
                         <span className="text-xs text-slate-400">
                           {replacement.status === 'rejected' ? 'Rejected' : 'Approved'} by {replacement.reviewedBy.name}
@@ -234,9 +240,17 @@ export default function IssueDrawer({ issueId, onClose, onUpdated }) {
 
                 <div className="flex flex-col gap-0.5">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Zone</span>
-                  <span className="text-xs font-semibold text-indigo-400">
-                    {issue.device?.zone?.name ?? issue.zone?.name ?? '—'}
-                  </span>
+                  {(() => {
+                    const zoneInfo = resolveZoneHierarchy(issue);
+                    return (
+                      <span className="text-xs font-semibold text-indigo-400">
+                        {zoneInfo.zoneName || '—'}
+                        {zoneInfo.subZoneName && (
+                          <span className="text-slate-400 font-normal"> · {zoneInfo.subZoneName}</span>
+                        )}
+                      </span>
+                    );
+                  })()}
                 </div>
 
                 <div className="flex flex-col gap-0.5">

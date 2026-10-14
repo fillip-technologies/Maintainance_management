@@ -52,7 +52,14 @@ export default function Sidebar({
     refreshPendingReplacements();
     const offs = ['replacement:requested', 'replacement:approved', 'replacement:rejected', 'replacement:completed']
       .map((evt) => socketClient.on(evt, refreshPendingReplacements));
-    return () => offs.forEach((off) => off());
+
+    const handleWindowRefresh = () => refreshPendingReplacements();
+    window.addEventListener('fixly:replacement_updated', handleWindowRefresh);
+
+    return () => {
+      offs.forEach((off) => off());
+      window.removeEventListener('fixly:replacement_updated', handleWindowRefresh);
+    };
   }, [canReviewReplacements, refreshPendingReplacements]);
 
   const handleSignOut = async () => {
@@ -144,6 +151,15 @@ export default function Sidebar({
           path: '/clientadmin/products',
           icon: Camera
         },
+
+        {
+          name: 'Replacement Requests',
+          path: '/clientadmin/replacement-requests',
+          icon: Repeat,
+          badge: pendingReplacements,
+          // Technicians share this layout but must not see the approval queue.
+          reviewersOnly: true
+        },
         {
           name: 'Team & Roles',
           path: '/clientadmin/users',
@@ -154,14 +170,7 @@ export default function Sidebar({
           path: '/clientadmin/requests',
           icon: ClipboardList
         },
-        {
-          name: 'Replacement Requests',
-          path: '/clientadmin/replacement-requests',
-          icon: Repeat,
-          badge: pendingReplacements,
-          // Technicians share this layout but must not see the approval queue.
-          reviewersOnly: true
-        },
+
         {
           name: 'Daily Logs',
           path: '/clientadmin/daily-logs',
@@ -194,23 +203,20 @@ export default function Sidebar({
 
   const sidebarContent = (
     <aside
-      className={`h-full bg-[var(--bg-sidebar)] flex flex-col select-none transition-all duration-300 ${
-        isCollapsed ? 'w-[72px]' : 'w-[280px] md:w-[260px]'
-      }`}
+      className={`h-full bg-[var(--bg-sidebar)] flex flex-col select-none transition-all duration-300 ${isCollapsed ? 'w-[72px]' : 'w-[280px] md:w-[260px]'
+        }`}
     >
       {/* Brand Header */}
       <div
-        className={`h-[70px] px-3.5 flex items-center border-b border-[var(--border-color)] gap-2 ${
-          isCollapsed ? 'justify-center' : 'justify-between'
-        }`}
+        className={`h-[70px] px-3.5 flex items-center border-b border-[var(--border-color)] gap-2 ${isCollapsed ? 'justify-center' : 'justify-between'
+          }`}
       >
         <div className="flex items-center gap-3 overflow-hidden">
           <div
-            className={`w-[38px] h-[38px] min-w-[38px] rounded-xl flex items-center justify-center text-white relative shadow-md shrink-0 ${
-              isSuperAdmin
-                ? 'bg-gradient-to-br from-indigo-600 to-sky-500 shadow-indigo-950/40'
-                : 'bg-gradient-to-br from-emerald-600 to-teal-500 shadow-emerald-950/40'
-            }`}
+            className={`w-[38px] h-[38px] min-w-[38px] rounded-xl flex items-center justify-center text-white relative shadow-md shrink-0 ${isSuperAdmin
+              ? 'bg-gradient-to-br from-indigo-600 to-sky-500 shadow-indigo-950/40'
+              : 'bg-gradient-to-br from-emerald-600 to-teal-500 shadow-emerald-950/40'
+              }`}
           >
             <Wrench size={20} className="-rotate-12 hover:rotate-45 transition-transform duration-300" />
           </div>
@@ -221,11 +227,10 @@ export default function Sidebar({
               <div className="flex items-center gap-1.5">
                 <span className="text-xl font-extrabold tracking-tight text-white lowercase">fixly</span>
                 <span
-                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border ${
-                    isSuperAdmin
-                      ? 'bg-indigo-950/70 border-indigo-800/60 text-indigo-400'
-                      : 'bg-emerald-950/70 border-emerald-800/60 text-emerald-400'
-                  }`}
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border ${isSuperAdmin
+                    ? 'bg-indigo-950/70 border-indigo-800/60 text-indigo-400'
+                    : 'bg-emerald-950/70 border-emerald-800/60 text-emerald-400'
+                    }`}
                 >
                   {isSuperAdmin ? 'HQ' : 'Client'}
                 </span>
@@ -239,9 +244,8 @@ export default function Sidebar({
 
         {/* Desktop Collapse Button */}
         <button
-          className={`hidden md:flex w-7 h-7 rounded-lg bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-slate-400 hover:text-white items-center justify-center transition-colors cursor-pointer shrink-0 ${
-            isCollapsed ? 'absolute -right-3.5 top-5 z-50 shadow-md bg-[var(--bg-card)]' : ''
-          }`}
+          className={`hidden md:flex w-7 h-7 rounded-lg bg-[var(--bg-card)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-slate-400 hover:text-white items-center justify-center transition-colors cursor-pointer shrink-0 ${isCollapsed ? 'absolute -right-3.5 top-5 z-50 shadow-md bg-[var(--bg-card)]' : ''
+            }`}
           onClick={() => setIsCollapsed(!isCollapsed)}
           title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
@@ -281,49 +285,43 @@ export default function Sidebar({
                     onClick={handleNavClick}
                     title={isCollapsed ? item.name : undefined}
                     className={({ isActive }) =>
-                      `flex items-center transition-all group relative ${
-                        isCollapsed
-                          ? `w-11 h-11 mx-auto justify-center rounded-xl ${
-                              isActive
-                                ? isSuperAdmin
-                                  ? 'bg-indigo-600 text-white shadow-md font-bold'
-                                  : 'bg-emerald-600 text-white shadow-md font-bold'
-                                : 'text-slate-400 hover:bg-[var(--bg-card)] hover:text-white'
-                            }`
-                          : `justify-between px-3 py-2.5 rounded-xl text-[13px] font-medium ${
-                              isActive
-                                ? isSuperAdmin
-                                  ? 'bg-[var(--bg-card)] text-white font-bold border-l-4 border-indigo-500 shadow-sm'
-                                  : 'bg-[var(--bg-card)] text-white font-bold border-l-4 border-emerald-500 shadow-sm'
-                                : 'text-slate-300 hover:bg-[var(--bg-card)] hover:text-white'
-                            }`
+                      `flex items-center transition-all group relative ${isCollapsed
+                        ? `w-11 h-11 mx-auto justify-center rounded-xl ${isActive
+                          ? isSuperAdmin
+                            ? 'bg-indigo-600 text-white shadow-md font-bold'
+                            : 'bg-emerald-600 text-white shadow-md font-bold'
+                          : 'text-slate-400 hover:bg-[var(--bg-card)] hover:text-white'
+                        }`
+                        : `justify-between px-3 py-2.5 rounded-xl text-[13px] font-medium ${isActive
+                          ? isSuperAdmin
+                            ? 'bg-[var(--bg-card)] text-white font-bold border-l-4 border-indigo-500 shadow-sm'
+                            : 'bg-[var(--bg-card)] text-white font-bold border-l-4 border-emerald-500 shadow-sm'
+                          : 'text-slate-300 hover:bg-[var(--bg-card)] hover:text-white'
+                        }`
                       }`
                     }
                   >
                     {({ isActive }) => (
                       <div
-                        className={`flex items-center ${
-                          isCollapsed ? 'justify-center' : 'gap-3 whitespace-nowrap'
-                        }`}
+                        className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3 whitespace-nowrap'
+                          }`}
                       >
                         <Icon
                           size={19}
-                          className={`${
-                            isCollapsed && isActive
-                              ? 'text-white'
-                              : isActive
+                          className={`${isCollapsed && isActive
+                            ? 'text-white'
+                            : isActive
                               ? isSuperAdmin
                                 ? 'text-indigo-400'
                                 : 'text-emerald-400'
                               : 'text-slate-400 group-hover:text-white'
-                          } transition-colors shrink-0`}
+                            } transition-colors shrink-0`}
                         />
                         {!isCollapsed && <span>{item.name}</span>}
                         {item.badge > 0 && (
                           <span
-                            className={`min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center leading-none ${
-                              isCollapsed ? 'absolute -top-1 -right-1' : 'ml-auto'
-                            }`}
+                            className={`min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center leading-none ${isCollapsed ? 'absolute -top-1 -right-1' : 'ml-auto'
+                              }`}
                           >
                             {item.badge > 99 ? '99+' : item.badge}
                           </span>
@@ -340,22 +338,19 @@ export default function Sidebar({
 
       {/* User Profile Card at Bottom */}
       <div
-        className={`p-3 border-t border-[var(--border-color)] flex items-center bg-[var(--bg-sidebar)] gap-2 ${
-          isCollapsed ? 'justify-center flex-col' : 'justify-between'
-        }`}
+        className={`p-3 border-t border-[var(--border-color)] flex items-center bg-[var(--bg-sidebar)] gap-2 ${isCollapsed ? 'justify-center flex-col' : 'justify-between'
+          }`}
       >
         <div
-          className={`flex items-center overflow-hidden ${
-            isCollapsed ? 'justify-center' : 'gap-2.5'
-          }`}
+          className={`flex items-center overflow-hidden ${isCollapsed ? 'justify-center' : 'gap-2.5'
+            }`}
           title={isCollapsed ? `${displayName} (${roleLabel})` : undefined}
         >
           <div
-            className={`relative w-9 h-9 min-w-9 rounded-xl ${
-              isSuperAdmin
-                ? 'bg-gradient-to-br from-indigo-600 to-purple-600'
-                : 'bg-gradient-to-br from-emerald-600 to-teal-600'
-            } flex items-center justify-center font-bold text-xs text-white shadow-sm shrink-0`}
+            className={`relative w-9 h-9 min-w-9 rounded-xl ${isSuperAdmin
+              ? 'bg-gradient-to-br from-indigo-600 to-purple-600'
+              : 'bg-gradient-to-br from-emerald-600 to-teal-600'
+              } flex items-center justify-center font-bold text-xs text-white shadow-sm shrink-0`}
           >
             <span>{getInitials(displayName)}</span>
             <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[var(--bg-sidebar)]"></span>
@@ -386,9 +381,8 @@ export default function Sidebar({
     <>
       {/* 1. Desktop Sidebar */}
       <div
-        className={`hidden md:block h-screen sticky top-0 left-0 z-40 border-r border-[var(--border-color)] transition-all duration-300 bg-[var(--bg-sidebar)] ${
-          isCollapsed ? 'w-[72px]' : 'w-[260px]'
-        }`}
+        className={`hidden md:block h-screen sticky top-0 left-0 z-40 border-r border-[var(--border-color)] transition-all duration-300 bg-[var(--bg-sidebar)] ${isCollapsed ? 'w-[72px]' : 'w-[260px]'
+          }`}
       >
         {sidebarContent}
       </div>
